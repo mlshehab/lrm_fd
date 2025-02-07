@@ -73,12 +73,9 @@ class BlockworldSimulator(Simulator):
             # print(f"The action  was: {a}")
             # print(f"The next state is: {self.index2state[next_state]}\n")
             
-            if self.L[state] == 'A':
-                print("Passed through A !!!")
-            elif self.L[state] == 'B':
-                print("Passed through B !!!")
-            elif self.L[state] == 'C':
-                print("Passed through C !!!")
+            # Debugging
+            if self.L[state] in {'A', 'B', 'C'}:
+                print(f"Passed through {self.L[state]} !!!")
 
 
             l = self.L[next_state]
