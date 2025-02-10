@@ -281,7 +281,6 @@ if __name__ == '__main__':
 
     print(f"The total number of Unique traces is: {total_number_of_unique_traces}")
 
-
     ###############################################
     ###### SAT Problem Encoding Starts HERE #######
     ###############################################
