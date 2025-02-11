@@ -40,7 +40,6 @@ class Simulator():
         self.n_nodes = self.rm.n_states
         self.state_action_counts = {}  # Dictionary to track actions for (label, state)
         self.state_action_probs = {}
-        self.state_label_counts = {}
 
     def sample_next_state(self, state, action):
         """ Generic next state computation. """
@@ -58,7 +57,6 @@ class Simulator():
 
         for state, label_counts in self.state_action_counts.items():
             self.state_action_probs[state] = []
-            self.state_label_counts[state] = {}
 
             for label, action_counter in label_counts:
                 total_actions = sum(action_counter.values())  # Total samples for this label-state pair
@@ -69,7 +67,6 @@ class Simulator():
                         action_probs[action] = count / total_actions  # Normalize
 
                 self.state_action_probs[state].append((label, action_probs))
-                self.state_label_counts[state][label] = total_actions
 
     def group_similar_policies(self, state, metric="TV", threshold=0.05):
         """
@@ -216,17 +213,12 @@ import argparse
 
 # Define a function to handle command-line arguments
 def parse_args():
-    parser = argparse.ArgumentParser(description="Automate script with depth and n_traj option")
+    parser = argparse.ArgumentParser(description="Automate script with depth option")
     parser.add_argument("-depth", type=int, help="Set the depth", required=True)
-    parser.add_argument("-n_raj", type=int, help="Set the # of trajectories", required=True)
     return parser.parse_args()
 
 if __name__ == '__main__':
-    # Parse command-line arguments
-    args = parse_args()
-    
-    # Set the depth variable from the command line argument
-   
+
 
 
     bw = BlocksWorldMDP(num_piles=3)
@@ -248,11 +240,23 @@ if __name__ == '__main__':
 
     rm = RewardMachine("./rm_examples/dynamic_stacking.txt")
     print(f"rm.delta_u = {rm.delta_u}")
+
+
+    policy = {}
+    for rms in range(rm.n_states):
+        policy[rms] = f"p{rms}"
+    
+    # policy[2] = policy[3]
+
+    print("The policy is: ", policy)
   
     L = {}
 
     print(f"The number of states is: {len(s2i.keys())}")
 
+    # for state_index in range(bw.num_states):
+    #     state_tuple = i2s[state_index]
+    #     L[state_index] = get_label(state_tuple)
 
     target_state_1 = ((0,1,2),(),())
     target_state_2 = ((),(2,1,0),())
@@ -287,11 +291,27 @@ if __name__ == '__main__':
                 if u == 2 and L[s_prime] == 'C':
                     reward[bar_s, a, bar_s_prime] = 100.0
                 
+
+
     # q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = True)
     # print(f"The shape of the policy is: {soft_policy.shape}")
     # np.save("soft_policy.npy", soft_policy)
 
     soft_policy = np.load("soft_policy.npy")
+
+    # print(f"The soft policy shape is: {soft_policy.shape}")
+    # threshold = 1e-3
+    # for s in range(bw.num_states):
+    #     p0 = soft_policy[s,:]
+    #     p1 = soft_policy[bw.num_states + s,:]
+    #     p2 = soft_policy[2*bw.num_states + s,:]
+
+    #     if similarity(p0,p1, metric="KL") <= threshold:
+    #         print(f"At state {s}, p0 = p1.")
+    #     if similarity(p0,p2, metric="KL") <= threshold:
+    #         print(f"At state {s}, p0 = p2.")
+    #     if similarity(p1,p2, metric="KL")  <= threshold:
+    #         print(f"At state {s}, p1 = p2.")
 
 
 
@@ -300,21 +320,40 @@ if __name__ == '__main__':
     
     starting_states = [s2i[target_state_1], s2i[target_state_2], s2i[target_state_3], 4, 24]
 
+    
+
+
+    # Save the object to a file
+    # with open("object.pkl", "wb") as f:
+    #     pickle.dump(bws, f)
+
+    # Load the object back
+
+    with open("object500000_15.pkl", "rb") as f:
+        bws = pickle.load(f)
+
+    
     start = time.time()
-    max_len = args.depth
-    n_traj = args.n_traj
-    # n_traj = 1000000
-    # max_len = 13
+    n_traj = 300000
+    max_len = 15
     bws.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
     end = time.time()
     print(f"Simulating the dataset took {end - start} sec.")
+    
+
+    # Save the object to a file
+    with open(f"object{500000+n_traj}_{max_len}.pkl", "wb") as f:
+        pickle.dump(bws, f)
+
+    # # Load the object back
+    # with open("object.pkl", "rb") as f:
+    #     bws = pickle.load(f)
+
+    # print(bws)
+    # print(bws.state_action_counts)
 
 
     bws.compute_action_distributions()
-
-    # Save the object to a file
-    with open(f"./objects/object{n_traj}_{max_len}.pkl", "wb") as f:
-        pickle.dump(bws, f)
   
     data = [] 
     for key, item in bws.state_action_probs.items():
@@ -327,22 +366,22 @@ if __name__ == '__main__':
             kl_div = similarity(policy,true_policy,'KL')
             l1_norm = similarity(policy,true_policy,'L1')
             tv_distance = similarity(policy,true_policy,'TV')
-            count = bws.state_label_counts[key][label]
 
-            data.append([key, label, count, policy, true_policy, kl_div, l1_norm, tv_distance])
+            data.append([key, label, policy, true_policy, kl_div, l1_norm, tv_distance])
     
     # Create DataFrame
-    df = pd.DataFrame(data, columns=["State", "Label", "Count (n)", "Policy", "True Policy", "KL Divergence", "L1 Norm", "TV Distance"])
+    df = pd.DataFrame(data, columns=["State", "Label", "Policy", "True Policy", "KL Divergence", "L1 Norm", "TV Distance"])
+    # Save as Excel
 
-    # Compute min and max values for the last three columns
+
+    # Compute min and max values for KL Divergence, L1 Norm, and TV Distance
     min_values = df[["KL Divergence", "L1 Norm", "TV Distance"]].min()
     max_values = df[["KL Divergence", "L1 Norm", "TV Distance"]].max()
 
-    # Create summary rows for min and max values
+    # Create a DataFrame for min and max values
     summary_df = pd.DataFrame({
         "State": ["Min", "Max"],
         "Label": ["-", "-"],
-        "Count (n)": ["-", "-"],
         "Policy": ["-", "-"],
         "True Policy": ["-", "-"],
         "KL Divergence": [min_values["KL Divergence"], max_values["KL Divergence"]],
@@ -350,173 +389,12 @@ if __name__ == '__main__':
         "TV Distance": [min_values["TV Distance"], max_values["TV Distance"]]
     })
 
-    # Append summary rows to the DataFrame
+    # Append the summary row to the original DataFrame
     df = pd.concat([df, summary_df], ignore_index=True)
 
     # Save DataFrame to CSV
-    df.to_excel(f"./results/test_policy_comparison_nt_{n_traj}_ml_{max_len}.xlsx", index=False)
-
-    # for key, item in bws.state_action_probs.items():
-    #     print(f"Key = {key}, item = {np.round(item, decimals=3)}")
-
-    # Print results
-
-    state_traces_dict = {}
-
-    for state, label_dists in bws.state_action_probs.items():
-        if len(label_dists) > 1 :
-            # for label, dist in label_dists:
-            #     print(f"State {state}, Label {label}: Action Distribution {np.round(dist, decimals = 2)}")
-            
-            gpd = bws.group_similar_policies(state,metric="TV", threshold=0.1)
-
-            grouped_lists = list(gpd.values())
-            state_traces_dict[state] = grouped_lists
-            
+    df.to_excel(f"policy_comparison_nt_{n_traj}_ml_{max_len}.xlsx", index=False)
+  
 
     
-    ###############################################
-    ###### SAT Problem Encoding Starts HERE #######
-    ###############################################
-
-    kappa = 3
-    AP = 4
-    total_variables = kappa**2*AP
-    total_constraints = 0
-
-    B = [[[Bool('x_%s_%s_%s'%(i,j,k) )for j in range(kappa)]for i in range(kappa)]for k in range(AP)]
-
-    B_ = element_wise_or_boolean_matrices([b_k for b_k in B])
-    x = [False]*kappa
-    x[0] = True
-    print(f"x = {x}")
-
-    B_T = transpose_boolean_matrix(B_)
-
-    powers_B_T = [boolean_matrix_power(B_T,k) for k in  range(1,kappa)]
     
-    powers_B_T_x = [boolean_matrix_vector_multiplication(B,x) for B in powers_B_T]
-    
-    powers_B_T_x.insert(0, x)
-    
-    # print(powers_B_T_x[0])
-    OR_powers_B_T_x = element_wise_or_boolean_vectors(powers_B_T_x)
-    # print(OR_powers_B_T_x)
-    s = Solver() # type: ignore
-
-    # C0 Trace compression
-    for ap in range(AP):
-        for i in range(kappa):
-            for j in range(kappa):
-                # For boolean variables, B[ap][i][j], add the constraint that the current solution
-                # is not equal to the previous solution
-                s.add(Implies(B[ap][i][j], B[ap][j][j]))
-                # total_constraints +=1
-
-
-    # C1 and C2 from Notion Write-up
-    for k in range(AP):
-        # total_constraints +=1
-        s.add(one_entry_per_row(B[k]))
-
-
-    # proposition2index = {'G':0,'Y':1,'R':2,'G&Y':3,'G&R':4,'Y&R':5,'G&Y&R':6,'I':7}
-    proposition2index = {'A':0,'B':1,'C':2,'I':3}
-
-    def prefix2indices(s):
-        # print(f"The input string is: {s.split(',')}")
-        out = []
-        for l in s.split(','):
-            if l:
-                out.append(proposition2index[l])
-        return out
-
-
-    counter_examples = generate_combinations(state_traces_dict)
-
-
-    # C4 from from Notion Write-up 
-    print("Started with C4 ... \n")
-    total_start_time = time.time()
-
-
-    print(f"We have a total of {len(counter_examples.keys())} states that give negative examples.")
-    all_ce = []
-    for state in counter_examples.keys():
-        # print(f"Currently in state {state}...")
-        ce_set = counter_examples[state]
-        # print(f"The ce_set is: {ce_set}")
-        # print(f"The number of counter examples is: {len(ce_set)}\n")
-        total_constraints += len(ce_set)
-        
-        # for each counter example in this set, add the correspodning constraint
-        # for ce in tqdm(ce_set,desc="Processing Counterexamples"):
-        for ce in ce_set:
-            all_ce.append(ce)
-            p1 = prefix2indices(ce[0])
-            p2 = prefix2indices(ce[1])
-
-            # Now
-            sub_B1 = bool_matrix_mult_from_indices(B,p1, x)
-            sub_B2 = bool_matrix_mult_from_indices(B,p2, x)
-
-            res_ = element_wise_and_boolean_vectors(sub_B1, sub_B2)
-
-            for elt in res_:
-                s.add(Not(elt))
-                
-        
-    print(f"we have a total of {total_constraints} constraints!")
-
-    
-    # Use timedelta to format the elapsed time
-    elapsed  = time.time() - total_start_time
-    formatted_time = str(timedelta(seconds= elapsed))
-
-    # Add milliseconds separately
-    milliseconds = int((elapsed % 1) * 1000)
-
-    # Format the time string
-    formatted_time = formatted_time.split('.')[0] + f":{milliseconds:03}"
-    print(f"Adding C4 took {formatted_time} seconds.")
-
-    
-    # Start the timer
-    start = time.time()
-    s_it = 0
-    while True:
-        # Solve the problem
-        if s.check() == sat:
-            end = time.time()
-            print(f"The SAT solver took: {end-start} sec.")
-            # Get the current solution
-            m = s.model()
-            
-            # # Store the current solution
-            # solution = []
-            print(f"Solution {s_it} ...")
-            for ap in range(AP):
-                r = [[m.evaluate(B[ap][i][j]) for j in range(kappa)] for i in range(kappa)]
-                # solution.append(r)
-                
-                print_matrix(r)  # Assuming print_matrix prints your matrix nicely
-            s_it += 1
-            # # Add the solution to the list of found solutions
-            # solutions.append(solution)
-
-            # Build a clause that ensures the next solution is different
-            # The clause is essentially that at least one variable must differ
-            block_clause = []
-            for ap in range(AP):
-                for i in range(kappa):
-                    for j in range(kappa):
-                        # For boolean variables, B[ap][i][j], add the constraint that the current solution
-                        # is not equal to the previous solution
-                        block_clause.append(B[ap][i][j] != m.evaluate(B[ap][i][j], model_completion=True))
-
-            # Add the blocking clause to the solver
-            s.add(Or(block_clause))
-            
-        else:
-            print("NOT SAT - No more solutions!")
-            break
