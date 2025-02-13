@@ -28,6 +28,10 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import pickle 
 
+def f(epsilon_1, n1, n2, A, epsilon):
+    term1 = np.maximum(1 - ((2**A - 2) * np.exp((-n1 * epsilon_1**2) / (2 ))), 0)
+    term2 = np.maximum(1 - ((2**A - 2) * np.exp((-n2 * (epsilon - epsilon_1)**2) / (2 ))), 0)
+    return term1 * term2
 
 def find_optimal_epsilon1(n1, n2, A, epsilon):
     """
@@ -236,6 +240,117 @@ def similarity(p1, p2, metric):
 
 import argparse
 
+def solve_sat_instance(bws, counter_examples, epsilon, rm, p_threshold=0.8):
+    """
+    Solve SAT instance for given counter examples, filtering by probability threshold
+    Returns all SAT solutions found
+    """
+    kappa = 3
+    AP = 4
+    total_variables = kappa**2*AP
+    total_constraints = 0
+
+    # Initialize SAT variables
+    B = [[[Bool('x_%s_%s_%s'%(i,j,k)) for j in range(kappa)]for i in range(kappa)]for k in range(AP)]
+    B_ = element_wise_or_boolean_matrices([b_k for b_k in B])
+    x = [False]*kappa
+    x[0] = True
+
+    B_T = transpose_boolean_matrix(B_)
+    powers_B_T = [boolean_matrix_power(B_T,k) for k in range(1,kappa)]
+    powers_B_T_x = [boolean_matrix_vector_multiplication(B,x) for B in powers_B_T]
+    powers_B_T_x.insert(0, x)
+    OR_powers_B_T_x = element_wise_or_boolean_vectors(powers_B_T_x)
+    
+    s = Solver()
+
+    # Add constraints
+    for ap in range(AP):
+        for i in range(kappa):
+            for j in range(kappa):
+                s.add(Implies(B[ap][i][j], B[ap][j][j]))
+
+    for k in range(AP):
+        s.add(one_entry_per_row(B[k]))
+
+    proposition2index = {'A':0,'B':1,'C':2,'I':3}
+
+    def prefix2indices(s):
+        out = []
+        for l in s.split(','):
+            if l:
+                out.append(proposition2index[l])
+        return out
+
+    # Filter counter examples by probability threshold
+    filtered_counter_examples = {}
+    prob_values = []  # Store probability values for visualization
+
+    wrong_ce_counts = 0
+
+    for state, ce_set in counter_examples.items():
+        filtered_ce = []
+        for ce in ce_set:
+            n1 = bws.state_label_counts[state][ce[0]] 
+            n2 = bws.state_label_counts[state][ce[1]]
+            A = bws.n_actions
+            # optimal_epsilon1 = find_optimal_epsilon1(n1, n2, A, epsilon)
+            optimal_epsilon1 = epsilon/2
+            prob = f(optimal_epsilon1, n1, n2, A, epsilon)
+            prob_values.append(prob)
+            
+            if prob > p_threshold:
+                filtered_ce.append((ce, prob))  # Store probability with counter example
+                
+        if filtered_ce:
+            filtered_counter_examples[state] = filtered_ce
+
+    # Add C4 constraints for filtered counter examples
+    for state in filtered_counter_examples.keys():
+        ce_set = filtered_counter_examples[state]
+        total_constraints += len(ce_set)
+        
+        for ce, prob in ce_set:
+            if u_from_obs(ce[0],rm) == u_from_obs(ce[1],rm):
+                wrong_ce_counts += 1
+
+            p1 = prefix2indices(ce[0])
+            p2 = prefix2indices(ce[1])
+
+            sub_B1 = bool_matrix_mult_from_indices(B,p1, x)
+            sub_B2 = bool_matrix_mult_from_indices(B,p2, x)
+            res_ = element_wise_and_boolean_vectors(sub_B1, sub_B2)
+
+            # print(f"Negative example at state {state}:")
+            # print(f"  Prefix 1: {ce[0]}   -- Count: {bws.state_label_counts[state][ce[0]]}")
+            # print(f"  Prefix 2: {ce[1]}   -- Count: {bws.state_label_counts[state][ce[1]]}")
+            # print(f"  Probability: {prob:.4f}")
+
+            for elt in res_:
+                s.add(Not(elt))
+
+    # Find all solutions
+    solutions = []
+    start = time.time()
+    while s.check() == sat:
+        m = s.model()
+        solution = []
+        for ap in range(AP):
+            r = [[m.evaluate(B[ap][i][j]) for j in range(kappa)] for i in range(kappa)]
+            solution.append(r)
+        solutions.append(solution)
+
+        block_clause = []
+        for ap in range(AP):
+            for i in range(kappa):
+                for j in range(kappa):
+                    block_clause.append(B[ap][i][j] != m.evaluate(B[ap][i][j], model_completion=True))
+        s.add(Or(block_clause))
+
+    end = time.time()
+    solve_time = end - start
+    
+    return solutions, total_constraints, len(filtered_counter_examples), solve_time, prob_values, wrong_ce_counts
 # Define a function to handle command-line arguments
 def parse_args():
     parser = argparse.ArgumentParser(description="Automate script with depth option")
@@ -301,46 +416,14 @@ if __name__ == '__main__':
     
     mdpRM = MDPRM(mdp,rm,L)
     mdp_ =  mdpRM.construct_product()
-    # now we need a state action state reward for the product MDP
-    reward = np.zeros((mdp_.n_states, mdp_.n_actions, mdp_.n_states))
-    print(f"Reward: {reward.shape}, S: {mdp.n_states}, A: {mdp.n_actions}, RM: {rm.n_states}")
+  
 
-    for bar_s in range(mdp_.n_states):
-        for a in range(mdp_.n_actions):
-            for bar_s_prime in range(mdp_.n_states):
-                (s,u) = mdpRM.su_pair_from_s(bar_s)
-                (s_prime,u_prime) = mdpRM.su_pair_from_s(bar_s_prime)
-
-                is_possible = mdp_.P[a][bar_s][bar_s_prime] > 0.0
-
-                if u == 2 and L[s_prime] == 'C':
-                    reward[bar_s, a, bar_s_prime] = 100.0
-                
-
-
-    # q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = True)
-    # print(f"The shape of the policy is: {soft_policy.shape}")
-    # np.save("soft_policy.npy", soft_policy)
 
     soft_policy = np.load("soft_policy.npy")
 
-    # print(f"The soft policy shape is: {soft_policy.shape}")
-    # threshold = 1e-3
-    # for s in range(bw.num_states):
-    #     p0 = soft_policy[s,:]
-    #     p1 = soft_policy[bw.num_states + s,:]
-    #     p2 = soft_policy[2*bw.num_states + s,:]
-
-    #     if similarity(p0,p1, metric="KL") <= threshold:
-    #         print(f"At state {s}, p0 = p1.")
-    #     if similarity(p0,p2, metric="KL") <= threshold:
-    #         print(f"At state {s}, p0 = p2.")
-    #     if similarity(p1,p2, metric="KL")  <= threshold:
-    #         print(f"At state {s}, p1 = p2.")
 
 
-
-    bws = BlockworldSimulator(rm = rm,mdp = mdp,L = L,policy = soft_policy,state2index=s2i,index2state=i2s)
+    # bws = BlockworldSimulator(rm = rm,mdp = mdp,L = L,policy = soft_policy,state2index=s2i,index2state=i2s)
     # # bws.sample_trajectory(starting_state=0,len_traj=9)
     
     starting_states = [s2i[target_state_1], s2i[target_state_2], s2i[target_state_3], 4, 24]
@@ -358,43 +441,22 @@ if __name__ == '__main__':
     #     pickle.dump(bws, f)
 
     # Load the object back
-    with open("object1000000_13.pkl", "rb") as f:
-        bws = pickle.load(f)
-
-    # bws.compute_action_distributions()
-  
-
-
-    # for key, item in bws.state_action_probs.items():
-    #     print(f"Key = {key}, item = {np.round(item, decimals=3)}")
-
-    # Print results
+    with open("object1000000_13.pkl", "rb") as foo:
+        bws = pickle.load(foo)
 
     
-
-    def count_total_counter_examples(counter_examples,rm):
-        total = 0
-        total_wrong = 0
-        for state in counter_examples.keys():
-            ce_set = counter_examples[state]
-
-            for ce in ce_set:
-                if u_from_obs(ce[0],rm) == u_from_obs(ce[1],rm):
-                    total_wrong += 1
-
-            total += len(ce_set)
-        return total, total_wrong
-
-    epsilon_vals = [0.001, 0.002, 0.005, 0.01, 0.02,0.05, 0.1, 0.2, 0.5]
+    # epsilon_vals = [0.001, 0.002, 0.005, 0.01, 0.02,0.05, 0.1, 0.2, 0.5]
+    epsilon_vals = [0.1,0.2]
+    metrics = ["L1","KL"]
+    # metrics = ["TV", "KL", "L1"]
    
-    metrics = ["TV", "KL", "L1"]
-    ne_counts = {metric: [] for metric in metrics}
-    wrong_ne_counts = {metric: [] for metric in metrics}
+    # print(f"The count of state 51 is: {bws.state_label_counts[51]}")
 
-    for metric in metrics:
+    # Run SAT solver for each metric and threshold
+    results = {metric: [] for metric in metrics}
+    for metric in tqdm(metrics):
         for epsilon in epsilon_vals:
             state_traces_dict = {}
-
             for state, label_dists in bws.state_action_probs.items():
                 if len(label_dists) > 1:
                     gpd = bws.group_similar_policies(state, metric=metric, threshold=epsilon)
@@ -402,29 +464,88 @@ if __name__ == '__main__':
                     state_traces_dict[state] = grouped_lists
             
             counter_examples = generate_combinations(state_traces_dict)
-            total_ce, total_wrong = count_total_counter_examples(counter_examples,rm)
-            ne_counts[metric].append(total_ce)
-            wrong_ne_counts[metric].append(total_wrong)
+            solutions, n_constraints, n_states, solve_time, prob_values, wrong_ce_counts = solve_sat_instance(bws, counter_examples, epsilon,rm,p_threshold=0.95)
+            results[metric].append({
+                'epsilon': epsilon,
+                'solutions': solutions,
+                'n_solutions': len(solutions),
+                'n_constraints': n_constraints, 
+                'n_states': n_states,
+                'solve_time': solve_time,
+                'prob_values': prob_values,
+                'wrong_ce_counts': wrong_ce_counts
+            })
 
-    # Plot results for all metrics
-    plt.figure(figsize=(10, 6))
+
+    for solution in results["L1"][0]["solutions"]:
+        print("\nSolution matrices:")
+        for i, matrix in enumerate(solution):
+            print(f"\nMatrix {i} ({['A', 'B', 'C', 'I'][i]}):")
+            for row in matrix:
+                print("  " + " ".join("1" if x else "0" for x in row))
+
+
+    # Visualization
+    plt.figure(figsize=(15, 12))
+
+    # Plot 1: Number of solutions vs epsilon for each metric
+    plt.subplot(3, 2, 1)
     for metric in metrics:
-        plt.plot(epsilon_vals, ne_counts[metric], marker='o', label=f'{metric} (Total)')
-        plt.plot(epsilon_vals, wrong_ne_counts[metric], marker='s', linestyle='--', 
-                label=f'{metric} (Wrong)')
-    
+        plt.plot(epsilon_vals, [r['n_solutions'] for r in results[metric]], marker='o', label=metric)
     plt.xlabel('Epsilon')
-    plt.ylabel('Number of Counter Examples')
-    plt.title('Total vs Wrong Counter Examples for Different Metrics')
-    plt.grid(True)
-    plt.xscale('log')
+    plt.ylabel('Number of Solutions')
+    plt.title('Solutions vs Epsilon')
     plt.legend()
-    # plt.show()
-   
-    # Create figures directory if it doesn't exist
-    if not os.path.exists('figures'):
-        os.makedirs('figures')
-        
-    # Save the figure
-    plt.savefig('figures/counter_examples_vs_epsilon.png', dpi=300, bbox_inches='tight')
+    plt.grid(True)
+
+    # Plot 2: Solve time vs epsilon
+    plt.subplot(3, 2, 2)
+    for metric in metrics:
+        plt.plot(epsilon_vals, [r['solve_time'] for r in results[metric]], marker='o', label=metric)
+    plt.xlabel('Epsilon')
+    plt.ylabel('Solve Time (s)')
+    plt.title('Solve Time vs Epsilon')
+    plt.legend()
+    plt.grid(True)
+
+    # Plot 3: Number of constraints vs epsilon
+    plt.subplot(3, 2, 3)
+    for metric in metrics:
+        plt.plot(epsilon_vals, [r['n_constraints'] for r in results[metric]], marker='o', label=metric)
+    plt.xlabel('Epsilon')
+    plt.ylabel('Number of Constraints')
+    plt.title('Constraints vs Epsilon')
+    plt.legend()
+    plt.grid(True)
+
+    # Plot 4: Wrong counter examples count vs epsilon
+    plt.subplot(3, 2, 4)
+    for metric in metrics:
+        plt.plot(epsilon_vals, [r['wrong_ce_counts'] for r in results[metric]], marker='o', label=metric)
+    plt.xlabel('Epsilon')
+    plt.ylabel('Wrong Counter Examples')
+    plt.title('Wrong Counter Examples vs Epsilon')
+    plt.legend()
+    plt.grid(True)
+
+    # Plot 5: Probability distribution violin plot
+    plt.subplot(3, 2, (5, 6))
+    prob_data = []
+    labels = []
+    for metric in metrics:
+        for r in results[metric]:
+            if r['prob_values']:  # Only add if there are probability values
+                prob_data.append(r['prob_values'])
+                labels.append(f"{metric}\nε={r['epsilon']:.3f}")
+
+    plt.violinplot(prob_data)
+    plt.xticks(range(1, len(labels) + 1), labels, rotation=45)
+    plt.ylabel('Probability Values')
+    plt.title('Distribution of Probability Values')
+
+    plt.tight_layout()
+    plt.savefig('sat_results_analysis.png')
+    plt.close()
+
+
 

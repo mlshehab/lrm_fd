@@ -5,3 +5,6 @@ object*
 output*
 results*
 objects*
+ # Ignore Python cache directories and files
+__pycache__/
+*.pyc
