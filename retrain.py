@@ -276,46 +276,13 @@ if __name__ == '__main__':
     
     mdpRM = MDPRM(mdp,rm,L)
     mdp_ =  mdpRM.construct_product()
-    # now we need a state action state reward for the product MDP
-    reward = np.zeros((mdp_.n_states, mdp_.n_actions, mdp_.n_states))
-    print(f"Reward: {reward.shape}, S: {mdp.n_states}, A: {mdp.n_actions}, RM: {rm.n_states}")
-
-    for bar_s in range(mdp_.n_states):
-        for a in range(mdp_.n_actions):
-            for bar_s_prime in range(mdp_.n_states):
-                (s,u) = mdpRM.su_pair_from_s(bar_s)
-                (s_prime,u_prime) = mdpRM.su_pair_from_s(bar_s_prime)
-
-                is_possible = mdp_.P[a][bar_s][bar_s_prime] > 0.0
-
-                if u == 2 and L[s_prime] == 'C':
-                    reward[bar_s, a, bar_s_prime] = 100.0
-                
-
-
-    # q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = True)
-    # print(f"The shape of the policy is: {soft_policy.shape}")
-    # np.save("soft_policy.npy", soft_policy)
+ 
 
     soft_policy = np.load("soft_policy.npy")
 
-    # print(f"The soft policy shape is: {soft_policy.shape}")
-    # threshold = 1e-3
-    # for s in range(bw.num_states):
-    #     p0 = soft_policy[s,:]
-    #     p1 = soft_policy[bw.num_states + s,:]
-    #     p2 = soft_policy[2*bw.num_states + s,:]
-
-    #     if similarity(p0,p1, metric="KL") <= threshold:
-    #         print(f"At state {s}, p0 = p1.")
-    #     if similarity(p0,p2, metric="KL") <= threshold:
-    #         print(f"At state {s}, p0 = p2.")
-    #     if similarity(p1,p2, metric="KL")  <= threshold:
-    #         print(f"At state {s}, p1 = p2.")
 
 
-
-    bws = BlockworldSimulator(rm = rm,mdp = mdp,L = L,policy = soft_policy,state2index=s2i,index2state=i2s)
+    # bws = BlockworldSimulator(rm = rm,mdp = mdp,L = L,policy = soft_policy,state2index=s2i,index2state=i2s)
     # # bws.sample_trajectory(starting_state=0,len_traj=9)
     
     starting_states = [s2i[target_state_1], s2i[target_state_2], s2i[target_state_3], 4, 24]
@@ -329,20 +296,20 @@ if __name__ == '__main__':
 
     # Load the object back
 
-    with open("object500000_15.pkl", "rb") as f:
+    with open("./objects/object1000000_13.pkl", "rb") as f:
         bws = pickle.load(f)
 
     
     start = time.time()
-    n_traj = 300000
+    n_traj = 2000000
     max_len = 15
     bws.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
     end = time.time()
     print(f"Simulating the dataset took {end - start} sec.")
     
-
+    bws.compute_action_distributions()
     # Save the object to a file
-    with open(f"object{500000+n_traj}_{max_len}.pkl", "wb") as f:
+    with open(f"./objects/object{1000000+n_traj}_{max_len}.pkl", "wb") as f:
         pickle.dump(bws, f)
 
     # # Load the object back
@@ -353,7 +320,7 @@ if __name__ == '__main__':
     # print(bws.state_action_counts)
 
 
-    bws.compute_action_distributions()
+    
   
     data = [] 
     for key, item in bws.state_action_probs.items():
@@ -393,7 +360,7 @@ if __name__ == '__main__':
     df = pd.concat([df, summary_df], ignore_index=True)
 
     # Save DataFrame to CSV
-    df.to_excel(f"policy_comparison_nt_{n_traj}_ml_{max_len}.xlsx", index=False)
+    df.to_excel(f"./results/policy_comparison_nt_{1000000+n_traj}_ml_{max_len}.xlsx", index=False)
   
 
     

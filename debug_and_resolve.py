@@ -441,21 +441,23 @@ if __name__ == '__main__':
     #     pickle.dump(bws, f)
 
     # Load the object back
-    with open("object1000000_13.pkl", "rb") as foo:
+    with open("./objects/object1000000_13.pkl", "rb") as foo:
         bws = pickle.load(foo)
 
     
-    # epsilon_vals = [0.001, 0.002, 0.005, 0.01, 0.02,0.05, 0.1, 0.2, 0.5]
-    epsilon_vals = [0.1,0.2]
+    epsilon_vals = [0.05, 0.1, 0.2, 0.5]
+    print(f"The epsilon values are: {epsilon_vals}")
+    # epsilon_vals = [0.1,0.2]
+
     metrics = ["L1","KL"]
-    # metrics = ["TV", "KL", "L1"]
+ 
    
     # print(f"The count of state 51 is: {bws.state_label_counts[51]}")
 
     # Run SAT solver for each metric and threshold
     results = {metric: [] for metric in metrics}
     for metric in tqdm(metrics):
-        for epsilon in epsilon_vals:
+        for epsilon in tqdm(epsilon_vals):
             state_traces_dict = {}
             for state, label_dists in bws.state_action_probs.items():
                 if len(label_dists) > 1:
@@ -477,12 +479,19 @@ if __name__ == '__main__':
             })
 
 
-    for solution in results["L1"][0]["solutions"]:
-        print("\nSolution matrices:")
-        for i, matrix in enumerate(solution):
-            print(f"\nMatrix {i} ({['A', 'B', 'C', 'I'][i]}):")
-            for row in matrix:
-                print("  " + " ".join("1" if x else "0" for x in row))
+    # for solution in results["L1"][0]["solutions"]:
+    #     print("\nSolution matrices:")
+    #     for i, matrix in enumerate(solution):
+    #         print(f"\nMatrix {i} ({['A', 'B', 'C', 'I'][i]}):")
+    #         for row in matrix:
+    #             print("  " + " ".join("1" if x else "0" for x in row))
+
+
+
+    # # Save the results to a file
+    # with open("./objects/results.pkl", "wb") as f:
+    #     pickle.dump(results, f)
+
 
 
     # Visualization
@@ -544,7 +553,7 @@ if __name__ == '__main__':
     plt.title('Distribution of Probability Values')
 
     plt.tight_layout()
-    plt.savefig('sat_results_analysis.png')
+    plt.savefig('./figures/sat_results_analysis.png')
     plt.close()
 
 
