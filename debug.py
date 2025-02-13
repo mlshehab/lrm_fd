@@ -333,10 +333,10 @@ if __name__ == '__main__':
     #     pickle.dump(bws, f)
 
     # Load the object back
-    with open("object500000_15.pkl", "rb") as f:
+    with open("./objects/object1000000_13.pkl", "rb") as f:
         bws = pickle.load(f)
 
-    bws.compute_action_distributions()
+    # bws.compute_action_distributions()
   
 
 
@@ -352,7 +352,7 @@ if __name__ == '__main__':
             # for label, dist in label_dists:
             #     print(f"State {state}, Label {label}: Action Distribution {np.round(dist, decimals = 2)}")
             
-            gpd = bws.group_similar_policies(state,metric="TV", threshold=0.01)
+            gpd = bws.group_similar_policies(state,metric="TV", threshold=0.1)
 
             grouped_lists = list(gpd.values())
             state_traces_dict[state] = grouped_lists
@@ -368,6 +368,6 @@ if __name__ == '__main__':
                         print(f"Policy 2: {np.round(policy2, 3)} -> Labels {labels2}")
                         print(f"Similarity (TV distance) between policies: {similarity_value}\n")
             print("\n\n")
+                                
 
-    
     

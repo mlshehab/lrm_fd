@@ -218,7 +218,7 @@ import argparse
 def parse_args():
     parser = argparse.ArgumentParser(description="Automate script with depth and n_traj option")
     parser.add_argument("-depth", type=int, help="Set the depth", required=True)
-    parser.add_argument("-n_raj", type=int, help="Set the # of trajectories", required=True)
+    parser.add_argument("-n_traj", type=int, help="Set the # of trajectories", required=True)
     return parser.parse_args()
 
 if __name__ == '__main__':
