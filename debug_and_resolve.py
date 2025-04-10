@@ -56,172 +56,7 @@ def find_optimal_epsilon1(n1, n2, A, epsilon):
     return result.x
 
 
-
-class Simulator():
-    
-    def __init__(self, rm , mdp, L, policy):
-        self.rm = rm
-        self.mdp = mdp
-        self.L = L
-        self.policy = policy
-        self.n_states = self.mdp.n_states
-        self.n_actions = self.mdp.n_actions
-        self.n_nodes = self.rm.n_states
-        self.state_action_counts = {}  # Dictionary to track actions for (label, state)
-        self.state_action_probs = {}
-
-    def sample_next_state(self, state, action):
-        """ Generic next state computation. """
-        transition_probs = self.mdp.P[action][state, :]
-        return np.random.choice(np.arange(self.n_states), p=transition_probs)
-
-    def compute_action_distributions(self):
-        """
-        Converts each action Counter into a probability distribution over all possible actions.
-
-        Returns:
-            dict: {state: [(label, action_probs)]}, where action_probs is a numpy array of size (self.n_actions,).
-        """
-        # state_action_probs = {}
-
-        for state, label_counts in self.state_action_counts.items():
-            self.state_action_probs[state] = []
-
-            for label, action_counter in label_counts:
-                total_actions = sum(action_counter.values())  # Total samples for this label-state pair
-                action_probs = np.zeros(self.n_actions)  # Initialize with zeros for all actions
-                
-                if total_actions > 0:
-                    for action, count in action_counter.items():
-                        action_probs[action] = count / total_actions  # Normalize
-
-                self.state_action_probs[state].append((label, action_probs))
-
-    def group_similar_policies(self, state, metric="TV", threshold=0.05):
-        """
-        Groups labels based on similar action distributions for each state.
-
-        Args:
-            metric (str): Similarity metric to use. Options: 'KL', 'TV', 'L1'.
-            threshold (float): Maximum allowed difference to consider policies similar.
-
-        Returns:
-            dict: {state: {policy_signature: [labels]}}
-        """
-        grouped_traces = {}
-
-        def similarity(p1, p2, metric):
-            """Computes similarity based on chosen metric."""
-            if metric == "KL":
-                p1 = np.clip(p1, 1e-10, 1)  # Avoid division by zero
-                p2 = np.clip(p2, 1e-10, 1)
-                return entropy(p1, p2)  # KL divergence
-            elif metric == "TV":
-                return 0.5 * np.sum(np.abs(p1 - p2))  # Total Variation Distance
-            elif metric == "L1":
-                return np.linalg.norm(p1 - p2, ord=1)  # 1-norm distance
-            else:
-                raise ValueError("Unsupported metric! Choose from 'KL', 'TV', 'L1'.")
-
-        if state not in self.state_action_probs:
-            raise ValueError(f"State {state} not found in state_action_probs.")
-
-        # Iterate over the labels for the given state
-        for label, action_probs in self.state_action_probs[state]:
-            matched = False
-
-            # Compare against existing policy groups
-            for existing_policy in grouped_traces:
-                if similarity(existing_policy, action_probs, metric) < threshold:
-                    grouped_traces[existing_policy].append(label)
-                    matched = True
-                    break
-            
-            # If no match, create a new group with this action_probs
-            if not matched:
-                grouped_traces[tuple(action_probs)] = [label]
-
-        return grouped_traces
-
-
-class BlockworldSimulator(Simulator):
-    def __init__(self, rm, mdp, L, policy, state2index, index2state):
-        super().__init__(rm, mdp, L, policy)
-        self.state2index = state2index
-        self.index2state = index2state
-
-    def remove_consecutive_duplicates(self, s):
-        elements = s.split(',')
-        if not elements:
-            return s  # Handle edge case
-        result = [elements[0]]
-        for i in range(1, len(elements)):
-            if elements[i] != elements[i - 1]:
-                result.append(elements[i])
-        return ','.join(result)
-
-    def sample_trajectory(self, starting_state, len_traj):
-       
-        # find the state in the reward machine
-        # traj = []
-
-        state = starting_state
-        label = self.L[state] + ','
-        u = u_from_obs(label,rm)
-        
-        for _ in range(len_traj):
-            idx = u * self.n_states + state
-            action_dist = self.policy[u*self.n_states + state,:]
-
-            # Sample an action from the action distribution
-            a = np.random.choice(np.arange(self.n_actions), p=action_dist)
-            
-            # Sample a next state 
-            next_state = self.sample_next_state(state, a)
-            # traj.append((state,a,next_state))
-
-            # Compress the label
-            compressed_label = self.remove_consecutive_duplicates(label)
-
-            # Ensure state exists in dictionary
-            if state not in self.state_action_counts:
-                self.state_action_counts[state] = []
-
-            # Check if this label already exists for the state
-            label_exists = False
-            for i, (existing_label, counter) in enumerate(self.state_action_counts[state]):
-                if existing_label == compressed_label:
-                    counter[a] += 1  # Update action count
-                    label_exists = True
-                    break
-            
-            # If the label was not found, add a new entry
-            if not label_exists:
-                self.state_action_counts[state].append((compressed_label, Counter({a: 1})))
-
-
-            # Debugging
-            # if self.L[state] in {'A', 'B', 'C'}:
-            #     print(f"Passed through {self.L[state]} !!!")
-
-
-            l = self.L[next_state]
-            label = label + l + ','
-            u = u_from_obs(label,rm)
-    
-            state = next_state
-
-
-    def sample_dataset(self, starting_states, number_of_trajectories, max_trajectory_length):
-        # for each starting state
-        for state in tqdm(starting_states):
-            # for each length trajectory
-            for l in range(max_trajectory_length):
-                # sample (number_of_trajectories) trajectories of length l 
-                for _ in range(number_of_trajectories):
-                    self.sample_trajectory(starting_state= state,len_traj= l)
-
-
+from main import BlockworldSimulator
 
                 
 def similarity(p1, p2, metric):
@@ -306,11 +141,14 @@ def solve_sat_instance(bws, counter_examples, epsilon, rm, p_threshold=0.8):
             filtered_counter_examples[state] = filtered_ce
 
     # Add C4 constraints for filtered counter examples
+    # Open file to write negative examples
+
     for state in filtered_counter_examples.keys():
         ce_set = filtered_counter_examples[state]
         total_constraints += len(ce_set)
         
         for ce, prob in ce_set:
+            
             if u_from_obs(ce[0],rm) == u_from_obs(ce[1],rm):
                 wrong_ce_counts += 1
 
@@ -321,13 +159,25 @@ def solve_sat_instance(bws, counter_examples, epsilon, rm, p_threshold=0.8):
             sub_B2 = bool_matrix_mult_from_indices(B,p2, x)
             res_ = element_wise_and_boolean_vectors(sub_B1, sub_B2)
 
-            # print(f"Negative example at state {state}:")
-            # print(f"  Prefix 1: {ce[0]}   -- Count: {bws.state_label_counts[state][ce[0]]}")
-            # print(f"  Prefix 2: {ce[1]}   -- Count: {bws.state_label_counts[state][ce[1]]}")
-            # print(f"  Probability: {prob:.4f}")
+            
 
             for elt in res_:
                 s.add(Not(elt))
+
+    # ADD EXTRA CONSTRAINT
+    if epsilon >= 1.0:  
+        my_ce = ('A,I,C,I,','I,')
+        p1 = prefix2indices(my_ce[0])
+        # print(f"The prefix 1 is: {p1}")
+        p2 = prefix2indices(my_ce[1])
+
+        sub_B1 = bool_matrix_mult_from_indices(B,p1, x)
+        sub_B2 = bool_matrix_mult_from_indices(B,p2, x)
+        res_ = element_wise_and_boolean_vectors(sub_B1, sub_B2)
+
+        for elt in res_:
+            s.add(Not(elt))
+
 
     # Find all solutions
     solutions = []
@@ -441,16 +291,30 @@ if __name__ == '__main__':
     #     pickle.dump(bws, f)
 
     # Load the object back
-    with open("./objects/object1000000_13.pkl", "rb") as foo:
+    with open("./objects/object3000000_15.pkl", "rb") as foo:
         bws = pickle.load(foo)
 
+    bws.state_action_probs = {}
+    bws.state_label_counts = {}
+
+    bws.compute_action_distributions()
+
+    # target_sequence = 'A,I,C,I,'
+
+    # for state in bws.state_label_counts.keys():
+    #     # print(f"The state is: {state}")
+    #     if target_sequence in bws.state_label_counts[state]:
+    #         print(f"The state is: {state}")
+    #         print(f"The count of {target_sequence} is: {bws.state_label_counts[state][target_sequence]}")
     
-    epsilon_vals = [0.05, 0.1, 0.2, 0.5]
-    print(f"The epsilon values are: {epsilon_vals}")
+
+    epsilon_vals = [0.5,1,1.1,1.2,1.5,2]
+    # epsilon_vals = [1.0]
+    # print(f"The epsilon values are: {epsilon_vals}")
     # epsilon_vals = [0.1,0.2]
 
-    metrics = ["L1","KL"]
- 
+    metrics = ["KL","L1"]
+
    
     # print(f"The count of state 51 is: {bws.state_label_counts[51]}")
 
@@ -479,7 +343,7 @@ if __name__ == '__main__':
             })
 
 
-    # for solution in results["L1"][0]["solutions"]:
+    # for solution in results["KL"][-2]["solutions"]:
     #     print("\nSolution matrices:")
     #     for i, matrix in enumerate(solution):
     #         print(f"\nMatrix {i} ({['A', 'B', 'C', 'I'][i]}):")
