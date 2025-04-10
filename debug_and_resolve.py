@@ -56,10 +56,23 @@ def find_optimal_epsilon1(n1, n2, A, epsilon):
     return result.x
 
 
-from main import Simulator, BlockworldSimulator, similarity
+from main import BlockworldSimulator
 
+                
+def similarity(p1, p2, metric):
+        """Computes similarity based on chosen metric."""
+        if metric == "KL":
+            p1 = np.clip(p1, 1e-10, 1)  # Avoid division by zero
+            p2 = np.clip(p2, 1e-10, 1)
+            return entropy(p1, p2)  # KL divergence
+        elif metric == "TV":
+            return 0.5 * np.sum(np.abs(p1 - p2))  # Total Variation Distance
+        elif metric == "L1":
+            return np.linalg.norm(p1 - p2, ord=1)  # 1-norm distance
+        else:
+            raise ValueError("Unsupported metric! Choose from 'KL', 'TV', 'L1'.")
+        
 
-      
 import argparse
 
 def solve_sat_instance(bws, counter_examples, epsilon, rm, p_threshold=0.8):
@@ -128,11 +141,14 @@ def solve_sat_instance(bws, counter_examples, epsilon, rm, p_threshold=0.8):
             filtered_counter_examples[state] = filtered_ce
 
     # Add C4 constraints for filtered counter examples
+    # Open file to write negative examples
+
     for state in filtered_counter_examples.keys():
         ce_set = filtered_counter_examples[state]
         total_constraints += len(ce_set)
         
         for ce, prob in ce_set:
+            
             if u_from_obs(ce[0],rm) == u_from_obs(ce[1],rm):
                 wrong_ce_counts += 1
 
@@ -143,13 +159,25 @@ def solve_sat_instance(bws, counter_examples, epsilon, rm, p_threshold=0.8):
             sub_B2 = bool_matrix_mult_from_indices(B,p2, x)
             res_ = element_wise_and_boolean_vectors(sub_B1, sub_B2)
 
-            # print(f"Negative example at state {state}:")
-            # print(f"  Prefix 1: {ce[0]}   -- Count: {bws.state_label_counts[state][ce[0]]}")
-            # print(f"  Prefix 2: {ce[1]}   -- Count: {bws.state_label_counts[state][ce[1]]}")
-            # print(f"  Probability: {prob:.4f}")
+            
 
             for elt in res_:
                 s.add(Not(elt))
+
+    # ADD EXTRA CONSTRAINT
+    if epsilon >= 1.0:  
+        my_ce = ('A,I,C,I,','I,')
+        p1 = prefix2indices(my_ce[0])
+        # print(f"The prefix 1 is: {p1}")
+        p2 = prefix2indices(my_ce[1])
+
+        sub_B1 = bool_matrix_mult_from_indices(B,p1, x)
+        sub_B2 = bool_matrix_mult_from_indices(B,p2, x)
+        res_ = element_wise_and_boolean_vectors(sub_B1, sub_B2)
+
+        for elt in res_:
+            s.add(Not(elt))
+
 
     # Find all solutions
     solutions = []
@@ -267,17 +295,26 @@ if __name__ == '__main__':
         bws = pickle.load(foo)
 
     bws.state_action_probs = {}
-    
+    bws.state_label_counts = {}
+
     bws.compute_action_distributions()
+
+    # target_sequence = 'A,I,C,I,'
+
+    # for state in bws.state_label_counts.keys():
+    #     # print(f"The state is: {state}")
+    #     if target_sequence in bws.state_label_counts[state]:
+    #         print(f"The state is: {state}")
+    #         print(f"The count of {target_sequence} is: {bws.state_label_counts[state][target_sequence]}")
     
 
-
-    epsilon_vals = [0.05, 0.1, 0.2, 0.5]
-    print(f"The epsilon values are: {epsilon_vals}")
+    epsilon_vals = [0.5,1,1.1,1.2,1.5,2]
+    # epsilon_vals = [1.0]
+    # print(f"The epsilon values are: {epsilon_vals}")
     # epsilon_vals = [0.1,0.2]
 
-    metrics = ["L1","KL"]
- 
+    metrics = ["KL","L1"]
+
    
     # print(f"The count of state 51 is: {bws.state_label_counts[51]}")
 
@@ -306,7 +343,7 @@ if __name__ == '__main__':
             })
 
 
-    # for solution in results["L1"][0]["solutions"]:
+    # for solution in results["KL"][-2]["solutions"]:
     #     print("\nSolution matrices:")
     #     for i, matrix in enumerate(solution):
     #         print(f"\nMatrix {i} ({['A', 'B', 'C', 'I'][i]}):")

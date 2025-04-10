@@ -1,0 +1,2640 @@
+Negative example at state 0:
+  Prefix 1: A,   -- Count: 40243416
+  Prefix 2: A,I,B,I,A,   -- Count: 187
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: A,   -- Count: 40243416
+  Prefix 2: B,I,A,I,B,I,A,   -- Count: 115
+  Probability: 0.9997
+
+Negative example at state 0:
+  Prefix 1: A,   -- Count: 40243416
+  Prefix 2: C,I,A,I,B,I,A,   -- Count: 117
+  Probability: 0.9998
+
+Negative example at state 0:
+  Prefix 1: A,   -- Count: 40243416
+  Prefix 2: I,A,I,B,I,A,   -- Count: 143
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: A,I,B,I,C,I,A,   -- Count: 6741974
+  Prefix 2: A,I,B,I,A,   -- Count: 187
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: A,I,B,I,C,I,A,   -- Count: 6741974
+  Prefix 2: B,I,A,I,B,I,A,   -- Count: 115
+  Probability: 0.9997
+
+Negative example at state 0:
+  Prefix 1: A,I,B,I,C,I,A,   -- Count: 6741974
+  Prefix 2: C,I,A,I,B,I,A,   -- Count: 117
+  Probability: 0.9998
+
+Negative example at state 0:
+  Prefix 1: A,I,B,I,C,I,A,   -- Count: 6741974
+  Prefix 2: I,A,I,B,I,A,   -- Count: 143
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: B,I,A,   -- Count: 30926952
+  Prefix 2: A,I,B,I,A,   -- Count: 187
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: B,I,A,   -- Count: 30926952
+  Prefix 2: B,I,A,I,B,I,A,   -- Count: 115
+  Probability: 0.9997
+
+Negative example at state 0:
+  Prefix 1: B,I,A,   -- Count: 30926952
+  Prefix 2: C,I,A,I,B,I,A,   -- Count: 117
+  Probability: 0.9998
+
+Negative example at state 0:
+  Prefix 1: B,I,A,   -- Count: 30926952
+  Prefix 2: I,A,I,B,I,A,   -- Count: 143
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: B,I,B,I,A,   -- Count: 1586
+  Prefix 2: A,I,B,I,A,   -- Count: 187
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: B,I,B,I,A,   -- Count: 1586
+  Prefix 2: B,I,A,I,B,I,A,   -- Count: 115
+  Probability: 0.9997
+
+Negative example at state 0:
+  Prefix 1: B,I,B,I,A,   -- Count: 1586
+  Prefix 2: C,I,A,I,B,I,A,   -- Count: 117
+  Probability: 0.9998
+
+Negative example at state 0:
+  Prefix 1: B,I,B,I,A,   -- Count: 1586
+  Prefix 2: I,A,I,B,I,A,   -- Count: 143
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: C,I,A,   -- Count: 30927180
+  Prefix 2: A,I,B,I,A,   -- Count: 187
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: C,I,A,   -- Count: 30927180
+  Prefix 2: B,I,A,I,B,I,A,   -- Count: 115
+  Probability: 0.9997
+
+Negative example at state 0:
+  Prefix 1: C,I,A,   -- Count: 30927180
+  Prefix 2: C,I,A,I,B,I,A,   -- Count: 117
+  Probability: 0.9998
+
+Negative example at state 0:
+  Prefix 1: C,I,A,   -- Count: 30927180
+  Prefix 2: I,A,I,B,I,A,   -- Count: 143
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: C,I,C,I,A,   -- Count: 1582
+  Prefix 2: A,I,B,I,A,   -- Count: 187
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: C,I,C,I,A,   -- Count: 1582
+  Prefix 2: B,I,A,I,B,I,A,   -- Count: 115
+  Probability: 0.9997
+
+Negative example at state 0:
+  Prefix 1: C,I,C,I,A,   -- Count: 1582
+  Prefix 2: C,I,A,I,B,I,A,   -- Count: 117
+  Probability: 0.9998
+
+Negative example at state 0:
+  Prefix 1: C,I,C,I,A,   -- Count: 1582
+  Prefix 2: I,A,I,B,I,A,   -- Count: 143
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: I,A,   -- Count: 54878610
+  Prefix 2: A,I,B,I,A,   -- Count: 187
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: I,A,   -- Count: 54878610
+  Prefix 2: B,I,A,I,B,I,A,   -- Count: 115
+  Probability: 0.9997
+
+Negative example at state 0:
+  Prefix 1: I,A,   -- Count: 54878610
+  Prefix 2: C,I,A,I,B,I,A,   -- Count: 117
+  Probability: 0.9998
+
+Negative example at state 0:
+  Prefix 1: I,A,   -- Count: 54878610
+  Prefix 2: I,A,I,B,I,A,   -- Count: 143
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: A,I,B,I,C,I,C,I,A,   -- Count: 105
+  Prefix 2: A,I,B,I,A,   -- Count: 187
+  Probability: 0.9990
+
+Negative example at state 0:
+  Prefix 1: A,I,B,I,C,I,C,I,A,   -- Count: 105
+  Prefix 2: B,I,A,I,B,I,A,   -- Count: 115
+  Probability: 0.9987
+
+Negative example at state 0:
+  Prefix 1: A,I,B,I,C,I,C,I,A,   -- Count: 105
+  Prefix 2: C,I,A,I,B,I,A,   -- Count: 117
+  Probability: 0.9988
+
+Negative example at state 0:
+  Prefix 1: A,I,B,I,C,I,C,I,A,   -- Count: 105
+  Prefix 2: I,A,I,B,I,A,   -- Count: 143
+  Probability: 0.9990
+
+Negative example at state 0:
+  Prefix 1: I,A,I,B,I,C,I,A,   -- Count: 1773057
+  Prefix 2: A,I,B,I,A,   -- Count: 187
+  Probability: 1.0000
+
+Negative example at state 0:
+  Prefix 1: I,A,I,B,I,C,I,A,   -- Count: 1773057
+  Prefix 2: B,I,A,I,B,I,A,   -- Count: 115
+  Probability: 0.9997
+
+Negative example at state 0:
+  Prefix 1: I,A,I,B,I,C,I,A,   -- Count: 1773057
+  Prefix 2: C,I,A,I,B,I,A,   -- Count: 117
+  Probability: 0.9998
+
+Negative example at state 0:
+  Prefix 1: I,A,I,B,I,C,I,A,   -- Count: 1773057
+  Prefix 2: I,A,I,B,I,A,   -- Count: 143
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,   -- Count: 37049975
+  Prefix 2: A,I,B,I,   -- Count: 24965158
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,   -- Count: 37049975
+  Prefix 2: B,I,A,I,B,I,   -- Count: 15710679
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,   -- Count: 37049975
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 565
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,   -- Count: 37049975
+  Prefix 2: C,I,A,I,B,I,   -- Count: 15711502
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,   -- Count: 37049975
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 582
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,   -- Count: 37049975
+  Prefix 2: I,A,I,B,I,   -- Count: 24609265
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,   -- Count: 27776223
+  Prefix 2: A,I,B,I,   -- Count: 24965158
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,   -- Count: 27776223
+  Prefix 2: B,I,A,I,B,I,   -- Count: 15710679
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,   -- Count: 27776223
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 565
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,   -- Count: 27776223
+  Prefix 2: C,I,A,I,B,I,   -- Count: 15711502
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,   -- Count: 27776223
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 582
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,   -- Count: 27776223
+  Prefix 2: I,A,I,B,I,   -- Count: 24609265
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1337
+  Prefix 2: A,I,B,I,   -- Count: 24965158
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1337
+  Prefix 2: B,I,A,I,B,I,   -- Count: 15710679
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1337
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 565
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1337
+  Prefix 2: C,I,A,I,B,I,   -- Count: 15711502
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1337
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 582
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1337
+  Prefix 2: I,A,I,B,I,   -- Count: 24609265
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,   -- Count: 27777139
+  Prefix 2: A,I,B,I,   -- Count: 24965158
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,   -- Count: 27777139
+  Prefix 2: B,I,A,I,B,I,   -- Count: 15710679
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,   -- Count: 27777139
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 565
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,   -- Count: 27777139
+  Prefix 2: C,I,A,I,B,I,   -- Count: 15711502
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,   -- Count: 27777139
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 582
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,   -- Count: 27777139
+  Prefix 2: I,A,I,B,I,   -- Count: 24609265
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1359
+  Prefix 2: A,I,B,I,   -- Count: 24965158
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1359
+  Prefix 2: B,I,A,I,B,I,   -- Count: 15710679
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1359
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 565
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1359
+  Prefix 2: C,I,A,I,B,I,   -- Count: 15711502
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1359
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 582
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1359
+  Prefix 2: I,A,I,B,I,   -- Count: 24609265
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,   -- Count: 48604692
+  Prefix 2: A,I,B,I,   -- Count: 24965158
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,   -- Count: 48604692
+  Prefix 2: B,I,A,I,B,I,   -- Count: 15710679
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,   -- Count: 48604692
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 565
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,   -- Count: 48604692
+  Prefix 2: C,I,A,I,B,I,   -- Count: 15711502
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,   -- Count: 48604692
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 582
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,   -- Count: 48604692
+  Prefix 2: I,A,I,B,I,   -- Count: 24609265
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3796393
+  Prefix 2: A,I,B,I,   -- Count: 24965158
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3796393
+  Prefix 2: B,I,A,I,B,I,   -- Count: 15710679
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3796393
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 565
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3796393
+  Prefix 2: C,I,A,I,B,I,   -- Count: 15711502
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3796393
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 582
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3796393
+  Prefix 2: I,A,I,B,I,   -- Count: 24609265
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,   -- Count: 37049975
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,   -- Count: 37049975
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,   -- Count: 37049975
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,   -- Count: 37049975
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,   -- Count: 37049975
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,   -- Count: 37049975
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,   -- Count: 27776223
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,   -- Count: 27776223
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,   -- Count: 27776223
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,   -- Count: 27776223
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,   -- Count: 27776223
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,   -- Count: 27776223
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1337
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1337
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1337
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1337
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1337
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1337
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,   -- Count: 27777139
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,   -- Count: 27777139
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,   -- Count: 27777139
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,   -- Count: 27777139
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,   -- Count: 27777139
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,   -- Count: 27777139
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1359
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1359
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1359
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1359
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1359
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1359
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,   -- Count: 48604692
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,   -- Count: 48604692
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,   -- Count: 48604692
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,   -- Count: 48604692
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,   -- Count: 48604692
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,   -- Count: 48604692
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3796393
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3796393
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3796393
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3796393
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3796393
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3796393
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,   -- Count: 24965158
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,   -- Count: 24965158
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,   -- Count: 24965158
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,   -- Count: 24965158
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,   -- Count: 24965158
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: A,I,B,I,   -- Count: 24965158
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 15710679
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 15710679
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 15710679
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 15710679
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 15710679
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 15710679
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 565
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 565
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 565
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 565
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 565
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 565
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 15711502
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 15711502
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 15711502
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 15711502
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 15711502
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 15711502
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 582
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 582
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 582
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 582
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 582
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 582
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,B,I,   -- Count: 24609265
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12845
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,B,I,   -- Count: 24609265
+  Prefix 2: B,I,   -- Count: 34070466
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,B,I,   -- Count: 24609265
+  Prefix 2: B,I,B,I,   -- Count: 1765
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,B,I,   -- Count: 24609265
+  Prefix 2: C,I,   -- Count: 58764
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,B,I,   -- Count: 24609265
+  Prefix 2: I,   -- Count: 12015783
+  Probability: 1.0000
+
+Negative example at state 6:
+  Prefix 1: I,A,I,B,I,   -- Count: 24609265
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3312
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: A,I,B,I,   -- Count: 21964005
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: A,I,B,I,A,I,   -- Count: 164
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: B,I,A,I,B,I,   -- Count: 12710504
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: B,I,A,I,B,I,A,I,   -- Count: 85
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 396
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: C,I,A,I,B,I,   -- Count: 12711095
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: C,I,A,I,B,I,A,I,   -- Count: 84
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 395
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: I,A,I,B,I,   -- Count: 19000063
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: I,A,I,B,I,A,I,   -- Count: 101
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: A,I,B,I,   -- Count: 21964005
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: A,I,B,I,A,I,   -- Count: 164
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: B,I,A,I,B,I,   -- Count: 12710504
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: B,I,A,I,B,I,A,I,   -- Count: 85
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 396
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: C,I,A,I,B,I,   -- Count: 12711095
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: C,I,A,I,B,I,A,I,   -- Count: 84
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 395
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: I,A,I,B,I,   -- Count: 19000063
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: I,A,I,B,I,A,I,   -- Count: 101
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: A,I,B,I,   -- Count: 21964005
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: A,I,B,I,A,I,   -- Count: 164
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: B,I,A,I,B,I,   -- Count: 12710504
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: B,I,A,I,B,I,A,I,   -- Count: 85
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 396
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: C,I,A,I,B,I,   -- Count: 12711095
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: C,I,A,I,B,I,A,I,   -- Count: 84
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 395
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: I,A,I,B,I,   -- Count: 19000063
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: I,A,I,B,I,A,I,   -- Count: 101
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: A,I,B,I,   -- Count: 21964005
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: A,I,B,I,A,I,   -- Count: 164
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: B,I,A,I,B,I,   -- Count: 12710504
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: B,I,A,I,B,I,A,I,   -- Count: 85
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 396
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: C,I,A,I,B,I,   -- Count: 12711095
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: C,I,A,I,B,I,A,I,   -- Count: 84
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 395
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: I,A,I,B,I,   -- Count: 19000063
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: I,A,I,B,I,A,I,   -- Count: 101
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: A,I,B,I,   -- Count: 21964005
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: A,I,B,I,A,I,   -- Count: 164
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: B,I,A,I,B,I,   -- Count: 12710504
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: B,I,A,I,B,I,A,I,   -- Count: 85
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 396
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: C,I,A,I,B,I,   -- Count: 12711095
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: C,I,A,I,B,I,A,I,   -- Count: 84
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 395
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: I,A,I,B,I,   -- Count: 19000063
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: I,A,I,B,I,A,I,   -- Count: 101
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,   -- Count: 35030
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,   -- Count: 26081
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,   -- Count: 26197
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,   -- Count: 45625
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 3618
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,   -- Count: 21964005
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,   -- Count: 21964005
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,   -- Count: 21964005
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,   -- Count: 21964005
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,   -- Count: 21964005
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,   -- Count: 21964005
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,   -- Count: 21964005
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,   -- Count: 21964005
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,   -- Count: 21964005
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 164
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 164
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 164
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 164
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 164
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 164
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 164
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 164
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 164
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 12710504
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 12710504
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 12710504
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 12710504
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 12710504
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 12710504
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 12710504
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 12710504
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 12710504
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,A,I,   -- Count: 85
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,A,I,   -- Count: 85
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,A,I,   -- Count: 85
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,A,I,   -- Count: 85
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,A,I,   -- Count: 85
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,A,I,   -- Count: 85
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,A,I,   -- Count: 85
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,A,I,   -- Count: 85
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: B,I,A,I,B,I,A,I,   -- Count: 85
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 0.9876
+
+Negative example at state 12:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 396
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 396
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 396
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 396
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 396
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 396
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 396
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 396
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 396
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 12711095
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 12711095
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 12711095
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 12711095
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 12711095
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 12711095
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 12711095
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 12711095
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 12711095
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,A,I,   -- Count: 84
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,A,I,   -- Count: 84
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,A,I,   -- Count: 84
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,A,I,   -- Count: 84
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,A,I,   -- Count: 84
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,A,I,   -- Count: 84
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,A,I,   -- Count: 84
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,A,I,   -- Count: 84
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: C,I,A,I,B,I,A,I,   -- Count: 84
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 0.9860
+
+Negative example at state 12:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 395
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 395
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 395
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 395
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 395
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 395
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 395
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 395
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 395
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,   -- Count: 19000063
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,   -- Count: 19000063
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,   -- Count: 19000063
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,   -- Count: 19000063
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,   -- Count: 19000063
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,   -- Count: 19000063
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,   -- Count: 19000063
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,   -- Count: 19000063
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,   -- Count: 19000063
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 1.0000
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,A,I,   -- Count: 101
+  Prefix 2: A,I,B,I,C,I,   -- Count: 9809429
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,A,I,   -- Count: 101
+  Prefix 2: B,I,   -- Count: 59008
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,A,I,   -- Count: 101
+  Prefix 2: C,I,   -- Count: 34069941
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,A,I,   -- Count: 101
+  Prefix 2: C,I,C,I,   -- Count: 1776
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,A,I,   -- Count: 101
+  Prefix 2: I,   -- Count: 49233315
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,A,I,   -- Count: 101
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 231
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,A,I,   -- Count: 101
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 1693352
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,A,I,   -- Count: 101
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 1693747
+  Probability: 0.9983
+
+Negative example at state 12:
+  Prefix 1: I,A,I,B,I,A,I,   -- Count: 101
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 3796576
+  Probability: 0.9983
+
+Negative example at state 19:
+  Prefix 1: A,I,   -- Count: 33997563
+  Prefix 2: A,I,B,I,   -- Count: 27968115
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,   -- Count: 33997563
+  Prefix 2: B,I,   -- Count: 37449139
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,   -- Count: 33997563
+  Prefix 2: B,I,B,I,   -- Count: 1991
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,   -- Count: 33997563
+  Prefix 2: B,I,A,I,B,I,   -- Count: 18712276
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,   -- Count: 33997563
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 753
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,   -- Count: 33997563
+  Prefix 2: C,I,A,I,B,I,   -- Count: 18712495
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,   -- Count: 33997563
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 787
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,   -- Count: 33997563
+  Prefix 2: I,   -- Count: 45532
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,   -- Count: 33997563
+  Prefix 2: I,A,I,B,I,   -- Count: 30516212
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,A,I,   -- Count: 24736017
+  Prefix 2: A,I,B,I,   -- Count: 27968115
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,A,I,   -- Count: 24736017
+  Prefix 2: B,I,   -- Count: 37449139
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,A,I,   -- Count: 24736017
+  Prefix 2: B,I,B,I,   -- Count: 1991
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,A,I,   -- Count: 24736017
+  Prefix 2: B,I,A,I,B,I,   -- Count: 18712276
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,A,I,   -- Count: 24736017
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 753
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,A,I,   -- Count: 24736017
+  Prefix 2: C,I,A,I,B,I,   -- Count: 18712495
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,A,I,   -- Count: 24736017
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 787
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,A,I,   -- Count: 24736017
+  Prefix 2: I,   -- Count: 45532
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,A,I,   -- Count: 24736017
+  Prefix 2: I,A,I,B,I,   -- Count: 30516212
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1136
+  Prefix 2: A,I,B,I,   -- Count: 27968115
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1136
+  Prefix 2: B,I,   -- Count: 37449139
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1136
+  Prefix 2: B,I,B,I,   -- Count: 1991
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1136
+  Prefix 2: B,I,A,I,B,I,   -- Count: 18712276
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1136
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 753
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1136
+  Prefix 2: C,I,A,I,B,I,   -- Count: 18712495
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1136
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 787
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1136
+  Prefix 2: I,   -- Count: 45532
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: B,I,B,I,A,I,   -- Count: 1136
+  Prefix 2: I,A,I,B,I,   -- Count: 30516212
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,A,I,   -- Count: 24734630
+  Prefix 2: A,I,B,I,   -- Count: 27968115
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,A,I,   -- Count: 24734630
+  Prefix 2: B,I,   -- Count: 37449139
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,A,I,   -- Count: 24734630
+  Prefix 2: B,I,B,I,   -- Count: 1991
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,A,I,   -- Count: 24734630
+  Prefix 2: B,I,A,I,B,I,   -- Count: 18712276
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,A,I,   -- Count: 24734630
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 753
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,A,I,   -- Count: 24734630
+  Prefix 2: C,I,A,I,B,I,   -- Count: 18712495
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,A,I,   -- Count: 24734630
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 787
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,A,I,   -- Count: 24734630
+  Prefix 2: I,   -- Count: 45532
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,A,I,   -- Count: 24734630
+  Prefix 2: I,A,I,B,I,   -- Count: 30516212
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1150
+  Prefix 2: A,I,B,I,   -- Count: 27968115
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1150
+  Prefix 2: B,I,   -- Count: 37449139
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1150
+  Prefix 2: B,I,B,I,   -- Count: 1991
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1150
+  Prefix 2: B,I,A,I,B,I,   -- Count: 18712276
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1150
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 753
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1150
+  Prefix 2: C,I,A,I,B,I,   -- Count: 18712495
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1150
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 787
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1150
+  Prefix 2: I,   -- Count: 45532
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: C,I,C,I,A,I,   -- Count: 1150
+  Prefix 2: I,A,I,B,I,   -- Count: 30516212
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: I,A,I,   -- Count: 42533699
+  Prefix 2: A,I,B,I,   -- Count: 27968115
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: I,A,I,   -- Count: 42533699
+  Prefix 2: B,I,   -- Count: 37449139
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: I,A,I,   -- Count: 42533699
+  Prefix 2: B,I,B,I,   -- Count: 1991
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: I,A,I,   -- Count: 42533699
+  Prefix 2: B,I,A,I,B,I,   -- Count: 18712276
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: I,A,I,   -- Count: 42533699
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 753
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: I,A,I,   -- Count: 42533699
+  Prefix 2: C,I,A,I,B,I,   -- Count: 18712495
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: I,A,I,   -- Count: 42533699
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 787
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: I,A,I,   -- Count: 42533699
+  Prefix 2: I,   -- Count: 45532
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: I,A,I,   -- Count: 42533699
+  Prefix 2: I,A,I,B,I,   -- Count: 30516212
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 1800915
+  Prefix 2: A,I,B,I,   -- Count: 27968115
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 1800915
+  Prefix 2: B,I,   -- Count: 37449139
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 1800915
+  Prefix 2: B,I,B,I,   -- Count: 1991
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 1800915
+  Prefix 2: B,I,A,I,B,I,   -- Count: 18712276
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 1800915
+  Prefix 2: B,I,B,I,A,I,B,I,   -- Count: 753
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 1800915
+  Prefix 2: C,I,A,I,B,I,   -- Count: 18712495
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 1800915
+  Prefix 2: C,I,C,I,A,I,B,I,   -- Count: 787
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 1800915
+  Prefix 2: I,   -- Count: 45532
+  Probability: 1.0000
+
+Negative example at state 19:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 1800915
+  Prefix 2: I,A,I,B,I,   -- Count: 30516212
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: A,I,   -- Count: 14668
+  Prefix 2: A,I,B,I,   -- Count: 604
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: A,I,   -- Count: 14668
+  Prefix 2: B,I,   -- Count: 121160
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: A,I,   -- Count: 14668
+  Prefix 2: B,I,A,I,B,I,   -- Count: 403
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: A,I,   -- Count: 14668
+  Prefix 2: C,I,A,I,B,I,   -- Count: 405
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: A,I,   -- Count: 14668
+  Prefix 2: I,   -- Count: 13480517
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: A,I,   -- Count: 14668
+  Prefix 2: I,A,I,B,I,   -- Count: 623
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: B,I,A,I,   -- Count: 10658
+  Prefix 2: A,I,B,I,   -- Count: 604
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: B,I,A,I,   -- Count: 10658
+  Prefix 2: B,I,   -- Count: 121160
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: B,I,A,I,   -- Count: 10658
+  Prefix 2: B,I,A,I,B,I,   -- Count: 403
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: B,I,A,I,   -- Count: 10658
+  Prefix 2: C,I,A,I,B,I,   -- Count: 405
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: B,I,A,I,   -- Count: 10658
+  Prefix 2: I,   -- Count: 13480517
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: B,I,A,I,   -- Count: 10658
+  Prefix 2: I,A,I,B,I,   -- Count: 623
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: C,I,A,I,   -- Count: 10756
+  Prefix 2: A,I,B,I,   -- Count: 604
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: C,I,A,I,   -- Count: 10756
+  Prefix 2: B,I,   -- Count: 121160
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: C,I,A,I,   -- Count: 10756
+  Prefix 2: B,I,A,I,B,I,   -- Count: 403
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: C,I,A,I,   -- Count: 10756
+  Prefix 2: C,I,A,I,B,I,   -- Count: 405
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: C,I,A,I,   -- Count: 10756
+  Prefix 2: I,   -- Count: 13480517
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: C,I,A,I,   -- Count: 10756
+  Prefix 2: I,A,I,B,I,   -- Count: 623
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: I,A,I,   -- Count: 18430
+  Prefix 2: A,I,B,I,   -- Count: 604
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: I,A,I,   -- Count: 18430
+  Prefix 2: B,I,   -- Count: 121160
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: I,A,I,   -- Count: 18430
+  Prefix 2: B,I,A,I,B,I,   -- Count: 403
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: I,A,I,   -- Count: 18430
+  Prefix 2: C,I,A,I,B,I,   -- Count: 405
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: I,A,I,   -- Count: 18430
+  Prefix 2: I,   -- Count: 13480517
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: I,A,I,   -- Count: 18430
+  Prefix 2: I,A,I,B,I,   -- Count: 623
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 776
+  Prefix 2: A,I,B,I,   -- Count: 604
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 776
+  Prefix 2: B,I,   -- Count: 121160
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 776
+  Prefix 2: B,I,A,I,B,I,   -- Count: 403
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 776
+  Prefix 2: C,I,A,I,B,I,   -- Count: 405
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 776
+  Prefix 2: I,   -- Count: 13480517
+  Probability: 1.0000
+
+Negative example at state 25:
+  Prefix 1: A,I,B,I,C,I,A,I,   -- Count: 776
+  Prefix 2: I,A,I,B,I,   -- Count: 623
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: A,I,   -- Count: 5733
+  Prefix 2: A,I,B,I,   -- Count: 1937
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: A,I,   -- Count: 5733
+  Prefix 2: B,I,   -- Count: 241625
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: A,I,   -- Count: 5733
+  Prefix 2: B,I,A,I,B,I,   -- Count: 1321
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: A,I,   -- Count: 5733
+  Prefix 2: C,I,A,I,B,I,   -- Count: 1294
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: A,I,   -- Count: 5733
+  Prefix 2: I,   -- Count: 3423
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: A,I,   -- Count: 5733
+  Prefix 2: I,A,I,B,I,   -- Count: 2181
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: B,I,A,I,   -- Count: 3901
+  Prefix 2: A,I,B,I,   -- Count: 1937
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: B,I,A,I,   -- Count: 3901
+  Prefix 2: B,I,   -- Count: 241625
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: B,I,A,I,   -- Count: 3901
+  Prefix 2: B,I,A,I,B,I,   -- Count: 1321
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: B,I,A,I,   -- Count: 3901
+  Prefix 2: C,I,A,I,B,I,   -- Count: 1294
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: B,I,A,I,   -- Count: 3901
+  Prefix 2: I,   -- Count: 3423
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: B,I,A,I,   -- Count: 3901
+  Prefix 2: I,A,I,B,I,   -- Count: 2181
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: C,I,A,I,   -- Count: 3970
+  Prefix 2: A,I,B,I,   -- Count: 1937
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: C,I,A,I,   -- Count: 3970
+  Prefix 2: B,I,   -- Count: 241625
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: C,I,A,I,   -- Count: 3970
+  Prefix 2: B,I,A,I,B,I,   -- Count: 1321
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: C,I,A,I,   -- Count: 3970
+  Prefix 2: C,I,A,I,B,I,   -- Count: 1294
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: C,I,A,I,   -- Count: 3970
+  Prefix 2: I,   -- Count: 3423
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: C,I,A,I,   -- Count: 3970
+  Prefix 2: I,A,I,B,I,   -- Count: 2181
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: I,A,I,   -- Count: 6598
+  Prefix 2: A,I,B,I,   -- Count: 1937
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: I,A,I,   -- Count: 6598
+  Prefix 2: B,I,   -- Count: 241625
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: I,A,I,   -- Count: 6598
+  Prefix 2: B,I,A,I,B,I,   -- Count: 1321
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: I,A,I,   -- Count: 6598
+  Prefix 2: C,I,A,I,B,I,   -- Count: 1294
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: I,A,I,   -- Count: 6598
+  Prefix 2: I,   -- Count: 3423
+  Probability: 1.0000
+
+Negative example at state 47:
+  Prefix 1: I,A,I,   -- Count: 6598
+  Prefix 2: I,A,I,B,I,   -- Count: 2181
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,   -- Count: 18963950
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12982775
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,   -- Count: 18963950
+  Prefix 2: A,I,B,I,A,I,C,I,   -- Count: 85
+  Probability: 0.9876
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,   -- Count: 18963950
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 412
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,   -- Count: 18963950
+  Prefix 2: C,I,   -- Count: 37448741
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,   -- Count: 18963950
+  Prefix 2: C,I,C,I,   -- Count: 2024
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,   -- Count: 18963950
+  Prefix 2: I,   -- Count: 179592
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,   -- Count: 18963950
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 6804484
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,   -- Count: 18963950
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 3735388
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,   -- Count: 18963950
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 3736545
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,   -- Count: 18963950
+  Prefix 2: I,A,I,B,I,C,I,C,I,   -- Count: 92
+  Probability: 0.9948
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 131
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12982775
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 131
+  Prefix 2: A,I,B,I,A,I,C,I,   -- Count: 85
+  Probability: 0.9876
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 131
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 412
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 131
+  Prefix 2: C,I,   -- Count: 37448741
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 131
+  Prefix 2: C,I,C,I,   -- Count: 2024
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 131
+  Prefix 2: I,   -- Count: 179592
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 131
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 6804484
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 131
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 3735388
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 131
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 3736545
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: A,I,B,I,A,I,   -- Count: 131
+  Prefix 2: I,A,I,B,I,C,I,C,I,   -- Count: 92
+  Probability: 0.9948
+
+Negative example at state 31:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 9710891
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12982775
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 9710891
+  Prefix 2: A,I,B,I,A,I,C,I,   -- Count: 85
+  Probability: 0.9876
+
+Negative example at state 31:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 9710891
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 412
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 9710891
+  Prefix 2: C,I,   -- Count: 37448741
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 9710891
+  Prefix 2: C,I,C,I,   -- Count: 2024
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 9710891
+  Prefix 2: I,   -- Count: 179592
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 9710891
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 6804484
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 9710891
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 3735388
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 9710891
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 3736545
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,A,I,B,I,   -- Count: 9710891
+  Prefix 2: I,A,I,B,I,C,I,C,I,   -- Count: 92
+  Probability: 0.9948
+
+Negative example at state 31:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 9711320
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12982775
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 9711320
+  Prefix 2: A,I,B,I,A,I,C,I,   -- Count: 85
+  Probability: 0.9876
+
+Negative example at state 31:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 9711320
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 412
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 9711320
+  Prefix 2: C,I,   -- Count: 37448741
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 9711320
+  Prefix 2: C,I,C,I,   -- Count: 2024
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 9711320
+  Prefix 2: I,   -- Count: 179592
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 9711320
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 6804484
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 9711320
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 3735388
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 9711320
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 3736545
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,A,I,B,I,   -- Count: 9711320
+  Prefix 2: I,A,I,B,I,C,I,C,I,   -- Count: 92
+  Probability: 0.9948
+
+Negative example at state 31:
+  Prefix 1: I,A,I,B,I,   -- Count: 14176549
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12982775
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: I,A,I,B,I,   -- Count: 14176549
+  Prefix 2: A,I,B,I,A,I,C,I,   -- Count: 85
+  Probability: 0.9876
+
+Negative example at state 31:
+  Prefix 1: I,A,I,B,I,   -- Count: 14176549
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 412
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: I,A,I,B,I,   -- Count: 14176549
+  Prefix 2: C,I,   -- Count: 37448741
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: I,A,I,B,I,   -- Count: 14176549
+  Prefix 2: C,I,C,I,   -- Count: 2024
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: I,A,I,B,I,   -- Count: 14176549
+  Prefix 2: I,   -- Count: 179592
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: I,A,I,B,I,   -- Count: 14176549
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 6804484
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: I,A,I,B,I,   -- Count: 14176549
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 3735388
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: I,A,I,B,I,   -- Count: 14176549
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 3736545
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: I,A,I,B,I,   -- Count: 14176549
+  Prefix 2: I,A,I,B,I,C,I,C,I,   -- Count: 92
+  Probability: 0.9948
+
+Negative example at state 31:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 224
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12982775
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 224
+  Prefix 2: A,I,B,I,A,I,C,I,   -- Count: 85
+  Probability: 0.9876
+
+Negative example at state 31:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 224
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 412
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 224
+  Prefix 2: C,I,   -- Count: 37448741
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 224
+  Prefix 2: C,I,C,I,   -- Count: 2024
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 224
+  Prefix 2: I,   -- Count: 179592
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 224
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 6804484
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 224
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 3735388
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 224
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 3736545
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: B,I,B,I,A,I,B,I,   -- Count: 224
+  Prefix 2: I,A,I,B,I,C,I,C,I,   -- Count: 92
+  Probability: 0.9948
+
+Negative example at state 31:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 208
+  Prefix 2: A,I,B,I,C,I,   -- Count: 12982775
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 208
+  Prefix 2: A,I,B,I,A,I,C,I,   -- Count: 85
+  Probability: 0.9876
+
+Negative example at state 31:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 208
+  Prefix 2: A,I,B,I,C,I,C,I,   -- Count: 412
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 208
+  Prefix 2: C,I,   -- Count: 37448741
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 208
+  Prefix 2: C,I,C,I,   -- Count: 2024
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 208
+  Prefix 2: I,   -- Count: 179592
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 208
+  Prefix 2: I,A,I,B,I,C,I,   -- Count: 6804484
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 208
+  Prefix 2: B,I,A,I,B,I,C,I,   -- Count: 3735388
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 208
+  Prefix 2: C,I,A,I,B,I,C,I,   -- Count: 3736545
+  Probability: 1.0000
+
+Negative example at state 31:
+  Prefix 1: C,I,C,I,A,I,B,I,   -- Count: 208
+  Prefix 2: I,A,I,B,I,C,I,C,I,   -- Count: 92
+  Probability: 0.9948
+
