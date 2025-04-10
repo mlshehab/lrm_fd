@@ -224,9 +224,7 @@ def parse_args():
 if __name__ == '__main__':
     # Parse command-line arguments
     args = parse_args()
-    
-    # Set the depth variable from the command line argument
-   
+
 
 
     bw = BlocksWorldMDP(num_piles=3)
