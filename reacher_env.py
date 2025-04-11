@@ -2,7 +2,7 @@ import gymnasium as gym
 import numpy as np
 from tqdm import tqdm
 # Environment setup
-env = gym.make('Reacher-v5')
+
 
 # Discretization parameters
 xy_grid_size = 0.02  # 2cm grid resolution
@@ -22,6 +22,17 @@ def discretize_xy(xy):
     y_idx = np.digitize(xy[1], y_bins) - 1
     return (x_idx, y_idx)
 
+def midpoint_from_idx(x_idx, y_idx):
+    x_mid = x_bins[x_idx] + xy_grid_size / 2
+    y_mid = y_bins[y_idx] + xy_grid_size / 2
+    return (x_mid, y_mid)
+
+def midpoint_from_action_idx(a):
+    a0_idx, a1_idx = a
+    a0_mid = action_bins[a0_idx] + action_grid_size / 2
+    a1_mid = action_bins[a1_idx] + action_grid_size / 2
+    return (a0_mid, a1_mid)
+
 # Helper function to discretize actions
 def discretize_action(act):
     a0_idx = np.digitize(act[0], action_bins) - 1
@@ -30,7 +41,10 @@ def discretize_action(act):
 
 # Generate state and action indexing dictionaries
 state_to_idx = {(i, j): idx for idx, (i, j) in enumerate([(x, y) for x in range(len(x_bins)) for y in range(len(y_bins))])}
+idx_to_state = {idx: (i, j) for (i, j), idx in state_to_idx.items()}
+
 action_to_idx = {(i, j): idx for idx, (i, j) in enumerate([(a0, a1) for a0 in range(len(action_bins)) for a1 in range(len(action_bins))])}
+idx_to_action = {idx: (i, j) for (i, j), idx in action_to_idx.items()}
 
 # Initialize transition matrices
 n_states = len(state_to_idx)
@@ -38,35 +52,37 @@ n_actions = len(action_to_idx)
 transition_counts = np.zeros((n_actions, n_states, n_states))
 
 # Run simulations
-n_steps = int(2e7)
-obs, _ = env.reset()
+if __name__ == "__main__":
+    env = gym.make('Reacher-v5')
+    n_steps = int(2e7)
+    obs, _ = env.reset()
 
-for _ in tqdm(range(n_steps)):
-    action = env.action_space.sample()
-    discrete_action = discretize_action(action)
-    action_idx = action_to_idx[discrete_action]
+    for _ in tqdm(range(n_steps)):
+        action = env.action_space.sample()
+        discrete_action = discretize_action(action)
+        action_idx = action_to_idx[discrete_action]
 
-    current_xy = env.unwrapped.get_body_com("fingertip")[:2]
-    current_state = discretize_xy(current_xy)
-    current_state_idx = state_to_idx[current_state]
+        current_xy = env.unwrapped.get_body_com("fingertip")[:2]
+        current_state = discretize_xy(current_xy)
+        current_state_idx = state_to_idx[current_state]
 
-    obs, reward, terminated, truncated, _ = env.step(action)
+        obs, reward, terminated, truncated, _ = env.step(action)
 
-    next_xy = env.unwrapped.get_body_com("fingertip")[:2]
-    next_state = discretize_xy(next_xy)
-    next_state_idx = state_to_idx[next_state]
+        next_xy = env.unwrapped.get_body_com("fingertip")[:2]
+        next_state = discretize_xy(next_xy)
+        next_state_idx = state_to_idx[next_state]
 
-    transition_counts[action_idx, current_state_idx, next_state_idx] += 1
+        transition_counts[action_idx, current_state_idx, next_state_idx] += 1
 
-    if terminated or truncated:
-        obs, _ = env.reset()
+        if terminated or truncated:
+            obs, _ = env.reset()
 
-# Normalize to form transition probability matrices
-transition_matrices = transition_counts / np.maximum(transition_counts.sum(axis=2, keepdims=True), 1)
+    # Normalize to form transition probability matrices
+    transition_matrices = transition_counts / np.maximum(transition_counts.sum(axis=2, keepdims=True), 1)
 
-# Save the transition matrices to a file
-np.save("transition_matrices.npy", transition_matrices)
-print("Transition matrices have been saved to transition_matrices.npy")
+    # Save the transition matrices to a file
+    np.save("transition_matrices.npy", transition_matrices)
+    print("Transition matrices have been saved to transition_matrices.npy")
 
 # print(f"The transition matrices are: {transition_matrices.shape}")
 
@@ -79,7 +95,7 @@ print("Transition matrices have been saved to transition_matrices.npy")
 #         probs = transition_matrices[action_idx, state_idx]
 #         print(f"  From state {state_idx} probabilities: {probs[probs > 0]}")
 
-env.close()
+    env.close()
 
 
 
