@@ -5,7 +5,51 @@ import time
 from utils.mdp import MDP, MDPRM
 from itertools import permutations, product
 
-def infinite_horizon_soft_bellman_iteration(MDP, reward,  tol = 1e-4, logging = True, log_iter = 5, policy_test_iter = 20):
+
+
+def infinite_horizon_soft_bellman_iteration(MDP, reward, tol=1e-4, logging=True, log_iter=5, policy_test_iter=20):
+    print("Using a new soft bellman iteration ...")
+    gamma = MDP.gamma
+    n_actions = MDP.n_actions
+    n_states = MDP.n_states
+
+    v_soft = np.zeros(n_states)  # shape: (n_states,)
+    q_soft = np.zeros((n_states, n_actions))  # shape: (n_states, n_actions)
+
+    delta = np.inf
+    it = 0
+    total_time = 0.0
+
+    while delta > tol:
+        it += 1
+        start_time = time.time()
+
+        # Vectorized Bellman backup for q_soft
+        for a in range(n_actions):
+            P_a = MDP.P[a]  # shape: (n_states, n_states)
+            r_a = reward[:, a, :]  # shape: (n_states, n_states)
+            expected_r = np.sum(P_a * r_a, axis=1)  # shape: (n_states,)
+            expected_v = gamma * P_a @ v_soft       # shape: (n_states,)
+            q_soft[:, a] = expected_r + expected_v
+
+        v_new_soft = logsumexp(q_soft, axis=1)
+
+        delta = np.linalg.norm(v_new_soft - v_soft)
+
+        end_time = time.time()
+        total_time += end_time - start_time
+
+        if logging and it % log_iter == 0:
+            print(f"Iter {it}: Δ={delta:.6f}, Time: {end_time - start_time:.2f}s, Total: {total_time:.2f}s")
+
+        v_soft = v_new_soft
+
+    # Compute softmax policy
+    soft_policy = softmax(q_soft, axis=1)
+
+    return q_soft, v_soft, soft_policy
+
+def infinite_horizon_soft_bellman_iteration_V2(MDP, reward,  tol = 1e-4, logging = True, log_iter = 5, policy_test_iter = 20):
 
     gamma = MDP.gamma
     n_actions = MDP.n_actions

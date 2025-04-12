@@ -5,8 +5,8 @@ from tqdm import tqdm
 
 
 # Discretization parameters
-xy_grid_size = 0.02  # 2cm grid resolution
-action_grid_size = 0.5  # discrete bins in [-1, 1]
+xy_grid_size = 0.01  # 2cm grid resolution
+action_grid_size = 0.1  # discrete bins in [-1, 1]
 
 # Define state discretization boundaries (workspace ~0.2 radius)
 xy_bound = 0.22
@@ -50,11 +50,11 @@ idx_to_action = {idx: (i, j) for (i, j), idx in action_to_idx.items()}
 n_states = len(state_to_idx)
 n_actions = len(action_to_idx)
 transition_counts = np.zeros((n_actions, n_states, n_states))
-
+print(transition_counts.shape)
 # Run simulations
 if __name__ == "__main__":
     env = gym.make('Reacher-v5')
-    n_steps = int(2e7)
+    n_steps = int(10000)
     obs, _ = env.reset()
 
     for _ in tqdm(range(n_steps)):

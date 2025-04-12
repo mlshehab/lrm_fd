@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 from utils.mdp import MDP, MDPRM
 from dynamics.BlockWorldMDP import BlocksWorldMDP, infinite_horizon_soft_bellman_iteration
-
+from dynamics.BlockWorldMDP import infinite_horizon_soft_bellman_iteration_V2
 from reacher_env import state_to_idx, action_to_idx, discretize_xy, discretize_action, midpoint_from_idx, midpoint_from_action_idx
 from reacher_env import idx_to_action, action_bins
 
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     for a in range(n_actions):
         # print(f"The matrix shape is: {transition_matrices[a,:,:]}")
         Pa = transition_matrices[a,:,:]
-        print(f"We have {np.sum(Pa.sum(axis=1))}/{Pa.shape[0]} zero entries in the transition matrix for action {a}")
+        # print(f"We have {np.sum(Pa.sum(axis=1))}/{Pa.shape[0]} zero entries in the transition matrix for action {a}")
         # If there's a row in Pa that's all zeros, fix it with 1/n_states
         for i in range(Pa.shape[0]):
             if np.all(Pa[i, :] == 0):
@@ -52,27 +52,37 @@ if __name__ == '__main__':
  
     # # now we need a state action state reward for the product MDP
     reward = np.zeros((mdp.n_states, mdp.n_actions, mdp.n_states))
-    reward[target_state_idx,:,:] = 100.0
+    reward[target_state_idx,:,target_state_idx] = 10000.0
     # # print(f"Reward: {reward.shape}, S: {mdp.n_states}, A: {mdp.n_actions}, RM: {rm.n_states}")
 
 
                 
-    # q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp,reward,logging = True)
+    q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp,reward,logging = True,log_iter = 1)
+
+
     # print(f"The shape of the policy is: {soft_policy.shape}")
     # # Save the policy to a file
-    # np.save("soft_policy.npy", soft_policy)
-    # print("Soft policy has been saved to soft_policy.npy")
+    np.save("soft_policy.npy", soft_policy)
+    print("Soft policy has been saved to soft_policy.npy")
 
-    # Load the policy from the file
-    soft_policy = np.load("soft_policy.npy")
-    print("Soft policy has been loaded from soft_policy.npy")
+    # # Load the policy from the file
+    # soft_policy = np.load("soft_policy.npy")
+    # # for state_idx in range(soft_policy.shape[0]):
+    # #     action_probs = soft_policy[state_idx, :]
+    # #     top_5_actions = np.argsort(action_probs)[-5:][::-1]
+    # #     print(f"State {state_idx}: Top 5 actions with highest probabilities:")
+    # #     for action in top_5_actions:
+    # #         print(f"  Action {action}: Probability {action_probs[action]:.6f}")
+
+
+    # print("Soft policy has been loaded from soft_policy.npy")
 
     # # Reset the environment
     env = gym.make('Reacher-v5',render_mode="human")
     obs, info = env.reset()
 
     # Simulate for 500 steps with a random policy
-    for _ in range(1):
+    for _ in range(5000):
         current_xy = env.unwrapped.get_body_com("fingertip")[:2]
         current_state = discretize_xy(current_xy)
         current_state_idx = state_to_idx[current_state]
