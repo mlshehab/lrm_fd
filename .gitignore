@@ -9,3 +9,4 @@ objects*
 __pycache__/
 *.pyc
 *.npy
+transition_matrices.npy
