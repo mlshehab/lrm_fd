@@ -53,8 +53,8 @@ class ForceRandomizedReacher(gym.Wrapper):
         data.qpos[1] = np.random.uniform(-1.0, 1.0)  # Joint 1
         
         # Randomize ARM VELOCITIES (qvel[0] and qvel[1])
-        data.qvel[0] = np.random.uniform(-0.5, 0.5)
-        data.qvel[1] = np.random.uniform(-0.5, 0.5)
+        # data.qvel[0] = np.random.uniform(-0.5, 0.5)
+        # data.qvel[1] = np.random.uniform(-0.5, 0.5)
         
         # CRITICAL: Update physics *immediately* after changing state
         mujoco.mj_forward(model, data)
@@ -67,10 +67,10 @@ env = gym.make("Reacher-v5", render_mode="human", max_episode_steps=150)
 env = ForceRandomizedReacher(env)  # Wrap it
 print(f"The env starting is: {env.unwrapped.model.nq}")
 # Test randomization
-for _ in range(50):
-    obs, _ = env.reset()
-    x = env.unwrapped.get_body_com("fingertip")[:2]
-    print(f"Arm joint angles: {x}")  # Should differ each time
+# for _ in range(50):
+#     obs, _ = env.reset()
+#     x = env.unwrapped.get_body_com("fingertip")[:2]
+#     print(f"Arm joint angles: {x}")  # Should differ each time
 # env = gym.make("Reacher-v5", render_mode="human",max_episode_steps=150)
 
 # Reset the environment
