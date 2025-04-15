@@ -37,6 +37,58 @@ def inverse_kinematics(x, y, L1=0.1, L2=0.11):
     return theta1, theta2
 
 
+
+class ReacherDiscretizer:
+    def __init__(self,
+                 xy_grid_size=0.01,
+                 action_grid_size=0.1,
+                 xy_bound=0.22,
+                 action_bound=1):
+        
+        self.xy_grid_size = xy_grid_size
+        self.action_grid_size = action_grid_size
+        self.xy_bound = xy_bound
+
+        # State and action bins
+        self.x_bins = np.arange(-xy_bound, xy_bound + xy_grid_size, xy_grid_size)
+        self.y_bins = np.arange(-xy_bound, xy_bound + xy_grid_size, xy_grid_size)
+        self.action_bins = np.arange(-action_bound, action_bound + action_grid_size, action_grid_size)
+
+        # Index maps
+        self.state_to_idx, self.idx_to_state = self._build_state_maps()
+        self.action_to_idx, self.idx_to_action = self._build_action_maps()
+
+        # Transition counts and probabilities
+        self.n_states = len(self.state_to_idx)
+        self.n_actions = len(self.action_to_idx)
+        self.transition_counts = np.zeros((self.n_actions, self.n_states, self.n_states))
+        self.transition_matrices = None
+
+    def _build_state_maps(self):
+        states = [(i, j) for i in range(len(self.x_bins)) for j in range(len(self.y_bins))]
+        state_to_idx = {state: idx for idx, state in enumerate(states)}
+        idx_to_state = {idx: state for state, idx in state_to_idx.items()}
+        return state_to_idx, idx_to_state
+
+    def _build_action_maps(self):
+        actions = [(i, j) for i in range(len(self.action_bins)) for j in range(len(self.action_bins))]
+        action_to_idx = {act: idx for idx, act in enumerate(actions)}
+        idx_to_action = {idx: act for act, idx in action_to_idx.items()}
+        return action_to_idx, idx_to_action
+
+    def discretize_xy(self, xy):
+        x_idx = np.digitize(xy[0], self.x_bins) - 1
+        y_idx = np.digitize(xy[1], self.y_bins) - 1
+        return (x_idx, y_idx)
+
+    def discretize_action(self, act):
+        a0_idx = np.digitize(act[0], self.action_bins) - 1
+        a1_idx = np.digitize(act[1], self.action_bins) - 1
+        return (a0_idx, a1_idx)
+
+
+
+
 def set_target_position(env, x, y):
 
 
