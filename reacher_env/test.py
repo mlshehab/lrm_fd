@@ -196,12 +196,12 @@ for _ in range(1000):
   
     distance_to_target = np.sqrt(obs[8]**2 + obs[9]**2)
 
-    # if distance_to_target < 0.02:
-    #     print("Target reached")
-    #     targets_goals.append(targets_goals.pop(0))
-    #     print(f"Targets remaining: {targets_goals}")
-    #     current_target = target_dict[targets_goals[0]]
-    #     set_target_position(env, current_target[0], current_target[1])
+    if distance_to_target < 0.02:
+        print("Target reached")
+        targets_goals.append(targets_goals.pop(0))
+        print(f"Targets remaining: {targets_goals}")
+        current_target = target_dict[targets_goals[0]]
+        set_target_position(env, current_target[0], current_target[1])
 
 
 
