@@ -256,7 +256,8 @@ class ReacherDiscreteSimulator():
 
         for _ in range(len_traj):
             
-            continuous_action, _ = self.policy.predict(obs, deterministic=False)
+            continuous_action = self.env.action_space.sample()
+            # continuous_action, _ = self.policy.predict(continuous_state, deterministic=False)
    
             # Log the continuous action for debugging
         
@@ -265,7 +266,42 @@ class ReacherDiscreteSimulator():
 
             # Sample a next state 
             obs, reward, terminated, truncated, info = self.env.step(continuous_action)
-            
+
+            cos_theta1, cos_theta2, sin_theta1, sin_theta2 = obs[0], obs[1], obs[2], obs[3] 
+
+            theta1 = np.arctan2(sin_theta1, cos_theta1)
+            theta2 = np.arctan2(sin_theta2, cos_theta2)
+            theta1_from_env = self.env.unwrapped.data.qpos.flatten()[0]
+            theta2_from_env = self.env.unwrapped.data.qpos.flatten()[1]
+            theta_1_dot = obs[6]
+            theta_2_dot = obs[7]
+            # Initialize min and max values if they don't exist
+            if not hasattr(self, 'min_theta_1_dot'):
+                self.min_theta_1_dot = float('inf')
+            if not hasattr(self, 'max_theta_1_dot'):
+                self.max_theta_1_dot = float('-inf')
+            if not hasattr(self, 'min_theta_2_dot'):
+                self.min_theta_2_dot = float('inf')
+            if not hasattr(self, 'max_theta_2_dot'):
+                self.max_theta_2_dot = float('-inf')
+
+            # Update min and max values for theta_1_dot
+            if theta_1_dot < self.min_theta_1_dot:
+                self.min_theta_1_dot = theta_1_dot
+                print(f"New min theta_1_dot: {self.min_theta_1_dot}")
+            if theta_1_dot > self.max_theta_1_dot:
+                self.max_theta_1_dot = theta_1_dot
+                print(f"New max theta_1_dot: {self.max_theta_1_dot}")
+
+            # Update min and max values for theta_2_dot
+            if theta_2_dot < self.min_theta_2_dot:
+                self.min_theta_2_dot = theta_2_dot
+                print(f"New min theta_2_dot: {self.min_theta_2_dot}")
+            if theta_2_dot > self.max_theta_2_dot:
+                self.max_theta_2_dot = theta_2_dot
+                print(f"New max theta_2_dot: {self.max_theta_2_dot}")
+            # print(f"The absolute difference between the two theta1 is {np.round(abs(theta1 - theta1_from_env), 4)}")
+            # print(f"The absolute difference between the two theta2 is {np.round(abs(theta2 - theta2_from_env), 4)}")
             self.env.render()
 
             distance_to_target = np.sqrt(obs[8]**2 + obs[9]**2)
@@ -306,6 +342,7 @@ class ReacherDiscreteSimulator():
             label = label + l + ','
 
             if terminated or truncated:
+                print("\n\n Terminated or truncated \n\n")
                 obs, info = env.reset(qpos_override=[theta1, theta2])
                 self.env.render()
                 time.sleep(1)
@@ -417,7 +454,7 @@ if __name__ == "__main__":
     rd = ReacherDiscretizer(target_dict=target_dict)
     policy = PPO.load("ppo_reacher_randomized_ic", device="cpu")
     rds = ReacherDiscreteSimulator(env, policy, rd, targets_goals)
-    rds.sample_trajectory(starting_state=target_yellow, len_traj=1500)
+    rds.sample_trajectory(starting_state=target_blue, len_traj=1500)
 
 
 
