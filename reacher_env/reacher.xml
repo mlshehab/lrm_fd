@@ -37,6 +37,9 @@
         <body name="target_c" pos="-0.12 0.1 0.01">
             <geom name="target_c" type="sphere" size="0.01" rgba="1 1 0 1"/>
         </body>
+		<body name="target_d" pos="0.12 -0.1 0.01">
+            <geom name="target_d" type="sphere" size="0.01" rgba="0 0 1 1"/>
+        </body>
 	</worldbody>
 	<actuator>
 		<motor ctrllimited="true" ctrlrange="-1.0 1.0" gear="200.0" joint="joint0"/>

@@ -5,7 +5,7 @@ from scipy.stats import entropy
 import gymnasium as gym
 from stable_baselines3 import PPO # type: ignore
 import mujoco
-
+import time
 def inverse_kinematics(x, y, L1=0.1, L2=0.11):
     """
     Calculate joint angles for a 2-link planar arm to reach target position (x, y)
@@ -73,8 +73,8 @@ class ForceRandomizedReacher(gym.Wrapper):
             data.qpos[0] = qpos_override[0]
             data.qpos[1] = qpos_override[1]
         else:
-            data.qpos[0] = -1.5707 / 2
-            data.qpos[1] = 0.0
+            data.qpos[0] = np.random.uniform(-np.pi, np.pi)
+            data.qpos[1] = np.random.uniform(-np.pi, np.pi)
 
         # Override velocities
         if qvel_override is not None:
@@ -142,16 +142,16 @@ class ReacherDiscretizer:
         y_mid = self.y_bins[y_idx] + self.xy_grid_size / 2
         return (x_mid, y_mid)
 
-    def L(self, state_idx, threshold=0.01):
+    def L(self, state_idx, threshold=0.02):
         x_idx , y_idx = self.idx_to_state[state_idx]
         x_mid, y_mid = self.midpoint_from_idx(x_idx, y_idx)
 
-        target_green = self.target_dict["green"]
+        target_blue = self.target_dict["blue"]
         target_red = self.target_dict["red"]
         target_yellow = self.target_dict["yellow"]
 
-        if np.linalg.norm(np.array(target_green) - np.array([x_mid, y_mid])) < threshold:
-            return 'G'
+        if np.linalg.norm(np.array(target_blue) - np.array([x_mid, y_mid])) < threshold:
+            return 'B'
         elif np.linalg.norm(np.array(target_red) - np.array([x_mid, y_mid])) < threshold:
             return 'R'
         elif np.linalg.norm(np.array(target_yellow) - np.array([x_mid, y_mid])) < threshold:
@@ -199,6 +199,8 @@ class ReacherDiscreteSimulator():
 
         
         obs, _ = self.env.reset(qpos_override=[theta1, theta1])
+        sim = 0
+        print(f"Simulation -- {sim}")
 
         for _ in range(len_traj):
             
@@ -211,6 +213,7 @@ class ReacherDiscreteSimulator():
 
             # Sample a next state 
             obs, reward, terminated, truncated, info = self.env.step(continuous_action)
+            
             self.env.render()
 
             distance_to_target = np.sqrt(obs[8]**2 + obs[9]**2)
@@ -218,7 +221,7 @@ class ReacherDiscreteSimulator():
             if distance_to_target < threshold:
                 print("Target reached")
                 self.target_goals.append(self.target_goals.pop(0))
-                print(f"Targets remaining: {self.target_goals}")
+                # print(f"Targets remaining: {self.target_goals}")
                 current_target = self.rd.target_dict[self.target_goals[0]]
                 set_target_position(env, current_target[0], current_target[1])
         
@@ -247,16 +250,21 @@ class ReacherDiscreteSimulator():
             next_discrete_state_idx = self.rd.state_to_idx[next_discrete_state_tuple]
 
             l = self.rd.L(next_discrete_state_idx)
+           
             label = label + l + ','
 
             if terminated or truncated:
                 obs, info = env.reset(qpos_override=[theta1, theta2])
-               
-               
+                self.env.render()
+                time.sleep(1)
                 current_target = self.rd.target_dict[self.target_goals[0]]
                 set_target_position(self.env, current_target[0], current_target[1])
                 print(f"The label is {compressed_label}")  
-                compressed_label = ''  
+                label = self.rd.L(discrete_state_idx) + ','  
+
+                sim += 1
+                print(f"Simulation -- {sim}")
+
         self.env.close()           
             
 
@@ -342,22 +350,20 @@ class ReacherDiscreteSimulator():
         return grouped_traces
     
 
-
-
 if __name__ == "__main__":
     env = gym.make("Reacher-v5", render_mode="human", max_episode_steps=150,xml_file="./reacher.xml")
     env = ForceRandomizedReacher(env)  # Wrap it
 
-    target_green = [0.12, -0.1]
+    target_blue = [0.12, -0.1]
     target_red = [0.12, 0.1]
     target_yellow = [-0.12, 0.1]
 
-    target_dict = {"green": target_green, "red": target_red, "yellow": target_yellow}
+    target_dict = {"blue": target_blue, "red": target_red, "yellow": target_yellow}
 
-    targets_goals = ["green", "red", "yellow"]
+    targets_goals = ["blue", "red", "yellow"]
 
     rd = ReacherDiscretizer(target_dict=target_dict)
-    policy = PPO.load("ppo_reacher", device="cpu")
+    policy = PPO.load("ppo_reacher_randomized_ic", device="cpu")
     rds = ReacherDiscreteSimulator(env, policy, rd, targets_goals)
     rds.sample_trajectory(starting_state=target_yellow, len_traj=1500)
 
