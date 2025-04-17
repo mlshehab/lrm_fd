@@ -16,8 +16,8 @@ model = PPO("MlpPolicy", vec_env, verbose=1, device="cpu")
 # print(next(model.policy.parameters()).device)  # should say cuda:0
 
 # Train the model
-model.learn(total_timesteps=20_000_000)
-model.save("ppo_reacher")
+model.learn(total_timesteps=1_000_000)
+model.save("ppo_reacher_apple")
 # Evaluate the trained agent with rendering
 # obs, _ = env.reset()
 # done = False
