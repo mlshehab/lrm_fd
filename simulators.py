@@ -149,12 +149,6 @@ class BlockworldSimulator(Simulator):
             if not label_exists:
                 self.state_action_counts[state].append((compressed_label, Counter({a: 1})))
 
-
-            # Debugging
-            # if self.L[state] in {'A', 'B', 'C'}:
-            #     print(f"Passed through {self.L[state]} !!!")
-
-
             l = self.L[next_state]
             label = label + l + ','
             u = u_from_obs(label, self.rm)
