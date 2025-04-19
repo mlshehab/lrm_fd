@@ -31,14 +31,14 @@
 			<joint armature="0" axis="0 1 0" damping="0" limited="true" name="target_y" pos="0 0 0" range="-.27 .27" ref="-.1" stiffness="0" type="slide"/>
 			<geom conaffinity="0" contype="0" name="target" pos="0 0 0" rgba="0 1 0 1" size=".009" type="sphere"/>
 		</body>
-        <body name="target_b" pos="0.12 0.1 0.0">
-            <geom name="target_b" type="sphere" size="0.01" rgba="1 0 0 1"/>
+        <body name="target_red" pos="0.1 0.11 0.0">
+            <geom name="target_red" type="sphere" size="0.01" rgba="1 0 0 1"/>
         </body>
-        <body name="target_c" pos="-0.12 0.1 0.0">
-            <geom name="target_c" type="sphere" size="0.01" rgba="1 1 0 1"/>
+        <body name="target_yellow" pos="-0.1 0.11 0.0">
+            <geom name="target_yellow" type="sphere" size="0.01" rgba="1 1 0 1"/>
         </body>
-		<body name="target_d" pos="0.12 -0.1 0.0">
-            <geom name="target_d" type="sphere" size="0.01" rgba="0 0 1 1"/>
+		<body name="target_blue" pos="0.1 -0.11 0.0">
+            <geom name="target_blue" type="sphere" size="0.01" rgba="0 0 1 1"/>
         </body>
 	</worldbody>
 	<actuator>

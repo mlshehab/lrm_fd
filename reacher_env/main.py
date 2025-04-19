@@ -36,84 +36,86 @@ def f(epsilon_1, n1, n2, A, epsilon):
 
 
 from simulators import Simulator, BlockworldSimulator
-from helpers import similarity, solve_sat_instance, parse_args, generate_policy_comparison_report
-from helpers import parse_args, generate_label_combinations
-
+from  re_helpers import similarity, solve_sat_instance, parse_args, generate_policy_comparison_report
+from  re_helpers import parse_args, generate_label_combinations
+from simulator import ReacherDiscreteSimulator, ForceRandomizedReacher, ReacherDiscretizer
 
 
 
 
 if __name__ == '__main__':
 
-    args = parse_args()
-    # print(f"The arguments are: {args}")
-    bw = BlocksWorldMDP(num_piles=3)
-    transition_matrices,s2i, i2s = bw.extract_transition_matrices_v2()
-    n_states = bw.num_states
-    n_actions = bw.num_actions
+    # args = parse_args()
+    # # print(f"The arguments are: {args}")
+    # bw = BlocksWorldMDP(num_piles=3)
+    # transition_matrices,s2i, i2s = bw.extract_transition_matrices_v2()
+    # n_states = bw.num_states
+    # n_actions = bw.num_actions
 
-    P = []
+    # P = []
 
-    for a in range(n_actions):
-        # print(f"The matrix shape is: {transition_matrices[a,:,:]}")
-        P.append(transition_matrices[a,:,:])
+    # for a in range(n_actions):
+    #     # print(f"The matrix shape is: {transition_matrices[a,:,:]}")
+    #     P.append(transition_matrices[a,:,:])
 
-    mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = 0.9,horizon=10)
+    # mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = 0.9,horizon=10)
 
-    rm = RewardMachine("./rm_examples/dynamic_stacking.txt")
+    rm = RewardMachine("../rm_examples/reacher.txt")
 
-    L = {}
+    # L = {}
 
-    print(f"The number of states is: {len(s2i.keys())}")
+    # print(f"The number of states is: {len(s2i.keys())}")
 
-    target_state_1 = ((0,1,2),(),())
-    target_state_2 = ((),(2,1,0),())
-    target_state_3 = ((),(),(2,1,0))
-    bad_state = ((0,),(1,),(2,))
+    # target_state_1 = ((0,1,2),(),())
+    # target_state_2 = ((),(2,1,0),())
+    # target_state_3 = ((),(),(2,1,0))
+    # bad_state = ((0,),(1,),(2,))
 
-    for state_index in range(bw.num_states):
-        if state_index == s2i[target_state_1]:
-            L[state_index] = 'A'
-        elif state_index == s2i[target_state_2]:
-            L[state_index] = 'B'
-        elif state_index == s2i[target_state_3]:
-            L[state_index] = 'C'
-        else:
-            L[state_index] = 'I'
+    # for state_index in range(bw.num_states):
+    #     if state_index == s2i[target_state_1]:
+    #         L[state_index] = 'A'
+    #     elif state_index == s2i[target_state_2]:
+    #         L[state_index] = 'B'
+    #     elif state_index == s2i[target_state_3]:
+    #         L[state_index] = 'C'
+    #     else:
+    #         L[state_index] = 'I'
 
     
-    soft_policy = np.load("soft_policy.npy")
+    # soft_policy = np.load("soft_policy.npy")
 
-    bws = BlockworldSimulator(rm = rm,mdp = mdp,L = L,policy = soft_policy,state2index=s2i,index2state=i2s)
+    # bws = BlockworldSimulator(rm = rm,mdp = mdp,L = L,policy = soft_policy,state2index=s2i,index2state=i2s)
     
     
-    starting_states = [s2i[target_state_1], s2i[target_state_2], s2i[target_state_3], 4, 24]
+    # starting_states = [s2i[target_state_1], s2i[target_state_2], s2i[target_state_3], 4, 24]
 
-    start = time.time()
-    max_len = args.depth
-    n_traj = args.n_traj
+    # start = time.time()
+    # max_len = args.depth
+    # n_traj = args.n_traj
     
-    bws.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
-    end = time.time()
+    # bws.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
+    # end = time.time()
 
-    elapsed_time = end - start
-    hours, rem = divmod(elapsed_time, 3600)
-    minutes, seconds = divmod(rem, 60)
-    print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
+    # elapsed_time = end - start
+    # hours, rem = divmod(elapsed_time, 3600)
+    # minutes, seconds = divmod(rem, 60)
+    # print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
 
-    bws.compute_action_distributions()
+    # bws.compute_action_distributions()
 
     # Save the object to a file
-    if args.save:
-        timestamp = time.strftime("%Y%m%d-%H%M%S")
-        with open(f"./objects/object{n_traj}_{max_len}_{timestamp}.pkl", "wb") as foo:
-            pickle.dump(bws, foo)
-        print(f"The object has been saved to ./objects/object{n_traj}_{max_len}_{timestamp}.pkl")
+    # if args.save:
+    #     timestamp = time.strftime("%Y%m%d-%H%M%S")
+    #     with open(f"./objects/object{n_traj}_{max_len}_{timestamp}.pkl", "wb") as foo:
+    #         pickle.dump(bws, foo)
+    #     print(f"The object has been saved to ./objects/object{n_traj}_{max_len}_{timestamp}.pkl")
 
-        generate_policy_comparison_report(bws, rm, soft_policy, n_traj, max_len, timestamp)
-  
-    
-    counter_examples = generate_label_combinations(bws)
+    #     generate_policy_comparison_report(bws, rm, soft_policy, n_traj, max_len, timestamp)
+
+    with open("./objects/object100000_250.pkl", "rb") as foo:
+        rds = pickle.load(foo)
+    print(f"{rds.rd.n_actions}")
+    counter_examples = generate_label_combinations(rds)
 
     # for state, label_dists in bws.state_action_probs.items():
     #     print(f"State: {state}")
@@ -126,12 +128,12 @@ if __name__ == '__main__':
     #         print("  Combinations: None")
 
     p_threshold = 0.95
-    metric = "L1"
+    
     kappa = 3
     AP = 4
-    
-    solutions, n_constraints, n_states, solve_time, prob_values, wrong_ce_counts = solve_sat_instance(bws, counter_examples,rm, metric, kappa, AP, p_threshold=0.95)
-    print(f"The number of constraints is: {n_constraints}")
+    alpha = 0.005
+    solutions, total_constraints,  filtered_counter_examples , solve_time = solve_sat_instance(rds, counter_examples, rm, kappa, AP, alpha)
+    print(f"The number of constraints is: {total_constraints}, { filtered_counter_examples }")
     print(f"The number of solutions is: {len(solutions)}")
     # for solution in solutions:
     #     print("\nSolution matrices:")
@@ -139,10 +141,10 @@ if __name__ == '__main__':
     #         print(f"\nMatrix {i} ({['A', 'B', 'C', 'I'][i]}):")
     #         for row in matrix:
     #             print("  " + " ".join("1" if x else "0" for x in row))
-    print(f"The wrong counter example counts are: {wrong_ce_counts}")
-    hours, rem = divmod(solve_time, 3600)
-    minutes, seconds = divmod(rem, 60)
-    print(f"The solve time is: {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
+    # print(f"The wrong counter example counts are: {wrong_ce_counts}")
+    # hours, rem = divmod(solve_time, 3600)
+    # minutes, seconds = divmod(rem, 60)
+    # print(f"The solve time is: {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
     # print(f"The count of state 51 is: {bws.state_label_counts[51]}")
 
     # # Run SAT solver for each metric and threshold

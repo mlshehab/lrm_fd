@@ -9,6 +9,12 @@ import time
 import itertools
 import pickle
 import matplotlib.pyplot as plt
+import os
+
+# Set MuJoCo window size
+os.environ['MUJOCO_GL'] = 'egl'  # or 'osmesa', 'glfw', etc.
+os.environ['MUJOCO_WINDOW_WIDTH'] = '1600'  # Increase width
+os.environ['MUJOCO_WINDOW_HEIGHT'] = '2000'  # Increase height
 
 def inverse_kinematics(x, y, L1=0.1, L2=0.11):
     """
@@ -107,9 +113,9 @@ class ReacherDiscretizer:
     def __init__(
         self,
         target_dict,
-        theta_grid_size=np.deg2rad(5),      # 5° resolution ≈ 0.087 rad
+        theta_grid_size=np.deg2rad(10),      # 5° resolution ≈ 0.087 rad
         vel_grid_size=4,                  # rad s⁻¹ resolution
-        action_grid_size=0.5,               # torque resolution
+        action_grid_size=0.1,               # torque resolution
         theta_bound=np.pi,                  # joint limits [‑π, π]
         vel_bound=20.0,                      # assume |q̇| ≤ 1  (override per‑env)
         action_bound=1.0,                   # assume |τ| ≤ 1
@@ -147,6 +153,13 @@ class ReacherDiscretizer:
         red_solutions = self._double_inverse_kinematics(self.target_dict["red"][0], self.target_dict["red"][1])
         yellow_solutions = self._double_inverse_kinematics(self.target_dict["yellow"][0], self.target_dict["yellow"][1])
         solutions = [blue_solutions, red_solutions, yellow_solutions]
+        
+        self.solutions = {
+            "blue": blue_solutions,
+            "red": red_solutions,
+            "yellow": yellow_solutions
+        }
+       
         x_grid = [-np.pi]
         y_grid = [-np.pi]
         
@@ -154,7 +167,7 @@ class ReacherDiscretizer:
         for sols in solutions:
             for theta1, theta2 in sols:
                 # Calculate half of the grid size in radians
-                half_size = np.deg2rad(5)/2
+                half_size = self.theta_grid_size
                 
                 # Add points around each solution
                 x_grid.extend([theta1 - half_size, theta1 + half_size])
@@ -228,14 +241,17 @@ class ReacherDiscretizer:
     # ---------------------------------------------------------------------
     #                               LABELING
     # ---------------------------------------------------------------------
-    def L(self, state_idx, threshold=0.02):
-        """Return colour label based on distance of end‑effector to targets."""
-        theta1, theta2, _, _ = self.midpoint_from_state_idx(state_idx)
-        x, y = self._forward_kinematics(theta1, theta2)
-        # x,y = eef_pos
-        for colour, target_xy in self.target_dict.items():
-            if np.linalg.norm(np.array(target_xy) - np.array([x,y])) < threshold:
-                return colour[0].upper()  # 'blue' -> 'B'
+    def L(self, state):
+        """Return colour label based on whether joint angles are within solution boxes for targets."""
+        theta1, theta2, _ , _ = state
+        
+        # Check if joint angles are within solution boxes for each target
+        for colour, solutions in self.solutions.items():
+            for sol in solutions:
+                theta1_sol, theta2_sol = sol
+                if (abs(theta1 - theta1_sol) < self.theta_grid_size and 
+                    abs(theta2 - theta2_sol) < self.theta_grid_size):
+                    return colour[0].upper()  # 'blue' -> 'B'
         return 'I'  # intermediate / none
 
     # ---------------------------------------------------------------------
@@ -274,6 +290,8 @@ class ReacherDiscreteSimulator():
         self.state_action_counts = {}  # Dictionary to track actions for (label, state)
         self.state_action_probs = {}
         self.state_label_counts = {}
+        self.n_actions = self.rd.n_actions
+        self.n_states = self.rd.n_states
 
 
     def remove_consecutive_duplicates(self, s):
@@ -309,7 +327,7 @@ class ReacherDiscreteSimulator():
         discrete_state_tuple = self.rd.discretize_state(continuous_state)
         discrete_state_idx = self.rd.state_to_idx[discrete_state_tuple]
         # eef_pos = self.env.unwrapped.get_body_com("fingertip")[:2]
-        label = self.rd.L(discrete_state_idx) + ','
+        label = self.rd.L(continuous_state) + ','
         
 
        
@@ -328,16 +346,6 @@ class ReacherDiscreteSimulator():
             discrete_action_idx = self.rd.action_to_idx[discrete_action_tuple]
 
 
-            distance_to_target = np.sqrt(obs[8]**2 + obs[9]**2)
-
-            if distance_to_target < threshold:
-                # print("Target reached")
-                self.target_goals.append(self.target_goals.pop(0))
-                # print(f"Targets remaining: {self.target_goals}")
-                current_target = self.rd.target_dict[self.target_goals[0]]
-                set_target_position(env, current_target[0], current_target[1])
-
-        
             # Compress the label
             compressed_label = self.remove_consecutive_duplicates(label)
 
@@ -363,10 +371,29 @@ class ReacherDiscreteSimulator():
             next_discrete_state_idx = self.rd.state_to_idx[next_discrete_state_tuple]
 
             # eef_pos = self.env.unwrapped.get_body_com("fingertip")[:2]
-            l = self.rd.L(next_discrete_state_idx)
-           
+            l = self.rd.L(next_continuous_state)
+
             label = label + l + ','
             discrete_state_idx = next_discrete_state_idx
+
+
+            target_label = self.target_goals[0][0].upper()
+           
+
+            if l == target_label:
+                self.target_goals.append(self.target_goals.pop(0))
+                # print(f"Targets remaining: {self.target_goals}")
+                current_target = self.rd.target_dict[self.target_goals[0]]
+                set_target_position(env, current_target[0], current_target[1])
+            # distance_to_target = np.sqrt(obs[8]**2 + obs[9]**2)
+
+            # if distance_to_target < threshold:
+            #     # print("Target reached")
+            #     self.target_goals.append(self.target_goals.pop(0))
+            #     # print(f"Targets remaining: {self.target_goals}")
+            #     current_target = self.rd.target_dict[self.target_goals[0]]
+            #     set_target_position(env, current_target[0], current_target[1])
+
 
             if terminated or truncated:
                 # print(f"The compressed label is {compressed_label}")
@@ -461,20 +488,16 @@ class ReacherDiscreteSimulator():
 
 
 if __name__ == "__main__":
-    env = gym.make("Reacher-v5",  max_episode_steps=200,xml_file="./reacher.xml")
+    max_len = 250
+    env = gym.make("Reacher-v5",   max_episode_steps=max_len,xml_file="./reacher.xml")
     env = ForceRandomizedReacher(env)  # Wrap it
 
-    target_blue = [0.12, -0.1]
-    target_red = [0.12, 0.1]
-    target_yellow = [-0.12, 0.1]
+    target_blue = [0.1, -0.11]
+    target_red = [0.1, 0.11]
+    target_yellow = [-0.1, 0.11]
     target_random_1 = [0.1,0.0]
     target_random_2 = [0.14,0.05]
-
- 
-    # Create figure and axis
-    
-
-
+     
 
 
     target_dict = {"blue": target_blue, "red": target_red, "yellow": target_yellow}
@@ -487,41 +510,41 @@ if __name__ == "__main__":
     print(rd.n_actions)
     # Initialize empty lists for x and y grid points
     
-    # print("The number of states is ", rd.n_states)
-    # print("The number of actions is ", rd.n_actions)
-    # policy = PPO.load("ppo_reacher_randomized_ic", device="cpu")
-    # rds = ReacherDiscreteSimulator(env, policy, rd, targets_goals)
+    print("The number of states is ", rd.n_states)
+    print("The number of actions is ", rd.n_actions)
+    policy = PPO.load("ppo_reacher_randomized_ic", device="cpu")
+    rds = ReacherDiscreteSimulator(env, policy, rd, targets_goals)
 
-    # start = time.time()
-    # max_len = 200
-    # n_traj = 50_000
-    # starting_states = [target_random_1, target_blue, target_red, target_yellow]
+    start = time.time()
+    
+    n_traj = 500_000
+    starting_states = [target_random_1, target_blue, target_red, target_yellow]
+    # rds.sample_trajectory(starting_state= target_blue, len_traj= max_len)
+    rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
+    end = time.time()
 
-    # rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
-    # end = time.time()
-
-    # elapsed_time = end - start
-    # hours, rem = divmod(elapsed_time, 3600)
-    # minutes, seconds = divmod(rem, 60)
-    # print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
+    elapsed_time = end - start
+    hours, rem = divmod(elapsed_time, 3600)
+    minutes, seconds = divmod(rem, 60)
+    print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
 
      
 
-    # rds.compute_action_distributions()
+    rds.compute_action_distributions()
 
     # for key, value in rds.state_action_counts.items():
     #     if len(value) > 2:
     #         print(f"{key}: {value}")
 
-    # rds.policy = None  # Drop the PPO policy before saving
-    # with open(f"./objects/object{n_traj}_{max_len}.pkl", "wb") as foo:
-    #     pickle.dump(rds, foo)
+    rds.policy = None  # Drop the PPO policy before saving
+    with open(f"./objects/object{n_traj}_{max_len}.pkl", "wb") as foo:
+        pickle.dump(rds, foo)
    
  
-    # print(f"The object has been saved to ./objects/object{n_traj}_{max_len}.pkl")        
+    print(f"The object has been saved to ./objects/object{n_traj}_{max_len}.pkl")        
 
 
-    # with open("./objects/object10_10.pkl", "rb") as foo:
-    #     rds = pickle.load(foo)
+    with open("./objects/object10_10.pkl", "rb") as foo:
+        rds = pickle.load(foo)
 
     # # print(rds.state_action_probs)

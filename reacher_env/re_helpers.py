@@ -7,7 +7,7 @@ import argparse
 import pandas as pd
 from z3 import Bool, Solver, Implies, Not, BoolRef, sat,print_matrix, Or, And, AtMost # type: ignore
 from itertools import combinations
-
+from tqdm import tqdm
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -58,7 +58,7 @@ def generate_label_combinations(bws):
     return label_combinations
 
 
-def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, alpha=0.05):
+def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
     """
     Solve SAT instance for given counter examples, filtering by probability threshold
     Returns all SAT solutions found
@@ -104,21 +104,21 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, alpha=0.05)
     
 
  
-
+    n_debug = 0
+    wrong_ce_counts = 0
+    
     for state, ce_set in counter_examples.items():
         filtered_ce = []
+        wrong_examples = []
 
         for ce in ce_set:
-
-            epsilon = similarity(bws.state_action_probs[state][ce[0]], bws.state_action_probs[state][ce[1]], metric)
-
             n1 = bws.state_label_counts[state][ce[0]] 
             n2 = bws.state_label_counts[state][ce[1]]
 
             t1 = np.sqrt(np.log(1/(alpha))/(2*n1))
             t2 = np.sqrt(np.log(1/(alpha))/(2*n2))
 
-            A = bws.n_actions
+            A = bws.rd.n_actions
 
             for a in range(A):
                 p1_hat = bws.state_action_probs[state][ce[0]][a]
@@ -126,15 +126,41 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, alpha=0.05)
 
                 if p1_hat - p2_hat - (t1+t2) > 0:
                     filtered_ce.append((ce, p1_hat))
-                # elif p2_hat - p1_hat - (t1+t2) > 0:
-                #     filtered_ce.append((ce, p2_hat))
+                    n_debug += 1
+
+                    if u_from_obs(ce[0],rm) == u_from_obs(ce[1],rm):
+                        wrong_ce_counts += 1
+                        print(f"The wrong counter example is: {ce}")
+                        # Store wrong examples in memory
+                        wrong_examples.append({
+                            'state': state,
+                            'counter_example': ce,
+                            'policy1': bws.state_action_probs[state][ce[0]],
+                            'policy2': bws.state_action_probs[state][ce[1]],
+                            'n1': n1,
+                            'n2': n2
+                        })
+
+        # Write all wrong examples to file at once
+        if wrong_examples:
+            with open("wrong_examples_debug.txt", "w") as f:
+                for example in wrong_examples:
+                    f.write(f"State: {example['state']}\n")
+                    f.write(f"Counter Example: {example['counter_example']}\n")
+                    f.write(f"Policy 1 ({example['counter_example'][0]}): {example['policy1']}\n")
+                    f.write(f"Policy 2 ({example['counter_example'][1]}): {example['policy2']}\n")
+                    f.write(f"n1: {example['n1']}, n2: {example['n2']}\n")
+                    f.write("-" * 50 + "\n")
 
                 
         if filtered_ce:
             filtered_counter_examples[state] = filtered_ce
 
     # Add C4 constraints for filtered counter examples
-    for state in filtered_counter_examples.keys():
+    print(f"The total number of negative examples is:  {n_debug}")
+    print(f"The number of wrong counter examples is: {wrong_ce_counts}")
+    wrong_ce_counts = 0
+    for state in tqdm(filtered_counter_examples.keys()):
         ce_set = filtered_counter_examples[state]
         total_constraints += len(ce_set)
         
@@ -142,6 +168,8 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, alpha=0.05)
 
             # print(f"The counter example is: {ce}")
             # print(f"The probability is: {prob}")
+
+            
 
             p1 = prefix2indices(ce[0])
             p2 = prefix2indices(ce[1])
@@ -152,7 +180,8 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, alpha=0.05)
 
             for elt in res_:
                 s.add(Not(elt))
-
+    
+   
     # Find all solutions
     solutions = []
     start = time.time()
