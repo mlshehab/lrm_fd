@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
     #     generate_policy_comparison_report(bws, rm, soft_policy, n_traj, max_len, timestamp)
 
-    with open("./objects/object100000_250.pkl", "rb") as foo:
+    with open("./objects/object500000_250.pkl", "rb") as foo:
         rds = pickle.load(foo)
     print(f"{rds.rd.n_actions}")
     counter_examples = generate_label_combinations(rds)
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     #     else:
     #         print("  Combinations: None")
 
-    p_threshold = 0.95
+ 
     
     kappa = 3
     AP = 4

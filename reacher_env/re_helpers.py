@@ -32,9 +32,9 @@ def similarity(p1, p2, metric):
             raise ValueError("Unsupported metric! Choose from 'KL', 'TV', 'L1'.")
         
 def f(epsilon_1, n1, n2, A, epsilon):
-    term1 = np.maximum(1 - ((2**A - 2) * np.exp((-n1 * epsilon_1**2) / (2 ))), 0)
-    term2 = np.maximum(1 - ((2**A - 2) * np.exp((-n2 * (epsilon - epsilon_1)**2) / (2 ))), 0)
-    return term1 * term2
+    term1 =    ((2**A - 2) * np.exp((-n1 * epsilon_1**2) / (2 ))) 
+    term2 =    ((2**A - 2) * np.exp((-n2 * (epsilon - epsilon_1)**2) / (2 ))) 
+    return 1- term1 - term2
 
 
 def generate_label_combinations(bws):
@@ -104,33 +104,53 @@ def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
     
 
  
-    n_debug = 0
-    wrong_ce_counts = 0
+    n_total_previous = 0
+    n_total_new = 0
+    wrong_ce_counts_previous = 0
+    wrong_ce_counts_new = 0
     
-    for state, ce_set in counter_examples.items():
-        filtered_ce = []
+    for state, ce_set in tqdm(counter_examples.items()):
+        filtered_ce_previous = []
+        filtered_ce_new = []
         wrong_examples = []
 
         for ce in ce_set:
+
+            # method prvious
+             
+            epsilon = similarity(bws.state_action_probs[state][ce[0]], bws.state_action_probs[state][ce[1]], metric = "L1")
+
             n1 = bws.state_label_counts[state][ce[0]] 
             n2 = bws.state_label_counts[state][ce[1]]
+            A = bws.rd.n_actions
+            
+            optimal_epsilon1 = epsilon/2
+            prob = f(optimal_epsilon1, n1, n2, A, epsilon)
+            
+            
+            if prob > 0.995:
+                filtered_ce_previous.append((ce, prob))  # Store probability with counter example
+                n_total_previous += 1
+                if u_from_obs(ce[0],rm) == u_from_obs(ce[1],rm):
+                        wrong_ce_counts_previous += 1
 
+          
+            # method new
             t1 = np.sqrt(np.log(1/(alpha))/(2*n1))
             t2 = np.sqrt(np.log(1/(alpha))/(2*n2))
-
-            A = bws.rd.n_actions
+ 
 
             for a in range(A):
                 p1_hat = bws.state_action_probs[state][ce[0]][a]
                 p2_hat = bws.state_action_probs[state][ce[1]][a]
 
                 if p1_hat - p2_hat - (t1+t2) > 0:
-                    filtered_ce.append((ce, p1_hat))
-                    n_debug += 1
+                    filtered_ce_new.append((ce, p1_hat))
+                    n_total_new += 1
 
                     if u_from_obs(ce[0],rm) == u_from_obs(ce[1],rm):
-                        wrong_ce_counts += 1
-                        print(f"The wrong counter example is: {ce}")
+                        wrong_ce_counts_new += 1
+                        # print(f"The wrong counter example is: {ce}")
                         # Store wrong examples in memory
                         wrong_examples.append({
                             'state': state,
@@ -140,25 +160,26 @@ def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
                             'n1': n1,
                             'n2': n2
                         })
+                    break
 
         # Write all wrong examples to file at once
         if wrong_examples:
-            with open("wrong_examples_debug.txt", "w") as f:
+            with open("wrong_examples_debug.txt", "w") as fooo:
                 for example in wrong_examples:
-                    f.write(f"State: {example['state']}\n")
-                    f.write(f"Counter Example: {example['counter_example']}\n")
-                    f.write(f"Policy 1 ({example['counter_example'][0]}): {example['policy1']}\n")
-                    f.write(f"Policy 2 ({example['counter_example'][1]}): {example['policy2']}\n")
-                    f.write(f"n1: {example['n1']}, n2: {example['n2']}\n")
-                    f.write("-" * 50 + "\n")
+                    fooo.write(f"State: {example['state']}\n")
+                    fooo.write(f"Counter Example: {example['counter_example']}\n")
+                    fooo.write(f"Policy 1 ({example['counter_example'][0]}): {np.round(example['policy1'], 3)}\n")
+                    fooo.write(f"Policy 2 ({example['counter_example'][1]}): {np.round(example['policy2'], 3)}\n")
+                    fooo.write(f"n1: {example['n1']}, n2: {example['n2']}\n")
+                    fooo.write("-" * 50 + "\n")
 
                 
-        if filtered_ce:
-            filtered_counter_examples[state] = filtered_ce
+        if filtered_ce_new:
+            filtered_counter_examples[state] = filtered_ce_new
 
     # Add C4 constraints for filtered counter examples
-    print(f"The total number of negative examples is:  {n_debug}")
-    print(f"The number of wrong counter examples is: {wrong_ce_counts}")
+    print(f"Previous method - Total examples: {n_total_previous}, Wrong examples: {wrong_ce_counts_previous}, Ratio: {wrong_ce_counts_previous/n_total_previous:.2f}")
+    print(f"New method - Total examples: {n_total_new}, Wrong examples: {wrong_ce_counts_new}, Ratio: {wrong_ce_counts_new/n_total_new:.2f}")
     wrong_ce_counts = 0
     for state in tqdm(filtered_counter_examples.keys()):
         ce_set = filtered_counter_examples[state]

@@ -11,10 +11,6 @@ import pickle
 import matplotlib.pyplot as plt
 import os
 
-# Set MuJoCo window size
-os.environ['MUJOCO_GL'] = 'egl'  # or 'osmesa', 'glfw', etc.
-os.environ['MUJOCO_WINDOW_WIDTH'] = '1600'  # Increase width
-os.environ['MUJOCO_WINDOW_HEIGHT'] = '2000'  # Increase height
 
 def inverse_kinematics(x, y, L1=0.1, L2=0.11):
     """
@@ -114,12 +110,12 @@ class ReacherDiscretizer:
         self,
         target_dict,
         theta_grid_size=np.deg2rad(10),      # 5° resolution ≈ 0.087 rad
-        vel_grid_size=4,                  # rad s⁻¹ resolution
+        vel_grid_size=1.0,                  # rad s⁻¹ resolution
         action_grid_size=0.1,               # torque resolution
         theta_bound=np.pi,                  # joint limits [‑π, π]
-        vel_bound=20.0,                      # assume |q̇| ≤ 1  (override per‑env)
+        vel_bound=14,                      # assume |q̇| ≤ 1  (override per‑env)
         action_bound=1.0,                   # assume |τ| ≤ 1
-        link_lengths=(0.1, 0.11),            # l1, l2  (m)
+        link_lengths=(0.1, 0.11)            # l1, l2  (m)
     ) -> None:
         self.target_dict = target_dict
         self.theta_grid_size = theta_grid_size
@@ -309,8 +305,6 @@ class ReacherDiscreteSimulator():
         return (th1, th2 , th1dot, th2dot)
 
     def sample_trajectory(self, starting_state, len_traj, threshold=0.02):
-
-        
         theta1, theta2 = inverse_kinematics(starting_state[0], starting_state[1])
 
         obs, _ = self.env.reset(qpos_override=[theta1, theta2])
@@ -318,85 +312,56 @@ class ReacherDiscreteSimulator():
 
         set_target_position(self.env, current_target[0], current_target[1])
         
-        
-        # starting state is a tuple [x,y] of x y position of the end effector
-        # th1, th2 , th1dot, th2dot = (np.atan2(obs[2],obs[0]), np.atan2(obs[3],obs[1]) , obs[6] , obs[7])
-
         continuous_state = self.st4obs(obs)
-        # print(f"Continuous state: {continuous_state}")
         discrete_state_tuple = self.rd.discretize_state(continuous_state)
         discrete_state_idx = self.rd.state_to_idx[discrete_state_tuple]
-        # eef_pos = self.env.unwrapped.get_body_com("fingertip")[:2]
         label = self.rd.L(continuous_state) + ','
         
-
-       
         for t in range(len_traj):
-            # print(f"Sampling trajectory {t} of {len_traj}")
             continuous_action, _ = self.policy.predict(obs, deterministic=False)
-   
-            # Sample a next state 
             obs, reward, terminated, truncated, info = self.env.step(continuous_action)
-    
-            # self.env.render()
-            # time.sleep(0.1)
-            # Log the continuous action for debugging
-        
+            
             discrete_action_tuple = self.rd.discretize_action(continuous_action)
             discrete_action_idx = self.rd.action_to_idx[discrete_action_tuple]
 
-
-            # Compress the label
             compressed_label = self.remove_consecutive_duplicates(label)
 
-            # Ensure state exists in dictionary
             if discrete_state_idx not in self.state_action_counts:
                 self.state_action_counts[discrete_state_idx] = []
 
-            # Check if this label already exists for the state
             label_exists = False
             for i, (existing_label, counter) in enumerate(self.state_action_counts[discrete_state_idx]):
                 if existing_label == compressed_label:
-                    counter[discrete_action_idx] += 1  # Update action count
+                    counter[discrete_action_idx] += 1
                     label_exists = True
                     break
             
-            # If the label was not found, add a new entry
             if not label_exists:
                 self.state_action_counts[discrete_state_idx].append((compressed_label, Counter({discrete_action_idx: 1})))
 
-
             next_continuous_state = self.st4obs(obs)
+            
             next_discrete_state_tuple = self.rd.discretize_state(next_continuous_state)
-            next_discrete_state_idx = self.rd.state_to_idx[next_discrete_state_tuple]
+            try:
+                next_discrete_state_idx = self.rd.state_to_idx[next_discrete_state_tuple]
+            except KeyError:
+                # print(f"State {next_discrete_state_tuple} not found in state_to_idx")
+                print(f"The state is: (θ1: {next_continuous_state[0]:.3f}, θ2: {next_continuous_state[1]:.3f}, θ1_dot: {next_continuous_state[2]:.3f}, θ2_dot: {next_continuous_state[3]:.3f})")
+                return
 
-            # eef_pos = self.env.unwrapped.get_body_com("fingertip")[:2]
             l = self.rd.L(next_continuous_state)
 
             label = label + l + ','
             discrete_state_idx = next_discrete_state_idx
 
-
             target_label = self.target_goals[0][0].upper()
-           
 
             if l == target_label:
                 self.target_goals.append(self.target_goals.pop(0))
-                # print(f"Targets remaining: {self.target_goals}")
                 current_target = self.rd.target_dict[self.target_goals[0]]
                 set_target_position(env, current_target[0], current_target[1])
-            # distance_to_target = np.sqrt(obs[8]**2 + obs[9]**2)
-
-            # if distance_to_target < threshold:
-            #     # print("Target reached")
-            #     self.target_goals.append(self.target_goals.pop(0))
-            #     # print(f"Targets remaining: {self.target_goals}")
-            #     current_target = self.rd.target_dict[self.target_goals[0]]
-            #     set_target_position(env, current_target[0], current_target[1])
-
 
             if terminated or truncated:
-                # print(f"The compressed label is {compressed_label}")
                 self.env.close()  
                 break
 
@@ -518,7 +483,7 @@ if __name__ == "__main__":
     start = time.time()
     
     n_traj = 500_000
-    starting_states = [target_random_1, target_blue, target_red, target_yellow]
+    starting_states = [target_random_1, target_red, target_blue, target_yellow]
     # rds.sample_trajectory(starting_state= target_blue, len_traj= max_len)
     rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
     end = time.time()
@@ -532,9 +497,7 @@ if __name__ == "__main__":
 
     rds.compute_action_distributions()
 
-    # for key, value in rds.state_action_counts.items():
-    #     if len(value) > 2:
-    #         print(f"{key}: {value}")
+     
 
     rds.policy = None  # Drop the PPO policy before saving
     with open(f"./objects/object{n_traj}_{max_len}.pkl", "wb") as foo:
@@ -544,7 +507,7 @@ if __name__ == "__main__":
     print(f"The object has been saved to ./objects/object{n_traj}_{max_len}.pkl")        
 
 
-    with open("./objects/object10_10.pkl", "rb") as foo:
-        rds = pickle.load(foo)
+    # with open("./objects/object10_10.pkl", "rb") as foo:
+    #     rds = pickle.load(foo)
 
     # # print(rds.state_action_probs)
