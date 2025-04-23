@@ -2,86 +2,84 @@ import gymnasium as gym
 import numpy as np
 from tqdm import tqdm
 # Environment setup
+from scipy import sparse
 
+from simulator import ReacherDiscretizerB, ForceRandomizedReacher, ReacherDiscreteSimulator
+  
+from simulator import ReacherDiscretizerA as ReacherDiscretizer
 
-# Discretization parameters
-xy_grid_size = 0.01  # 2cm grid resolution
-action_grid_size = 0.1  # discrete bins in [-1, 1]
-
-# Define state discretization boundaries (workspace ~0.2 radius)
-xy_bound = 0.22
-x_bins = np.arange(-xy_bound, xy_bound + xy_grid_size, xy_grid_size)
-y_bins = np.arange(-xy_bound, xy_bound + xy_grid_size, xy_grid_size)
-
-# Define action discretization boundaries
-action_bins = np.arange(-1, 1 + action_grid_size, action_grid_size)
-
-# Helper function to discretize XY positions
-def discretize_xy(xy):
-    x_idx = np.digitize(xy[0], x_bins) - 1
-    y_idx = np.digitize(xy[1], y_bins) - 1
-    return (x_idx, y_idx)
-
-def midpoint_from_idx(x_idx, y_idx):
-    x_mid = x_bins[x_idx] + xy_grid_size / 2
-    y_mid = y_bins[y_idx] + xy_grid_size / 2
-    return (x_mid, y_mid)
-
-def midpoint_from_action_idx(a):
-    a0_idx, a1_idx = a
-    a0_mid = action_bins[a0_idx] + action_grid_size / 2
-    a1_mid = action_bins[a1_idx] + action_grid_size / 2
-    return (a0_mid, a1_mid)
-
-# Helper function to discretize actions
-def discretize_action(act):
-    a0_idx = np.digitize(act[0], action_bins) - 1
-    a1_idx = np.digitize(act[1], action_bins) - 1
-    return (a0_idx, a1_idx)
-
-# Generate state and action indexing dictionaries
-state_to_idx = {(i, j): idx for idx, (i, j) in enumerate([(x, y) for x in range(len(x_bins)) for y in range(len(y_bins))])}
-idx_to_state = {idx: (i, j) for (i, j), idx in state_to_idx.items()}
-
-action_to_idx = {(i, j): idx for idx, (i, j) in enumerate([(a0, a1) for a0 in range(len(action_bins)) for a1 in range(len(action_bins))])}
-idx_to_action = {idx: (i, j) for (i, j), idx in action_to_idx.items()}
-
-# Initialize transition matrices
-n_states = len(state_to_idx)
-n_actions = len(action_to_idx)
-transition_counts = np.zeros((n_actions, n_states, n_states))
-print(transition_counts.shape)
 # Run simulations
 if __name__ == "__main__":
-    env = gym.make('Reacher-v5')
-    n_steps = int(10000)
+
+    max_len = 250
+    env = gym.make("Reacher-v5",   max_episode_steps=max_len,xml_file="./reacher.xml")
+    env = ForceRandomizedReacher(env)  # Wrap it
+
+    target_blue = [0.1, -0.11]
+    target_red = [0.1, 0.11]
+    target_yellow = [-0.1, 0.11]
+    target_random_1 = [0.1,0.0]
+    target_random_2 = [0.14,0.05]
+     
+
+
+    target_dict = {"blue": target_blue, "red": target_red, "yellow": target_yellow}
+
+    targets_goals = ["blue", "red", "yellow"]
+
+    rd = ReacherDiscretizer(target_dict=target_dict)
+
+    n_states = rd.n_states
+    n_actions = rd.n_actions
+    print(rd.n_states)
+    print(rd.n_actions)
+
+    # transition_counts = np.zeros((n_actions, n_states, n_states), dtype=np.int32)
+    transition_counts = [sparse.lil_matrix((n_states, n_states), dtype=np.int32) for _ in range(n_actions)]
+    # print(transition_counts.shape)
+     
+    n_steps = int(100)
     obs, _ = env.reset()
+    continuous_state = rd.st4obs(obs)
+    discrete_state_tuple =  rd.discretize_state(continuous_state)
+    discrete_state_idx =  rd.state_to_idx[discrete_state_tuple]     
+
 
     for _ in tqdm(range(n_steps)):
         action = env.action_space.sample()
-        discrete_action = discretize_action(action)
-        action_idx = action_to_idx[discrete_action]
+        discrete_action_tuple = rd.discretize_action(action)
+        discrete_action_idx = rd.action_to_idx[discrete_action_tuple]
+        
+        obs, reward, terminated, truncated, info =  env.step(action)
 
-        current_xy = env.unwrapped.get_body_com("fingertip")[:2]
-        current_state = discretize_xy(current_xy)
-        current_state_idx = state_to_idx[current_state]
+        next_continuous_state = rd.st4obs(obs)
+        next_discrete_state_tuple = rd.discretize_state(next_continuous_state)
+        try:
+            next_discrete_state_idx = rd.state_to_idx[next_discrete_state_tuple]
+        except KeyError:
+            # print(f"State {next_discrete_state_tuple} not found in state_to_idx")
+            print(f"The state is: (θ1: {next_continuous_state[0]:.3f}, θ2: {next_continuous_state[1]:.3f}, θ1_dot: {next_continuous_state[2]:.3f}, θ2_dot: {next_continuous_state[3]:.3f})")
+            obs, _ = env.reset()
+            continue
+ 
 
-        obs, reward, terminated, truncated, _ = env.step(action)
-
-        next_xy = env.unwrapped.get_body_com("fingertip")[:2]
-        next_state = discretize_xy(next_xy)
-        next_state_idx = state_to_idx[next_state]
-
-        transition_counts[action_idx, current_state_idx, next_state_idx] += 1
+        transition_counts[discrete_action_idx][discrete_state_idx, next_discrete_state_idx] += 1
+        discrete_state_idx = next_discrete_state_idx 
 
         if terminated or truncated:
             obs, _ = env.reset()
 
     # Normalize to form transition probability matrices
-    transition_matrices = transition_counts / np.maximum(transition_counts.sum(axis=2, keepdims=True), 1)
+    # transition_matrices = transition_counts / np.maximum(transition_counts.sum(axis=2, keepdims=True), 1)
 
     # Save the transition matrices to a file
-    np.save("transition_matrices.npy", transition_matrices)
+    # Suppose transition_counts is a list of sparse matrices
+    for action, matrix in enumerate(transition_counts):
+        sparse.save_npz(f"./matrices/transition_counts_action{action}.npz", matrix.tocsr())
+
+
+    # To load:
+    # matrix = sparse.load_npz("transition_counts_action0.npz")
     print("Transition matrices have been saved to transition_matrices.npy")
 
 # print(f"The transition matrices are: {transition_matrices.shape}")

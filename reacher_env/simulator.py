@@ -249,6 +249,10 @@ class ReacherDiscretizerA:
                     abs(theta2 - theta2_sol) < self.theta_grid_size):
                     return colour[0].upper()  # 'blue' -> 'B'
         return 'I'  # intermediate / none
+    
+    def st4obs(self, obs):
+        th1, th2 , th1dot, th2dot = (np.arctan2(obs[2],obs[0]), np.arctan2(obs[3],obs[1]) , obs[6] , obs[7])
+        return (th1, th2 , th1dot, th2dot)
 
     # ---------------------------------------------------------------------
     #                           FORWARD KINEMATICS
@@ -288,9 +292,9 @@ class ReacherDiscretizerB:
     def __init__(
         self,
         target_dict,
-        theta_grid_size=np.deg2rad(5),      # 5° resolution ≈ 0.087 rad
+        theta_grid_size=np.deg2rad(30),      # 5° resolution ≈ 0.087 rad
         vel_grid_size=1.0,                  # rad s⁻¹ resolution
-        action_grid_size=0.1,               # torque resolution
+        action_grid_size=0.2,               # torque resolution
         theta_bound=np.pi,                  # joint limits [‑π, π]
         vel_bound=14,                      # assume |q̇| ≤ 1  (override per‑env)
         action_bound=1.0,                   # assume |τ| ≤ 1
