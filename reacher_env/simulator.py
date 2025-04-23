@@ -552,11 +552,11 @@ class ReacherDiscreteSimulator():
         # for each starting state
         for state in tqdm(starting_states):
             # for each length trajectory
-            # for l in range(max_trajectory_length):
+            for l in range(max_trajectory_length):
                 # sample (number_of_trajectories) trajectories of length l 
-            for i in tqdm(range(number_of_trajectories)):
-                # print(f"Sampling trajectory {i} of {number_of_trajectories}")
-                self.sample_trajectory(starting_state= state,len_traj= max_trajectory_length)
+                for i in tqdm(range(number_of_trajectories)):
+                    # print(f"Sampling trajectory {i} of {number_of_trajectories}")
+                    self.sample_trajectory(starting_state= state,len_traj= l)
 
 
 
@@ -662,7 +662,7 @@ if __name__ == "__main__":
 
     start = time.time()
     
-    n_traj = 500_000
+    n_traj = 10_000
     starting_states = [target_random_1, target_red, target_blue, target_yellow]
     # rds.sample_trajectory(starting_state= target_blue, len_traj= max_len)
     rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
