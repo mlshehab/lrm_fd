@@ -303,7 +303,7 @@ class ReacherDiscretizerB:
         self.link_lengths = link_lengths
 
         # Build bins
-        # self._build_theta_bins()
+        self._build_theta_bins()
         self.theta1_bins = np.arange(-theta_bound, theta_bound + theta_grid_size, theta_grid_size)
         self.theta2_bins = np.arange(-theta_bound, theta_bound + theta_grid_size, theta_grid_size)
         self.theta1dot_bins = np.arange(-vel_bound, vel_bound + vel_grid_size, vel_grid_size)
@@ -335,32 +335,32 @@ class ReacherDiscretizerB:
             "yellow": yellow_solutions
         }
        
-        x_grid = [-np.pi]
-        y_grid = [-np.pi]
+        # x_grid = [-np.pi]
+        # y_grid = [-np.pi]
         
-        # Add points for each solution
-        for sols in solutions:
-            for theta1, theta2 in sols:
-                # Calculate half of the grid size in radians
-                half_size = self.theta_grid_size
+        # # Add points for each solution
+        # for sols in solutions:
+        #     for theta1, theta2 in sols:
+        #         # Calculate half of the grid size in radians
+        #         half_size = self.theta_grid_size
                 
-                # Add points around each solution
-                x_grid.extend([theta1 - half_size, theta1 + half_size])
-                y_grid.extend([theta2 - half_size, theta2 + half_size])
+        #         # Add points around each solution
+        #         x_grid.extend([theta1 - half_size, theta1 + half_size])
+        #         y_grid.extend([theta2 - half_size, theta2 + half_size])
         
-        # Add the upper bound
-        x_grid.append(np.pi)
-        y_grid.append(np.pi)
+        # # Add the upper bound
+        # x_grid.append(np.pi)
+        # y_grid.append(np.pi)
         
-        # Sort and remove duplicates
-        x_grid = np.array(sorted(list(set(x_grid))))
-        y_grid = np.array(sorted(list(set(y_grid))))
+        # # Sort and remove duplicates
+        # x_grid = np.array(sorted(list(set(x_grid))))
+        # y_grid = np.array(sorted(list(set(y_grid))))
         
-        print("x_grid:", np.round(np.array(x_grid),3))
-        print("y_grid:", np.round(np.array(y_grid),3))
+        # print("x_grid:", np.round(np.array(x_grid),3))
+        # print("y_grid:", np.round(np.array(y_grid),3))
         
-        self.theta1_bins = x_grid
-        self.theta2_bins = y_grid
+        # self.theta1_bins = x_grid
+        # self.theta2_bins = y_grid
         
     def _build_state_maps(self):
         """Return ({(i,j,k,l): s_idx}, {s_idx: (i,j,k,l)})."""
@@ -554,7 +554,7 @@ class ReacherDiscreteSimulator():
             # for each length trajectory
             for l in range(max_trajectory_length):
                 # sample (number_of_trajectories) trajectories of length l 
-                for i in tqdm(range(number_of_trajectories)):
+                for i in  range(number_of_trajectories):
                     # print(f"Sampling trajectory {i} of {number_of_trajectories}")
                     self.sample_trajectory(starting_state= state,len_traj= l)
 
