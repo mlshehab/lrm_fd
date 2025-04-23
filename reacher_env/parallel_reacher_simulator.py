@@ -1,4 +1,23 @@
 import numpy as np
+from multiprocessing import Pool
+import math
+import gymnasium as gym
+from stable_baselines3 import PPO
+import mujoco
+import time
+import pickle
+from collections import Counter
+
+# === BEGIN EXISTING DEFINITIONS ===
+# Paste your existing definitions below this line:
+# - inverse_kinematics(x, y)
+# - set_target_position(env, x, y)
+# - class ForceRandomizedReacher(gym.Wrapper)
+# - class ReacherDiscretizer
+# - class ReacherDiscreteSimulator
+#=== END EXISTING DEFINITIONS ===
+
+import numpy as np
 from tqdm import tqdm
 from collections import Counter
 from scipy.stats import entropy
@@ -11,6 +30,15 @@ import pickle
 import matplotlib.pyplot as plt
 import os
 
+import numpy as np
+from multiprocessing import Pool
+import math
+import gymnasium as gym
+from stable_baselines3 import PPO
+import mujoco
+import time
+import pickle
+from collections import Counter
 
 def inverse_kinematics(x, y, L1=0.1, L2=0.11):
     """
@@ -97,7 +125,7 @@ class ForceRandomizedReacher(gym.Wrapper):
 
 
 
-class ReacherDiscretizerA:
+class ReacherDiscretizer:
     """Discretize the Reacher environment using joint angles (theta) and angular velocities.
 
     State   : (theta1, theta2, theta1_dot, theta2_dot)
@@ -177,8 +205,8 @@ class ReacherDiscretizerA:
         x_grid = np.array(sorted(list(set(x_grid))))
         y_grid = np.array(sorted(list(set(y_grid))))
         
-        print("x_grid:", np.round(np.array(x_grid),3))
-        print("y_grid:", np.round(np.array(y_grid),3))
+        # print("x_grid:", np.round(np.array(x_grid),3))
+        # print("y_grid:", np.round(np.array(y_grid),3))
         
         self.theta1_bins = x_grid
         self.theta2_bins = y_grid
@@ -274,186 +302,6 @@ class ReacherDiscretizerA:
         theta1_down = np.arctan2(y, x) - np.arctan2(l2 * np.sin(theta2_down), l1 + l2 * np.cos(theta2_down))
         
         return [(theta1_up, theta2_up), (theta1_down, theta2_down)]
-
-
-class ReacherDiscretizerB:
-    """Discretize the Reacher environment using joint angles (theta) and angular velocities.
-
-    State   : (theta1, theta2, theta1_dot, theta2_dot)
-    Action  : continuous torques on joint‑0 and joint‑1 discretised into bins.
-    Label L : maps a state index to a region label (B / R / Y / I) by computing the
-               end‑effector (x, y) via forward kinematics and comparing with targets.
-    """
-
-    def __init__(
-        self,
-        target_dict,
-        theta_grid_size=np.deg2rad(5),      # 5° resolution ≈ 0.087 rad
-        vel_grid_size=1.0,                  # rad s⁻¹ resolution
-        action_grid_size=0.1,               # torque resolution
-        theta_bound=np.pi,                  # joint limits [‑π, π]
-        vel_bound=14,                      # assume |q̇| ≤ 1  (override per‑env)
-        action_bound=1.0,                   # assume |τ| ≤ 1
-        link_lengths=(0.1, 0.11)            # l1, l2  (m)
-    ) -> None:
-        self.target_dict = target_dict
-        self.theta_grid_size = theta_grid_size
-        self.vel_grid_size = vel_grid_size
-        self.action_grid_size = action_grid_size
-        self.link_lengths = link_lengths
-
-        # Build bins
-        # self._build_theta_bins()
-        self.theta1_bins = np.arange(-theta_bound, theta_bound + theta_grid_size, theta_grid_size)
-        self.theta2_bins = np.arange(-theta_bound, theta_bound + theta_grid_size, theta_grid_size)
-        self.theta1dot_bins = np.arange(-vel_bound, vel_bound + vel_grid_size, vel_grid_size)
-        self.theta2dot_bins = np.arange(-vel_bound, vel_bound + vel_grid_size, vel_grid_size)
-
-        self.action_bins = np.arange(-action_bound, action_bound + action_grid_size, action_grid_size)
-
-        # Index maps
-        self.state_to_idx, self.idx_to_state = self._build_state_maps()
-        self.action_to_idx, self.idx_to_action = self._build_action_maps()
-
-        # Transition containers (counts & probabilities)
-        self.n_states = len(self.state_to_idx)
-        self.n_actions = len(self.action_to_idx)
-     
-
-    # ---------------------------------------------------------------------
-    #                             BUILD MAPS
-    # ---------------------------------------------------------------------
-    def _build_theta_bins(self):
-        blue_solutions = self._double_inverse_kinematics(self.target_dict["blue"][0], self.target_dict["blue"][1])
-        red_solutions = self._double_inverse_kinematics(self.target_dict["red"][0], self.target_dict["red"][1])
-        yellow_solutions = self._double_inverse_kinematics(self.target_dict["yellow"][0], self.target_dict["yellow"][1])
-        solutions = [blue_solutions, red_solutions, yellow_solutions]
-        
-        self.solutions = {
-            "blue": blue_solutions,
-            "red": red_solutions,
-            "yellow": yellow_solutions
-        }
-       
-        x_grid = [-np.pi]
-        y_grid = [-np.pi]
-        
-        # Add points for each solution
-        for sols in solutions:
-            for theta1, theta2 in sols:
-                # Calculate half of the grid size in radians
-                half_size = self.theta_grid_size
-                
-                # Add points around each solution
-                x_grid.extend([theta1 - half_size, theta1 + half_size])
-                y_grid.extend([theta2 - half_size, theta2 + half_size])
-        
-        # Add the upper bound
-        x_grid.append(np.pi)
-        y_grid.append(np.pi)
-        
-        # Sort and remove duplicates
-        x_grid = np.array(sorted(list(set(x_grid))))
-        y_grid = np.array(sorted(list(set(y_grid))))
-        
-        print("x_grid:", np.round(np.array(x_grid),3))
-        print("y_grid:", np.round(np.array(y_grid),3))
-        
-        self.theta1_bins = x_grid
-        self.theta2_bins = y_grid
-        
-    def _build_state_maps(self):
-        """Return ({(i,j,k,l): s_idx}, {s_idx: (i,j,k,l)})."""
-        indices = itertools.product(
-            range(len(self.theta1_bins)),
-            range(len(self.theta2_bins)),
-            range(len(self.theta1dot_bins)),
-            range(len(self.theta2dot_bins)),
-        )
-        state_to_idx = {}
-        idx_to_state = {}
-        for s_idx, key in enumerate(indices):
-            state_to_idx[key] = s_idx
-            idx_to_state[s_idx] = key
-        return state_to_idx, idx_to_state
-
-    def _build_action_maps(self):
-        indices = itertools.product(range(len(self.action_bins)), repeat=2)
-        action_to_idx = {}
-        idx_to_action = {}
-        for a_idx, key in enumerate(indices):
-            action_to_idx[key] = a_idx
-            idx_to_action[a_idx] = key
-        return action_to_idx, idx_to_action
-
-    # ---------------------------------------------------------------------
-    #                             DISCRETISERS
-    # ---------------------------------------------------------------------
-    def discretize_state(self, state):
-        (theta1, theta2, theta1dot, theta2dot) = state
-        i = np.digitize(theta1, self.theta1_bins) - 1
-        j = np.digitize(theta2, self.theta2_bins) - 1
-        k = np.digitize(theta1dot, self.theta1dot_bins) - 1
-        l = np.digitize(theta2dot, self.theta2dot_bins) - 1
-        return (i, j, k, l)
-
-    def discretize_action(self, act):
-        a0_idx = np.digitize(act[0], self.action_bins) - 1
-        a1_idx = np.digitize(act[1], self.action_bins) - 1
-        return (a0_idx, a1_idx)
-
-    # ---------------------------------------------------------------------
-    #                       UTILS / REVERSE MAPPING
-    # ---------------------------------------------------------------------
-    def midpoint_from_state_idx(self, state_idx):
-        i, j, k, l = self.idx_to_state[state_idx]
-        theta1_mid = self.theta1_bins[i] + self.theta_grid_size / 2
-        theta2_mid = self.theta2_bins[j] + self.theta_grid_size / 2
-        theta1dot_mid = self.theta1dot_bins[k] + self.vel_grid_size / 2
-        theta2dot_mid = self.theta2dot_bins[l] + self.vel_grid_size / 2
-        return theta1_mid, theta2_mid, theta1dot_mid, theta2dot_mid
-
-    # ---------------------------------------------------------------------
-    #                               LABELING
-    # ---------------------------------------------------------------------
-    def L(self, state):
-        """Return colour label based on whether joint angles are within solution boxes for targets."""
-        theta1, theta2, _ , _ = state
-        
-        # Check if joint angles are within solution boxes for each target
-        for colour, solutions in self.solutions.items():
-            for sol in solutions:
-                theta1_sol, theta2_sol = sol
-                if (abs(theta1 - theta1_sol) < self.theta_grid_size and 
-                    abs(theta2 - theta2_sol) < self.theta_grid_size):
-                    return colour[0].upper()  # 'blue' -> 'B'
-        return 'I'  # intermediate / none
-
-    # ---------------------------------------------------------------------
-    #                           FORWARD KINEMATICS
-    # ---------------------------------------------------------------------
-    def _forward_kinematics(self, theta1, theta2):
-        l1, l2 = self.link_lengths
-        # Planar 2‑link arm anchored at origin (0,0)
-        x = l1 * np.cos(theta1) + l2 * np.cos(theta1 + theta2)
-        y = l1 * np.sin(theta1) + l2 * np.sin(theta1 + theta2)
-        return x, y
-    
-    def _double_inverse_kinematics( self, x, y):
-
-        """Solves inverse kinematics for a given (x, y) target."""
-        l1, l2 =  self.link_lengths
-        # Using cosine law to compute the angle configurations (elbow-up and elbow-down)
-        D = (x**2 + y**2 - l1**2 - l2**2) / (2 * l1 * l2)
-        D = np.clip(D, -1.0, 1.0)  # Ensure D is within [-1, 1] to avoid math errors
-        theta2_up = np.arccos(D)
-        theta2_down = -theta2_up
-        
-        theta1_up = np.arctan2(y, x) - np.arctan2(l2 * np.sin(theta2_up), l1 + l2 * np.cos(theta2_up))
-        theta1_down = np.arctan2(y, x) - np.arctan2(l2 * np.sin(theta2_down), l1 + l2 * np.cos(theta2_down))
-        
-        return [(theta1_up, theta2_up), (theta1_down, theta2_down)]
-
 
 
 class ReacherDiscreteSimulator():
@@ -550,11 +398,11 @@ class ReacherDiscreteSimulator():
 
     def sample_dataset(self, starting_states, number_of_trajectories, max_trajectory_length):
         # for each starting state
-        for state in tqdm(starting_states):
+        for state in  starting_states:
             # for each length trajectory
             # for l in range(max_trajectory_length):
                 # sample (number_of_trajectories) trajectories of length l 
-            for i in tqdm(range(number_of_trajectories)):
+            for i in  range(number_of_trajectories):
                 # print(f"Sampling trajectory {i} of {number_of_trajectories}")
                 self.sample_trajectory(starting_state= state,len_traj= max_trajectory_length)
 
@@ -631,63 +479,79 @@ class ReacherDiscreteSimulator():
         return grouped_traces
     
 
+def worker_sample(args):
+    """
+    Initialize a fresh simulator, sample a batch of trajectories,
+    and return its state_action_counts.
+    """
+    target_dict, policy_path, starting_states, n_traj_batch, max_len = args
+    env = gym.make("Reacher-v5", max_episode_steps=max_len, xml_file="./reacher.xml")
+    env = ForceRandomizedReacher(env)
+    rd = ReacherDiscretizer(target_dict)
+    policy = PPO.load(policy_path, device="cpu")
+    sim = ReacherDiscreteSimulator(env, policy, rd, ["blue","red","yellow"])
+    sim.sample_dataset(starting_states, n_traj_batch, max_len)
+    return sim.state_action_counts
+
 
 if __name__ == "__main__":
+    # Configuration
     max_len = 250
-    env = gym.make("Reacher-v5",   max_episode_steps=max_len,xml_file="./reacher.xml")
-    env = ForceRandomizedReacher(env)  # Wrap it
+    n_traj = 1_000_000  
+    n_workers = 8
 
-    target_blue = [0.1, -0.11]
-    target_red = [0.1, 0.11]
+    # Targets and starting states
+    target_blue   = [0.1, -0.11]
+    target_red    = [0.1,  0.11]
     target_yellow = [-0.1, 0.11]
-    target_random_1 = [0.1,0.0]
-    target_random_2 = [0.14,0.05]
-     
-
-
+    starting_states = [[0.1, 0.0], target_red, target_blue, target_yellow]
     target_dict = {"blue": target_blue, "red": target_red, "yellow": target_yellow}
 
-    targets_goals = ["blue", "red", "yellow"]
+    # Prepare worker arguments: split trajectories evenly
+    batch = math.ceil(n_traj / n_workers)
+    args = [(
+        target_dict,
+        "ppo_reacher_randomized_ic",
+        starting_states,
+        batch,
+        max_len
+    ) for _ in range(n_workers)]
 
-    rd = ReacherDiscretizerA(target_dict=target_dict)
+    # Parallel trajectory sampling with progress bar
+    t0 = time.time()
+    results = []
+    with Pool(n_workers) as pool:
+        for wc in tqdm(pool.imap(worker_sample, args), total=len(args), desc="Sampling batches"):
+            results.append(wc)
 
-    print(rd.n_states)
-    print(rd.n_actions)
-    # Initialize empty lists for x and y grid points
-    
-    print("The number of states is ", rd.n_states)
-    print("The number of actions is ", rd.n_actions)
-    policy = PPO.load("ppo_reacher_randomized_ic", device="cpu")
-    rds = ReacherDiscreteSimulator(env, policy, rd, targets_goals)
+    # Merge the state-action counters from all workers
+    master_counts = {}
+    for wc in results:
+        for state_idx, label_list in wc.items():
+            if state_idx not in master_counts:
+                master_counts[state_idx] = label_list.copy()
+            else:
+                existing = {lbl: ctr for lbl, ctr in master_counts[state_idx]}
+                for lbl, ctr in label_list:
+                    if lbl in existing:
+                        existing[lbl].update(ctr)
+                    else:
+                        existing[lbl] = ctr
+                master_counts[state_idx] = list(existing.items())
 
-    start = time.time()
-    
-    n_traj = 500_000
-    starting_states = [target_random_1, target_red, target_blue, target_yellow]
-    # rds.sample_trajectory(starting_state= target_blue, len_traj= max_len)
-    rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
-    end = time.time()
+    # Reinstantiate discretizer and simulator container to assign merged counts
+    rd = ReacherDiscretizer(target_dict)
+    sim = ReacherDiscreteSimulator(None, None, rd, ["blue","red","yellow"])
+    sim.state_action_counts = master_counts
 
-    elapsed_time = end - start
-    hours, rem = divmod(elapsed_time, 3600)
-    minutes, seconds = divmod(rem, 60)
-    print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
+    # Sequentially compute action distributions
+    sim.compute_action_distributions()
 
-     
+    # Save the simulator object (drop policy to reduce size)
+    sim.policy = None
+    output_path = f"./objects/object{n_traj}_{max_len}.pkl"
+    with open(output_path, "wb") as f:
+        pickle.dump(sim, f)
 
-    rds.compute_action_distributions()
-
-     
-
-    rds.policy = None  # Drop the PPO policy before saving
-    with open(f"./objects/object{n_traj}_{max_len}.pkl", "wb") as foo:
-        pickle.dump(rds, foo)
-   
- 
-    print(f"The object has been saved to ./objects/object{n_traj}_{max_len}.pkl")        
-
-
-    # with open("./objects/object10_10.pkl", "rb") as foo:
-    #     rds = pickle.load(foo)
-
-    # # print(rds.state_action_probs)
+    elapsed = time.time() - t0
+    print(f"Sampling+merge+compute took {elapsed:.2f} seconds. Simulator saved to {output_path}.")

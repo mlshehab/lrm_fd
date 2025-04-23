@@ -112,9 +112,14 @@ if __name__ == '__main__':
 
     #     generate_policy_comparison_report(bws, rm, soft_policy, n_traj, max_len, timestamp)
 
-    with open("./objects/object500000_250.pkl", "rb") as foo:
+    with open("./objects/obj_bern_100000.pkl", "rb") as foo:
         rds = pickle.load(foo)
     print(f"{rds.rd.n_actions}")
+
+
+    print(f"DEBUG: {np.round(rds.state_action_probs[16371]['I,B,'],3)}")
+    print(f"DEBUG: {np.round(rds.state_action_probs[16371]['I,B,I,R,I,Y,I,B,'],3)}")
+    time.sleep(1000)
     counter_examples = generate_label_combinations(rds)
 
     # for state, label_dists in bws.state_action_probs.items():

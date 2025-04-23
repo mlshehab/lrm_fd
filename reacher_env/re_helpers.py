@@ -106,13 +106,17 @@ def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
  
     n_total_previous = 0
     n_total_new = 0
-    wrong_ce_counts_previous = 0
-    wrong_ce_counts_new = 0
+    
     
     for state, ce_set in tqdm(counter_examples.items()):
         filtered_ce_previous = []
         filtered_ce_new = []
         wrong_examples = []
+
+        wrong_ce_counts_previous = 0
+        wrong_ce_counts_new = 0
+
+        
 
         for ce in ce_set:
 
@@ -132,7 +136,15 @@ def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
                 filtered_ce_previous.append((ce, prob))  # Store probability with counter example
                 n_total_previous += 1
                 if u_from_obs(ce[0],rm) == u_from_obs(ce[1],rm):
-                        wrong_ce_counts_previous += 1
+                    wrong_ce_counts_previous += 1
+                    wrong_examples.append({
+                            'state': state,
+                            'counter_example': ce,
+                            'policy1': bws.state_action_probs[state][ce[0]],
+                            'policy2': bws.state_action_probs[state][ce[1]],
+                            'n1': n1,
+                            'n2': n2
+                        })
 
           
             # method new
@@ -152,24 +164,30 @@ def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
                         wrong_ce_counts_new += 1
                         # print(f"The wrong counter example is: {ce}")
                         # Store wrong examples in memory
-                        wrong_examples.append({
-                            'state': state,
-                            'counter_example': ce,
-                            'policy1': bws.state_action_probs[state][ce[0]],
-                            'policy2': bws.state_action_probs[state][ce[1]],
-                            'n1': n1,
-                            'n2': n2
-                        })
+                        
                     break
 
+        print(f"The total number of pairs for state {state} is: {len(ce_set)}. We got {len(filtered_ce_previous)} negative examples, {wrong_ce_counts_previous} of which are wrong.")                
         # Write all wrong examples to file at once
         if wrong_examples:
-            with open("wrong_examples_debug.txt", "w") as fooo:
+            # print(f"The wrong examples are: {len(wrong_examples)}")
+            with open("wrong_examples_debug.txt", "a") as fooo:
                 for example in wrong_examples:
                     fooo.write(f"State: {example['state']}\n")
                     fooo.write(f"Counter Example: {example['counter_example']}\n")
-                    fooo.write(f"Policy 1 ({example['counter_example'][0]}): {np.round(example['policy1'], 3)}\n")
-                    fooo.write(f"Policy 2 ({example['counter_example'][1]}): {np.round(example['policy2'], 3)}\n")
+                    
+                    # Find non-zero indices for policy 1
+                    non_zero_indices_p1 = np.where(example['policy1'] > 0)[0]
+                    fooo.write(f"Policy 1 ({example['counter_example'][0]}) non-zero actions:\n")
+                    for idx in non_zero_indices_p1:
+                        fooo.write(f"  Action {idx}: {np.round(example['policy1'][idx], 3)} (Policy 2: {np.round(example['policy2'][idx], 3)})\n")
+                    
+                    # Find non-zero indices for policy 2
+                    non_zero_indices_p2 = np.where(example['policy2'] > 0)[0]
+                    fooo.write(f"Policy 2 ({example['counter_example'][1]}) non-zero actions:\n")
+                    for idx in non_zero_indices_p2:
+                        fooo.write(f"  Action {idx}: {np.round(example['policy2'][idx], 3)} (Policy 1: {np.round(example['policy1'][idx], 3)})\n")
+                    
                     fooo.write(f"n1: {example['n1']}, n2: {example['n2']}\n")
                     fooo.write("-" * 50 + "\n")
 
