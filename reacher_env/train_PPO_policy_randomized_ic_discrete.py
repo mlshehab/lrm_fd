@@ -4,19 +4,19 @@ from stable_baselines3.common.env_util import make_vec_env
 import numpy as np
 import mujoco
 from gymnasium.spaces import MultiDiscrete
-# import os
-# print("Number of logical CPUs:", os.cpu_count())
+import os
+print("Number of logical CPUs:", os.cpu_count())
 
 class DiscreteReacherActionWrapper(gym.ActionWrapper):
     def __init__(self, env):
         super().__init__(env)
-        # For two joints, each can be -1, 0, or +1 (so 3 choices each)
-        self.action_space = MultiDiscrete([3, 3])
+        self.discrete_vals = np.array([-1.0,-0.5,0.0,0.5,1.0])
+        self.action_space = MultiDiscrete([5, 5])
 
     def action(self, action):
         # Map [0, 1, 2] to [-1, 0, +1]
-        mapped_action = np.array(action) - 1
-        return mapped_action.astype(np.float32)
+        # mapped_action = np.array(action) - 1/
+        return self.discrete_vals[np.array(action)]
     
 # import torch
 # print(torch.cuda.is_available())  # should return True
@@ -61,34 +61,34 @@ class ForceRandomizedReacher(gym.Wrapper):
 
 
 
+if __name__ == "__main__":
+    # You must wrap the environment for vectorized training (no need for 'human' render mode here)
+    vec_env = make_vec_env(lambda: DiscreteReacherActionWrapper(ForceRandomizedReacher(gym.make('Reacher-v5', max_episode_steps=150))), n_envs=50)
 
-# # You must wrap the environment for vectorized training (no need for 'human' render mode here)
-# vec_env = make_vec_env(lambda: DiscreteReacherActionWrapper(ForceRandomizedReacher(gym.make('Reacher-v5', max_episode_steps=250))), n_envs=8)
+    # Create the model
+    model = PPO("MlpPolicy", vec_env, verbose=1, device="cpu",tensorboard_log="./ppo_reacher_tensorboard/")
+    # print(next(model.policy.parameters()).device)  # should say cuda:0
 
-# # Create the model
-# model = PPO("MlpPolicy", vec_env, verbose=1, device="cpu")
-# # print(next(model.policy.parameters()).device)  # should say cuda:0
-
-# # Train the model
-# model.learn(total_timesteps=10_000_000)
-# model.save("ppo_reacher_randomized_ic_discrete")
+    # Train the model
+    model.learn(total_timesteps=20_000_000)
+    model.save("ppo_reacher_randomized_ic_discrete_5_actions")
 
 
 
-env = gym.make('Reacher-v5', render_mode='human', max_episode_steps=250)
-# env = ForceRandomizedReacher(env)  # Wrap it
-# env = DiscreteReacherActionWrapper(env)
+    # env = gym.make('Reacher-v5', render_mode='human', max_episode_steps=250)
+    # env = ForceRandomizedReacher(env)  # Wrap it
+    # env = DiscreteReacherActionWrapper(env)
 
-# Evaluate the trained agent with rendering
-model = PPO.load("ppo_reacher_randomized_ic", device="cpu")
+    # # Evaluate the trained agent with rendering
+    # model = PPO.load("ppo_reacher_randomized_ic_discrete", device="cpu")
 
-obs, _ = env.reset()
-done = False
+    # obs, _ = env.reset()
+    # done = False
 
-while not done:
-    action, _ = model.predict(obs, deterministic=True)
-    print(action)
-    obs, reward, terminated, truncated, info = env.step(action)
-    env.render()
-    done = terminated or truncated
-env.close()
+    # while not done:
+    #     action, _ = model.predict(obs, deterministic=True)
+    #     print(action)
+    #     obs, reward, terminated, truncated, info = env.step(action)
+    #     env.render()
+    #     done = terminated or truncated
+    # env.close()

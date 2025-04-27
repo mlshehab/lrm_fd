@@ -97,7 +97,7 @@ class ForceRandomizedReacher(gym.Wrapper):
 
 
 
-class ReacherDiscretizerA:
+class ReacherDiscretizer:
     """Discretize the Reacher environment using joint angles (theta) and angular velocities.
 
     State   : (theta1, theta2, theta1_dot, theta2_dot)
@@ -130,12 +130,13 @@ class ReacherDiscretizerA:
         self.theta1dot_bins = np.arange(-vel_bound, vel_bound + vel_grid_size, vel_grid_size)
         self.theta2dot_bins = np.arange(-vel_bound, vel_bound + vel_grid_size, vel_grid_size)
 
-        self.action_bins = np.arange(-action_bound, action_bound + action_grid_size, action_grid_size)
-
+        # self.action_bins = np.arange(-action_bound, action_bound + action_grid_size, action_grid_size)
+        self.action_bins = np.array([-1,-0.5,0,0.5,1])
         # Index maps
         self.state_to_idx, self.idx_to_state = self._build_state_maps()
         self.action_to_idx, self.idx_to_action = self._build_action_maps()
-
+        # print(f"The action_to_idx is {self.action_to_idx}")
+        # time.sleep(100)
         # Transition containers (counts & probabilities)
         self.n_states = len(self.state_to_idx)
         self.n_actions = len(self.action_to_idx)
@@ -177,8 +178,8 @@ class ReacherDiscretizerA:
         x_grid = np.array(sorted(list(set(x_grid))))
         y_grid = np.array(sorted(list(set(y_grid))))
         
-        print("x_grid:", np.round(np.array(x_grid),3))
-        print("y_grid:", np.round(np.array(y_grid),3))
+        # print("x_grid:", np.round(np.array(x_grid),3))
+        # print("y_grid:", np.round(np.array(y_grid),3))
         
         self.theta1_bins = x_grid
         self.theta2_bins = y_grid
@@ -218,9 +219,13 @@ class ReacherDiscretizerA:
         l = np.digitize(theta2dot, self.theta2dot_bins) - 1
         return (i, j, k, l)
 
-    def discretize_action(self, act):
-        a0_idx = np.digitize(act[0], self.action_bins) - 1
-        a1_idx = np.digitize(act[1], self.action_bins) - 1
+    def discretize_action(self, act , already_discretized = True):
+        if already_discretized:
+            a0_idx = act[0]
+            a1_idx = act[1]
+        else:
+            a0_idx = np.digitize(act[0], self.action_bins) - 1
+            a1_idx = np.digitize(act[1], self.action_bins) - 1
         return (a0_idx, a1_idx)
 
     # ---------------------------------------------------------------------
@@ -459,7 +464,6 @@ class ReacherDiscretizerB:
         return [(theta1_up, theta2_up), (theta1_down, theta2_down)]
 
 
-
 class ReacherDiscreteSimulator():
     
     def __init__(self, env, policy, rd, target_goals):
@@ -488,7 +492,7 @@ class ReacherDiscreteSimulator():
         th1, th2 , th1dot, th2dot = (np.arctan2(obs[2],obs[0]), np.arctan2(obs[3],obs[1]) , obs[6] , obs[7])
         return (th1, th2 , th1dot, th2dot)
 
-    def sample_trajectory(self, starting_state, len_traj, threshold=0.02):
+    def sample_trajectory(self, starting_state, len_traj,render=False, threshold=0.02 ):
         theta1, theta2 = inverse_kinematics(starting_state[0], starting_state[1])
 
         obs, _ = self.env.reset(qpos_override=[theta1, theta2])
@@ -504,10 +508,14 @@ class ReacherDiscreteSimulator():
         for t in range(len_traj):
             continuous_action, _ = self.policy.predict(obs, deterministic=False)
             obs, reward, terminated, truncated, info = self.env.step(continuous_action)
-            
+
+            if render:
+                print(f"The trajectory is {t} of {len_traj}")
+                self.env.render()
+                 
             discrete_action_tuple = self.rd.discretize_action(continuous_action)
             discrete_action_idx = self.rd.action_to_idx[discrete_action_tuple]
-
+            # print(f"The model action is {continuous_action} and the discrete action is {discrete_action_idx}")
             compressed_label = self.remove_consecutive_duplicates(label)
 
             if discrete_state_idx not in self.state_action_counts:
@@ -546,6 +554,9 @@ class ReacherDiscreteSimulator():
                 set_target_position(self.env, current_target[0], current_target[1])
 
             if terminated or truncated:
+                # print(f"The trajectory has terminated or truncated")
+                # print(f"The label is: {compressed_label}")
+                self.target_goals_reset()
                 self.env.close()  
                 break
 
@@ -554,13 +565,13 @@ class ReacherDiscreteSimulator():
 
     def sample_dataset(self, starting_states, number_of_trajectories, max_trajectory_length):
         # for each starting state
-        for state in tqdm(starting_states):
+        for state in starting_states:
             # for each length trajectory
-            for l in range(max_trajectory_length):
+            # for l in range(max_trajectory_length):
                 # sample (number_of_trajectories) trajectories of length l 
-                for i in  range(number_of_trajectories):
-                    # print(f"Sampling trajectory {i} of {number_of_trajectories}")
-                    self.sample_trajectory(starting_state= state,len_traj= l)
+            for i in  range(number_of_trajectories):
+                # print(f"Sampling trajectory {i} of {number_of_trajectories}")
+                self.sample_trajectory(starting_state= state,len_traj= max_trajectory_length)
 
 
 
@@ -634,12 +645,20 @@ class ReacherDiscreteSimulator():
 
         return grouped_traces
     
-
+from train_PPO_policy_randomized_ic_discrete import DiscreteReacherActionWrapper
 
 if __name__ == "__main__":
-    max_len = 250
-    env = gym.make("Reacher-v5",   max_episode_steps=max_len,xml_file="./reacher.xml")
+
+    max_len = 150
+    render = False
+    if render:
+        env = gym.make("Reacher-v5", render_mode="human",  max_episode_steps=max_len,xml_file="./reacher.xml")
+    else:
+        env = gym.make("Reacher-v5",  max_episode_steps=max_len,xml_file="./reacher.xml")
+
+    env = DiscreteReacherActionWrapper(env)
     env = ForceRandomizedReacher(env)  # Wrap it
+    
 
     target_blue = [0.1, -0.11]
     target_red = [0.1, 0.11]
@@ -653,7 +672,7 @@ if __name__ == "__main__":
 
     targets_goals = ["blue", "red", "yellow"]
 
-    rd = ReacherDiscretizerA(target_dict=target_dict)
+    rd = ReacherDiscretizer(target_dict=target_dict)
 
     print(rd.n_states)
     print(rd.n_actions)
@@ -661,34 +680,35 @@ if __name__ == "__main__":
     
     print("The number of states is ", rd.n_states)
     print("The number of actions is ", rd.n_actions)
-    policy = PPO.load("ppo_reacher_randomized_ic", device="cpu")
+    policy = PPO.load("ppo_reacher_randomized_ic_discrete_5_actions", device="cpu")
     rds = ReacherDiscreteSimulator(env, policy, rd, targets_goals)
 
     start = time.time()
     
     n_traj = 10_000
     starting_states = [target_random_1, target_red, target_blue, target_yellow]
-    # rds.sample_trajectory(starting_state= target_blue, len_traj= max_len)
-    rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
-    end = time.time()
+    for t in range(100):
+        rds.sample_trajectory(starting_state= target_random_1, len_traj= max_len, render=False, threshold=0.02)
+    # rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
+    # end = time.time()
 
-    elapsed_time = end - start
-    hours, rem = divmod(elapsed_time, 3600)
-    minutes, seconds = divmod(rem, 60)
-    print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
-
-     
-
-    rds.compute_action_distributions()
+    # elapsed_time = end - start
+    # hours, rem = divmod(elapsed_time, 3600)
+    # minutes, seconds = divmod(rem, 60)
+    # print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
 
      
 
-    rds.policy = None  # Drop the PPO policy before saving
-    with open(f"./objects/object{n_traj}_{max_len}.pkl", "wb") as foo:
-        pickle.dump(rds, foo)
+    # rds.compute_action_distributions()
+
+     
+
+    # rds.policy = None  # Drop the PPO policy before saving
+    # with open(f"./objects/object{n_traj}_{max_len}.pkl", "wb") as foo:
+    #     pickle.dump(rds, foo)
    
  
-    print(f"The object has been saved to ./objects/object{n_traj}_{max_len}.pkl")        
+    # print(f"The object has been saved to ./objects/object{n_traj}_{max_len}.pkl")        
 
 
     # with open("./objects/object10_10.pkl", "rb") as foo:
