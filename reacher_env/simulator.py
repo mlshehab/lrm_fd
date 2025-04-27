@@ -11,6 +11,7 @@ import pickle
 import matplotlib.pyplot as plt
 import os
 
+from train_PPO_policy_randomized_ic_discrete import DiscreteReacherActionWrapper
 
 def inverse_kinematics(x, y, L1=0.1, L2=0.11):
     """
@@ -504,7 +505,7 @@ class ReacherDiscreteSimulator():
         for t in range(len_traj):
             continuous_action, _ = self.policy.predict(obs, deterministic=False)
             obs, reward, terminated, truncated, info = self.env.step(continuous_action)
-            
+            self.env.render()
             discrete_action_tuple = self.rd.discretize_action(continuous_action)
             discrete_action_idx = self.rd.action_to_idx[discrete_action_tuple]
 
@@ -638,7 +639,10 @@ class ReacherDiscreteSimulator():
 
 if __name__ == "__main__":
     max_len = 250
-    env = gym.make("Reacher-v5",   max_episode_steps=max_len,xml_file="./reacher.xml")
+    env = gym.make("Reacher-v5",  render_mode="rgb_array", max_episode_steps=max_len,xml_file="./reacher.xml")
+    
+    env = gym.wrappers.RecordVideo(env, video_folder="./videos", name_prefix="reacher_run_BB")
+    env = DiscreteReacherActionWrapper(env)
     env = ForceRandomizedReacher(env)  # Wrap it
 
     target_blue = [0.1, -0.11]
@@ -661,34 +665,34 @@ if __name__ == "__main__":
     
     print("The number of states is ", rd.n_states)
     print("The number of actions is ", rd.n_actions)
-    policy = PPO.load("ppo_reacher_randomized_ic", device="cpu")
+    policy = PPO.load("ppo_reacher_randomized_ic_discrete", device="cpu")
     rds = ReacherDiscreteSimulator(env, policy, rd, targets_goals)
 
     start = time.time()
     
     n_traj = 10_000
     starting_states = [target_random_1, target_red, target_blue, target_yellow]
-    # rds.sample_trajectory(starting_state= target_blue, len_traj= max_len)
-    rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
-    end = time.time()
+    rds.sample_trajectory(starting_state= target_random_1, len_traj= max_len)
+    # rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
+    # end = time.time()
 
-    elapsed_time = end - start
-    hours, rem = divmod(elapsed_time, 3600)
-    minutes, seconds = divmod(rem, 60)
-    print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
-
-     
-
-    rds.compute_action_distributions()
+    # elapsed_time = end - start
+    # hours, rem = divmod(elapsed_time, 3600)
+    # minutes, seconds = divmod(rem, 60)
+    # print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
 
      
 
-    rds.policy = None  # Drop the PPO policy before saving
-    with open(f"./objects/object{n_traj}_{max_len}.pkl", "wb") as foo:
-        pickle.dump(rds, foo)
+    # rds.compute_action_distributions()
+
+     
+
+    # rds.policy = None  # Drop the PPO policy before saving
+    # with open(f"./objects/object{n_traj}_{max_len}.pkl", "wb") as foo:
+    #     pickle.dump(rds, foo)
    
  
-    print(f"The object has been saved to ./objects/object{n_traj}_{max_len}.pkl")        
+    # print(f"The object has been saved to ./objects/object{n_traj}_{max_len}.pkl")        
 
 
     # with open("./objects/object10_10.pkl", "rb") as foo:

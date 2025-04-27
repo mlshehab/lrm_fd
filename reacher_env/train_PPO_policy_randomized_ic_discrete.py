@@ -6,16 +6,31 @@ import mujoco
 from gymnasium.spaces import MultiDiscrete
 # import os
 # print("Number of logical CPUs:", os.cpu_count())
+# class DiscreteReacherActionWrapper(gym.ActionWrapper):
+#     def __init__(self, env):
+#         super().__init__(env)
+#         # 5 discrete actions for each joint
+#         self.action_space = MultiDiscrete([5, 5])
+#         # Define the mapping from discrete to continuous values
+#         self.action_values = np.linspace(-1.0, 1.0, 5)  # [-1.0, -0.5, 0.0, 0.5, 1.0]
+
+#     def action(self, action):
+#         # Map [0,1,2,3,4] to [-1.0,-0.5,0.0,0.5,1.0] for each joint
+#         mapped_action = self.action_values[np.array(action)]
+#         return mapped_action.astype(np.float32)
+    
 
 class DiscreteReacherActionWrapper(gym.ActionWrapper):
     def __init__(self, env):
         super().__init__(env)
-        # For two joints, each can be -1, 0, or +1 (so 3 choices each)
+        # 5 discrete actions for each joint
         self.action_space = MultiDiscrete([3, 3])
+        # Define the mapping from discrete to continuous values
+        self.action_values = np.linspace(-1.0, 1.0, 3)  # [-1.0, -0.5, 0.0, 0.5, 1.0]
 
     def action(self, action):
-        # Map [0, 1, 2] to [-1, 0, +1]
-        mapped_action = np.array(action) - 1
+        # Map [0,1,2,3,4] to [-1.0,-0.5,0.0,0.5,1.0] for each joint
+        mapped_action = self.action_values[np.array(action)]
         return mapped_action.astype(np.float32)
     
 # import torch
@@ -73,22 +88,28 @@ class ForceRandomizedReacher(gym.Wrapper):
 # model.learn(total_timesteps=10_000_000)
 # model.save("ppo_reacher_randomized_ic_discrete")
 
+if __name__ == "__main__":
 
+    env = gym.make('Reacher-v5', render_mode='human', xml_file="./reacher.xml", max_episode_steps=150)
+    env = ForceRandomizedReacher(env)  # Wrap it
+    env = DiscreteReacherActionWrapper(env)
 
-env = gym.make('Reacher-v5', render_mode='human', max_episode_steps=250)
-# env = ForceRandomizedReacher(env)  # Wrap it
-# env = DiscreteReacherActionWrapper(env)
+    # Evaluate the trained agent with rendering
+    model = PPO.load("ppo_reacher_randomized_ic_discrete_5_actions", device="cpu")
 
-# Evaluate the trained agent with rendering
-model = PPO.load("ppo_reacher_randomized_ic", device="cpu")
+    obs, _ = env.reset()
+    done = False
 
-obs, _ = env.reset()
-done = False
+    total_reward = 0
+    steps = 0
+    while not done:
+        action, _ = model.predict(obs, deterministic=True)
+        print("action", action)
+        obs, reward, terminated, truncated, info = env.step(action)
+        total_reward += reward
+        steps += 1
+        env.render()
+        done = terminated or truncated
 
-while not done:
-    action, _ = model.predict(obs, deterministic=True)
-    print(action)
-    obs, reward, terminated, truncated, info = env.step(action)
-    env.render()
-    done = terminated or truncated
-env.close()
+    print(f"Average reward per step: {total_reward:.3f}")
+    env.close()
