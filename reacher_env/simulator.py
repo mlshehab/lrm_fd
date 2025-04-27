@@ -11,6 +11,7 @@ import pickle
 import matplotlib.pyplot as plt
 import os
 
+from train_PPO_policy_randomized_ic_discrete import DiscreteReacherActionWrapper
 
 def inverse_kinematics(x, y, L1=0.1, L2=0.11):
     """
@@ -651,11 +652,18 @@ if __name__ == "__main__":
 
     max_len = 150
     render = False
+    video =False
+
     if render:
         env = gym.make("Reacher-v5", render_mode="human",  max_episode_steps=max_len,xml_file="./reacher.xml")
     else:
         env = gym.make("Reacher-v5",  max_episode_steps=max_len,xml_file="./reacher.xml")
 
+    if video:
+        env = gym.make("Reacher-v5",  render_mode="rgb_array", max_episode_steps=max_len,xml_file="./reacher.xml")
+        env = gym.wrappers.RecordVideo(env, video_folder="./videos", name_prefix="reacher_run_BB")
+    
+    
     env = DiscreteReacherActionWrapper(env)
     env = ForceRandomizedReacher(env)  # Wrap it
     
