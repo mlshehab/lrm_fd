@@ -14,7 +14,7 @@ import itertools
 import matplotlib.pyplot as plt
 import os
 
-from simulator import ReacherDiscretizer, ReacherDiscreteSimulator, ForceRandomizedReacher
+from simulator import ReacherDiscretizerUniform, ReacherDiscreteSimulator, ForceRandomizedReacher
 from train_PPO_policy_randomized_ic_discrete import DiscreteReacherActionWrapper
 
 
@@ -468,7 +468,7 @@ def worker_sample(args):
     env = gym.make("Reacher-v5", max_episode_steps=max_len, xml_file="./reacher.xml")
     env = DiscreteReacherActionWrapper(env)
     env = ForceRandomizedReacher(env)
-    rd = ReacherDiscretizer(target_dict)
+    rd = ReacherDiscretizerUniform(target_dict)
     policy = PPO.load(policy_path, device="cpu")
     sim = ReacherDiscreteSimulator(env, policy, rd, ["blue","red","yellow"])
     sim.sample_dataset(starting_states, n_traj_batch, max_len)
@@ -479,7 +479,7 @@ if __name__ == "__main__":
     # Configuration
     max_len = 150
     n_traj = 1000000
-    n_workers = 60
+    n_workers = 64
 
     # Targets and starting states
     target_blue   = [0.1, -0.11]
@@ -523,10 +523,10 @@ if __name__ == "__main__":
                 
     # Save master_counts to readable text file
     # Delete file if it exists
-    if os.path.exists('master_counts.txt'):
-        os.remove('master_counts.txt')
+    if os.path.exists('master_counts_uniform.txt'):
+        os.remove('master_counts_uniform.txt')
         
-    with open('master_counts.txt', 'w') as f:
+    with open('master_counts_uniform.txt', 'w') as f:
         f.write("Master Counts by State Index:\n")
         f.write("===========================\n\n")
         for state_idx, label_list in master_counts.items():
@@ -535,9 +535,9 @@ if __name__ == "__main__":
                 f.write(f"  Label: {label}\n")
                 f.write(f"  Action counts: {dict(counter)}\n")
             f.write("\n")
-    print("Master counts saved to master_counts.txt")
+    print("Master counts saved to master_counts_uniform.txt")
     # Reinstantiate discretizer and simulator container to assign merged counts
-    rd = ReacherDiscretizer(target_dict)
+    rd = ReacherDiscretizerUniform(target_dict)
     sim = ReacherDiscreteSimulator(None, None, rd, ["blue","red","yellow"])
     sim.state_action_counts = master_counts
     # sim.compute_action_distributions()
@@ -546,7 +546,7 @@ if __name__ == "__main__":
 
     # Save the simulator object (drop policy to reduce size)
     sim.policy = None
-    output_path = f"./objects/object{n_traj}_{max_len}_parallel_bern.pkl"
+    output_path = f"./objects/object{n_traj}_{max_len}_parallel_uniform.pkl"
     with open(output_path, "wb") as f:
         pickle.dump(sim, f)
 

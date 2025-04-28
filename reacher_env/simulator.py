@@ -110,7 +110,7 @@ class ReacherDiscretizer:
     def __init__(
         self,
         target_dict,
-        theta_grid_size=np.deg2rad(10),      # 5° resolution ≈ 0.087 rad
+        theta_grid_size=np.deg2rad(5),      # 5° resolution ≈ 0.087 rad
         vel_grid_size=1.0,                  # rad s⁻¹ resolution
         action_grid_size=0.1,               # torque resolution
         theta_bound=np.pi,                  # joint limits [‑π, π]
@@ -286,7 +286,7 @@ class ReacherDiscretizer:
         return [(theta1_up, theta2_up), (theta1_down, theta2_down)]
 
 
-class ReacherDiscretizerB:
+class ReacherDiscretizerUniform:
     """Discretize the Reacher environment using joint angles (theta) and angular velocities.
 
     State   : (theta1, theta2, theta1_dot, theta2_dot)
@@ -298,7 +298,7 @@ class ReacherDiscretizerB:
     def __init__(
         self,
         target_dict,
-        theta_grid_size=np.deg2rad(30),      # 5° resolution ≈ 0.087 rad
+        theta_grid_size=np.deg2rad(15),      # 5° resolution ≈ 0.087 rad
         vel_grid_size=1.0,                  # rad s⁻¹ resolution
         action_grid_size=0.2,               # torque resolution
         theta_bound=np.pi,                  # joint limits [‑π, π]
@@ -319,8 +319,8 @@ class ReacherDiscretizerB:
         self.theta1dot_bins = np.arange(-vel_bound, vel_bound + vel_grid_size, vel_grid_size)
         self.theta2dot_bins = np.arange(-vel_bound, vel_bound + vel_grid_size, vel_grid_size)
 
-        self.action_bins = np.arange(-action_bound, action_bound + action_grid_size, action_grid_size)
-
+        # self.action_bins = np.arange(-action_bound, action_bound + action_grid_size, action_grid_size)
+        self.action_bins = np.array([-1,-0.5,0,0.5,1])
         # Index maps
         self.state_to_idx, self.idx_to_state = self._build_state_maps()
         self.action_to_idx, self.idx_to_action = self._build_action_maps()
@@ -407,9 +407,13 @@ class ReacherDiscretizerB:
         l = np.digitize(theta2dot, self.theta2dot_bins) - 1
         return (i, j, k, l)
 
-    def discretize_action(self, act):
-        a0_idx = np.digitize(act[0], self.action_bins) - 1
-        a1_idx = np.digitize(act[1], self.action_bins) - 1
+    def discretize_action(self, act , already_discretized = True):
+        if already_discretized:
+            a0_idx = act[0]
+            a1_idx = act[1]
+        else:
+            a0_idx = np.digitize(act[0], self.action_bins) - 1
+            a1_idx = np.digitize(act[1], self.action_bins) - 1
         return (a0_idx, a1_idx)
 
     # ---------------------------------------------------------------------
@@ -513,6 +517,7 @@ class ReacherDiscreteSimulator():
             if render:
                 print(f"The trajectory is {t} of {len_traj}")
                 self.env.render()
+                time.sleep(0.05)
                  
             discrete_action_tuple = self.rd.discretize_action(continuous_action)
             discrete_action_idx = self.rd.action_to_idx[discrete_action_tuple]
@@ -558,7 +563,7 @@ class ReacherDiscreteSimulator():
                 # print(f"The trajectory has terminated or truncated")
                 # print(f"The label is: {compressed_label}")
                 self.target_goals_reset()
-                self.env.close()  
+                # self.env.close()  
                 break
 
     def target_goals_reset(self):
@@ -600,58 +605,14 @@ class ReacherDiscreteSimulator():
                 self.state_action_probs[state][label] = action_probs
                 self.state_label_counts[state][label] = total_actions
 
-    def group_similar_policies(self, state, metric="TV", threshold=0.05):
-        """
-        Groups labels based on similar action distributions for each state.
-
-        Args:
-            metric (str): Similarity metric to use. Options: 'KL', 'TV', 'L1'.
-            threshold (float): Maximum allowed difference to consider policies similar.
-
-        Returns:
-            dict: {state: {policy_signature: [labels]}}
-        """
-        grouped_traces = {}
-
-        def similarity(p1, p2, metric):
-            """Computes similarity based on chosen metric."""
-            if metric == "KL":
-                p1 = np.clip(p1, 1e-10, 1)  # Avoid division by zero
-                p2 = np.clip(p2, 1e-10, 1)
-                return entropy(p1, p2)  # KL divergence
-            elif metric == "TV":
-                return 0.5 * np.sum(np.abs(p1 - p2))  # Total Variation Distance
-            elif metric == "L1":
-                return np.linalg.norm(p1 - p2, ord=1)  # 1-norm distance
-            else:
-                raise ValueError("Unsupported metric! Choose from 'KL', 'TV', 'L1'.")
-
-        if state not in self.state_action_probs:
-            raise ValueError(f"State {state} not found in state_action_probs.")
-
-        # Iterate over the labels for the given state
-        for label, action_probs in self.state_action_probs[state]:
-            matched = False
-
-            # Compare against existing policy groups
-            for existing_policy in grouped_traces:
-                if similarity(existing_policy, action_probs, metric) < threshold:
-                    grouped_traces[existing_policy].append(label)
-                    matched = True
-                    break
-            
-            # If no match, create a new group with this action_probs
-            if not matched:
-                grouped_traces[tuple(action_probs)] = [label]
-
-        return grouped_traces
+    
     
 from train_PPO_policy_randomized_ic_discrete import DiscreteReacherActionWrapper
 
 if __name__ == "__main__":
 
     max_len = 150
-    render = False
+    render = True
     video =False
 
     if render:
@@ -680,7 +641,7 @@ if __name__ == "__main__":
 
     targets_goals = ["blue", "red", "yellow"]
 
-    rd = ReacherDiscretizer(target_dict=target_dict)
+    rd = ReacherDiscretizerUniform(target_dict=target_dict)
 
     print(rd.n_states)
     print(rd.n_actions)
@@ -696,7 +657,7 @@ if __name__ == "__main__":
     n_traj = 10_000
     starting_states = [target_random_1, target_red, target_blue, target_yellow]
     for t in range(100):
-        rds.sample_trajectory(starting_state= target_random_1, len_traj= max_len, render=False, threshold=0.02)
+        rds.sample_trajectory(starting_state= target_random_1, len_traj= max_len, render=render, threshold=0.02)
     # rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
     # end = time.time()
 

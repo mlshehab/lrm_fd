@@ -107,14 +107,14 @@ def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
     n_total_previous = 0
     n_total_new = 0
     
-    
+    wrong_ce_counts_previous = 0
+    wrong_ce_counts_new = 0
     for state, ce_set in tqdm(counter_examples.items()):
         filtered_ce_previous = []
         filtered_ce_new = []
         wrong_examples = []
 
-        wrong_ce_counts_previous = 0
-        wrong_ce_counts_new = 0
+        
 
         
 
@@ -162,12 +162,13 @@ def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
 
                     if u_from_obs(ce[0],rm) == u_from_obs(ce[1],rm):
                         wrong_ce_counts_new += 1
+                        # print("Im here")
                         # print(f"The wrong counter example is: {ce}")
                         # Store wrong examples in memory
                         
                     break
 
-        print(f"The total number of pairs for state {state} is: {len(ce_set)}. We got {len(filtered_ce_previous)} negative examples, {wrong_ce_counts_previous} of which are wrong.")                
+        # print(f"The total number of pairs for state {state} is: {len(ce_set)}. We got {len(filtered_ce_previous)} negative examples, {wrong_ce_counts_previous} of which are wrong.")                
         # Write all wrong examples to file at once
         if wrong_examples:
             # print(f"The wrong examples are: {len(wrong_examples)}")

@@ -38,82 +38,21 @@ def f(epsilon_1, n1, n2, A, epsilon):
 from simulators import Simulator, BlockworldSimulator
 from  re_helpers import similarity, solve_sat_instance, parse_args, generate_policy_comparison_report
 from  re_helpers import parse_args, generate_label_combinations
-from simulator import ReacherDiscreteSimulator, ForceRandomizedReacher, ReacherDiscretizer
+from simulator import ReacherDiscreteSimulator, ForceRandomizedReacher, ReacherDiscretizerUniform
 
 
 
 
 if __name__ == '__main__':
 
-    # args = parse_args()
-    # # print(f"The arguments are: {args}")
-    # bw = BlocksWorldMDP(num_piles=3)
-    # transition_matrices,s2i, i2s = bw.extract_transition_matrices_v2()
-    # n_states = bw.num_states
-    # n_actions = bw.num_actions
-
-    # P = []
-
-    # for a in range(n_actions):
-    #     # print(f"The matrix shape is: {transition_matrices[a,:,:]}")
-    #     P.append(transition_matrices[a,:,:])
-
-    # mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = 0.9,horizon=10)
-
+  
     rm = RewardMachine("../rm_examples/reacher.txt")
 
-    # L = {}
 
-    # print(f"The number of states is: {len(s2i.keys())}")
-
-    # target_state_1 = ((0,1,2),(),())
-    # target_state_2 = ((),(2,1,0),())
-    # target_state_3 = ((),(),(2,1,0))
-    # bad_state = ((0,),(1,),(2,))
-
-    # for state_index in range(bw.num_states):
-    #     if state_index == s2i[target_state_1]:
-    #         L[state_index] = 'A'
-    #     elif state_index == s2i[target_state_2]:
-    #         L[state_index] = 'B'
-    #     elif state_index == s2i[target_state_3]:
-    #         L[state_index] = 'C'
-    #     else:
-    #         L[state_index] = 'I'
-
-    
-    # soft_policy = np.load("soft_policy.npy")
-
-    # bws = BlockworldSimulator(rm = rm,mdp = mdp,L = L,policy = soft_policy,state2index=s2i,index2state=i2s)
-    
-    
-    # starting_states = [s2i[target_state_1], s2i[target_state_2], s2i[target_state_3], 4, 24]
-
-    # start = time.time()
-    # max_len = args.depth
-    # n_traj = args.n_traj
-    
-    # bws.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
-    # end = time.time()
-
-    # elapsed_time = end - start
-    # hours, rem = divmod(elapsed_time, 3600)
-    # minutes, seconds = divmod(rem, 60)
-    # print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
-
-    # bws.compute_action_distributions()
-
-    # Save the object to a file
-    # if args.save:
-    #     timestamp = time.strftime("%Y%m%d-%H%M%S")
-    #     with open(f"./objects/object{n_traj}_{max_len}_{timestamp}.pkl", "wb") as foo:
-    #         pickle.dump(bws, foo)
-    #     print(f"The object has been saved to ./objects/object{n_traj}_{max_len}_{timestamp}.pkl")
-
-    #     generate_policy_comparison_report(bws, rm, soft_policy, n_traj, max_len, timestamp)
-
-    with open("./objects/obj_bern_100000.pkl", "rb") as foo:
+  
+    with open("./objects/object1000000_150_parallel_uniform.pkl", "rb") as foo:
         rds = pickle.load(foo)
+
     print(f"{rds.rd.n_actions}")
 
 
@@ -121,17 +60,6 @@ if __name__ == '__main__':
     
     counter_examples = generate_label_combinations(rds)
 
-    # for state, label_dists in bws.state_action_probs.items():
-    #     print(f"State: {state}")
-    #     for label, action_prob in label_dists.items():
-    #         print(f"  Label: {label}")
-    #         print(f"  Action Probabilities: {np.round(action_prob, 3)}")
-    #     if state in counter_examples:
-    #         print(f"  Combinations: {counter_examples[state]}")
-    #     else:
-    #         print("  Combinations: None")
-
- 
     
     kappa = 3
     AP = 4
