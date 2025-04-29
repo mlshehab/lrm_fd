@@ -432,8 +432,15 @@ class ReacherDiscretizerUniform:
     # ---------------------------------------------------------------------
     def L(self, state):
         """Return colour label based on whether joint angles are within solution boxes for targets."""
-        theta1, theta2, _ , _ = state
+        # theta1, theta2, theta1dot , theta2dot = state
         
+        discrete_state = self.discretize_state(state)
+        # print(f"The discrete state is {self.state_to_idx[discrete_state]}")
+        # find the center of the discrete state
+        theta1, theta2 , _,_  = self.midpoint_from_state_idx(self.state_to_idx[discrete_state])
+   
+
+
         # Check if joint angles are within solution boxes for each target
         for colour, solutions in self.solutions.items():
             for sol in solutions:
@@ -522,15 +529,20 @@ class ReacherDiscreteSimulator():
             obs, reward, terminated, truncated, info = self.env.step(continuous_action)
 
             if render:
-                
+                # print(f"The trajectory is {t} of {len_traj}")
                 self.env.render()
-                time.sleep(0.05)
+                # time.sleep(0.05)
                  
             discrete_action_tuple = self.rd.discretize_action(continuous_action)
             discrete_action_idx = self.rd.action_to_idx[discrete_action_tuple]
             # print(f"The model action is {continuous_action} and the discrete action is {discrete_action_idx}")
             compressed_label = self.remove_consecutive_duplicates(label)
-
+            # print(f"\rCurrent label: {compressed_label}", end="", flush=True)
+            if discrete_state_idx == 141766:
+                if compressed_label == 'R,I,B,I,':
+                    print(f"\nFOUND OUR STATE! The label is: {compressed_label}")
+            # if compressed_label == 'R,I,B,I,':
+            #     print(f"The discrete state is: {discrete_state_idx}")
             if discrete_state_idx not in self.state_action_counts:
                 self.state_action_counts[discrete_state_idx] = []
 
@@ -697,7 +709,7 @@ if __name__ == "__main__":
     n_traj = 10_000
     starting_states = [target_random_1, target_red, target_blue, target_yellow]
     for t in range(100):
-        rds.sample_trajectory(starting_state= target_random_1, len_traj= max_len, render=render, threshold=0.02)
+        rds.sample_trajectory(starting_state= target_red, len_traj= max_len, render=render, threshold=0.02)
     # rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
     # end = time.time()
 

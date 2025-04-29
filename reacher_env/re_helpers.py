@@ -52,8 +52,14 @@ def generate_label_combinations(bws):
     label_combinations = {}
 
     for state, label_dists in bws.state_action_probs.items():
+        
         labels = [label for label in label_dists.keys()]
         label_combinations[state] = list(combinations(labels, 2))
+
+        # if state == 141766:
+        #     print("The list combinations are:")
+        #     for combo in label_combinations[141766]:
+        #         print(combo[0][-2:] , combo[1][-2:])
 
     return label_combinations
 
@@ -115,11 +121,11 @@ def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
         wrong_examples = []
 
         
-
-        
-
         for ce in ce_set:
-
+            a = ce[0][-2:]
+            b = ce[1][-2:]
+            if not a == b:
+                print("Something is wrong")
             # method prvious
              
             epsilon = similarity(bws.state_action_probs[state][ce[0]], bws.state_action_probs[state][ce[1]], metric = "L1")
