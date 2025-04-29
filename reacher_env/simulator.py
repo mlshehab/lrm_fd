@@ -498,6 +498,10 @@ class ReacherDiscreteSimulator():
         return (th1, th2 , th1dot, th2dot)
 
     def sample_trajectory(self, starting_state, len_traj,render=False, threshold=0.02 ):
+
+        if not hasattr(self, 'history'):
+            self.history = []
+        
         theta1, theta2 = inverse_kinematics(starting_state[0], starting_state[1])
 
         obs, _ = self.env.reset(qpos_override=[theta1, theta2])
@@ -509,13 +513,16 @@ class ReacherDiscreteSimulator():
         discrete_state_tuple = self.rd.discretize_state(continuous_state)
         discrete_state_idx = self.rd.state_to_idx[discrete_state_tuple]
         label = self.rd.L(continuous_state) + ','
-        
+        next_continuous_state = continuous_state
+
+
         for t in range(len_traj):
             continuous_action, _ = self.policy.predict(obs, deterministic=False)
+            self.history.append((next_continuous_state, continuous_action))
             obs, reward, terminated, truncated, info = self.env.step(continuous_action)
 
             if render:
-                print(f"The trajectory is {t} of {len_traj}")
+                
                 self.env.render()
                 time.sleep(0.05)
                  
@@ -538,7 +545,7 @@ class ReacherDiscreteSimulator():
                 self.state_action_counts[discrete_state_idx].append((compressed_label, Counter({discrete_action_idx: 1})))
 
             next_continuous_state = self.st4obs(obs)
-            
+           
             next_discrete_state_tuple = self.rd.discretize_state(next_continuous_state)
             try:
                 next_discrete_state_idx = self.rd.state_to_idx[next_discrete_state_tuple]
@@ -560,6 +567,38 @@ class ReacherDiscreteSimulator():
                 set_target_position(self.env, current_target[0], current_target[1])
 
             if terminated or truncated:
+                
+                
+                # Add current state and action to history
+                
+                
+                # Plot the history when trajectory ends
+                if terminated or truncated:
+                    # Extract data for plotting
+                    theta1dots = [state[2] for state, _ in self.history]
+                    theta2dots = [state[3] for state, _ in self.history]
+                    actions = [DiscreteReacherActionWrapper.action_to_idx[tuple(action)] for _, action in self.history]
+                    
+                    # Create the plot
+                    plt.figure(figsize=(12, 6))
+                    plt.subplot(2, 1, 1)
+                    plt.plot(theta1dots, label='θ1_dot')
+                    plt.plot(theta2dots, label='θ2_dot')
+                    plt.ylabel('Angular Velocity')
+                    plt.legend()
+                    
+                    plt.subplot(2, 1, 2)
+                    plt.plot(actions, label='Discrete Actions')
+                    plt.ylabel('Action Index')
+                    plt.xlabel('Time Step')
+                    plt.legend()
+                    
+                    plt.tight_layout()
+                    plt.show()
+                    
+                    # Clear history for next trajectory
+                    self.history = []
+
                 # print(f"The trajectory has terminated or truncated")
                 # print(f"The label is: {compressed_label}")
                 self.target_goals_reset()
@@ -612,6 +651,7 @@ from train_PPO_policy_randomized_ic_discrete import DiscreteReacherActionWrapper
 if __name__ == "__main__":
 
     max_len = 150
+
     render = True
     video =False
 
