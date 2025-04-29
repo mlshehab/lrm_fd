@@ -478,7 +478,7 @@ def worker_sample(args):
 if __name__ == "__main__":
     # Configuration
     max_len = 150
-    n_traj = 1000000
+    n_traj = 10000
     n_workers = 64
 
     # Targets and starting states
@@ -521,21 +521,21 @@ if __name__ == "__main__":
                         existing[lbl] = ctr
                 master_counts[state_idx] = list(existing.items())
                 
-    # Save master_counts to readable text file
-    # Delete file if it exists
-    if os.path.exists('master_counts_uniform.txt'):
-        os.remove('master_counts_uniform.txt')
+    # # Save master_counts to readable text file
+    # # Delete file if it exists
+    # if os.path.exists('master_counts_uniform.txt'):
+    #     os.remove('master_counts_uniform.txt')
         
-    with open('master_counts_uniform.txt', 'w') as f:
-        f.write("Master Counts by State Index:\n")
-        f.write("===========================\n\n")
-        for state_idx, label_list in master_counts.items():
-            f.write(f"State {state_idx}:\n")
-            for label, counter in label_list:
-                f.write(f"  Label: {label}\n")
-                f.write(f"  Action counts: {dict(counter)}\n")
-            f.write("\n")
-    print("Master counts saved to master_counts_uniform.txt")
+    # with open('master_counts_uniform.txt', 'w') as f:
+    #     f.write("Master Counts by State Index:\n")
+    #     f.write("===========================\n\n")
+    #     for state_idx, label_list in master_counts.items():
+    #         f.write(f"State {state_idx}:\n")
+    #         for label, counter in label_list:
+    #             f.write(f"  Label: {label}\n")
+    #             f.write(f"  Action counts: {dict(counter)}\n")
+    #         f.write("\n")
+    # print("Master counts saved to master_counts_uniform.txt")
     # Reinstantiate discretizer and simulator container to assign merged counts
     rd = ReacherDiscretizerUniform(target_dict)
     sim = ReacherDiscreteSimulator(None, None, rd, ["blue","red","yellow"])
@@ -545,10 +545,10 @@ if __name__ == "__main__":
     sim.compute_action_distributions()
 
     # Save the simulator object (drop policy to reduce size)
-    sim.policy = None
-    output_path = f"./objects/object{n_traj}_{max_len}_parallel_uniform.pkl"
-    with open(output_path, "wb") as f:
-        pickle.dump(sim, f)
+    # sim.policy = None
+    # output_path = f"./objects/object_debug.pkl"
+    # with open(output_path, "wb") as f:
+    #     pickle.dump(sim, f)
 
     # elapsed = time.time() - t0
     # print(f"Sampling+merge+compute took {elapsed:.2f} seconds. Simulator saved to {output_path}.")

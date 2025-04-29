@@ -18,10 +18,6 @@ class DiscreteReacherActionWrapper(gym.ActionWrapper):
         # mapped_action = np.array(action) - 1/
         return self.discrete_vals[np.array(action)]
     
-# import torch
-# print(torch.cuda.is_available())  # should return True
-# print(torch.cuda.get_device_name(0))  # prints your GPU name
-# Create the environment with rendering
 
 class ForceRandomizedReacher(gym.Wrapper):
 
