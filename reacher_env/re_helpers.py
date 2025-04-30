@@ -151,6 +151,8 @@ def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
                             'n1': n1,
                             'n2': n2
                         })
+                # else:
+                    # print(f"The correct counter example is: {ce}, with probability: {prob:.5f}")
 
           
             # method new

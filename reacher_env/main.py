@@ -63,7 +63,7 @@ if __name__ == '__main__':
     
     kappa = 3
     AP = 4
-    alpha = 0.005
+    alpha = 0.00001
     solutions, total_constraints,  filtered_counter_examples , solve_time = solve_sat_instance(rds, counter_examples, rm, kappa, AP, alpha)
     print(f"The number of constraints is: {total_constraints}, { filtered_counter_examples }")
     print(f"The number of solutions is: {len(solutions)}")
