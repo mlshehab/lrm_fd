@@ -11,3 +11,5 @@ __pycache__/
 *.npy
 transition_matrices.npy
 *.txt
+*.npz
+*.mp4
