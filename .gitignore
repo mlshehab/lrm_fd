@@ -10,3 +10,4 @@ __pycache__/
 *.pyc
 *.npy
 transition_matrices.npy
+*.txt
