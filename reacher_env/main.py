@@ -50,13 +50,11 @@ if __name__ == '__main__':
 
 
   
-    with open("./objects/object1000000_150_parallel_uniform_5_28.pkl", "rb") as foo:
+    with open("./objects/object_4_30_deterministic.pkl", "rb") as foo:
         rds = pickle.load(foo)
 
     print(f"{rds.rd.n_actions}")
 
-
-   
     
     counter_examples = generate_label_combinations(rds)
 
