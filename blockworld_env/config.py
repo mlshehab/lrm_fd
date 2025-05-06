@@ -11,7 +11,5 @@ TARGET_STATE_2 = ((),(1,2,0),())
 TARGET_STATE_3 = ((),(),(2,1,0))
 BAD_STATE = ((0,),(1,),(2,))
 
-
-
 GAMMA = 0.9
 HORIZON = 10
