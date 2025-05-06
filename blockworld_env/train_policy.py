@@ -14,6 +14,8 @@ from dynamics.BlockWorldMDP import BlocksWorldMDP, infinite_horizon_soft_bellman
 import config
 
 if __name__ == '__main__':
+    # Create policies directory if it doesn't exist
+    os.makedirs(os.path.join(os.path.dirname(__file__), "policies"), exist_ok=True)
 
     bw = BlocksWorldMDP(num_piles=config.NUM_PILES)
     
@@ -62,4 +64,4 @@ if __name__ == '__main__':
                 
     q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = True)
     print(f"The shape of the policy is: {soft_policy.shape}")
-    np.save("./policies/soft_policy.npy", soft_policy)
+    np.save(os.path.join(os.path.dirname(__file__), "policies", "soft_policy.npy"), soft_policy)

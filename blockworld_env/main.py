@@ -34,40 +34,22 @@ def f(epsilon_1, n1, n2, A, epsilon):
     term2 = np.maximum(1 - ((2**A - 2) * np.exp((-n2 * (epsilon - epsilon_1)**2) / (2 ))), 0)
     return term1 * term2
 
-def find_optimal_epsilon1(n1, n2, A, epsilon):
-    """
-    Find the epsilon_1 value that maximizes f(epsilon_1) using scipy's optimize.
-    
-    Args:
-        n1 (int): First sample size
-        n2 (int): Second sample size 
-        A (int): Size of action space
-        epsilon (float): Total epsilon value
-        
-    Returns:
-        float: The optimal epsilon_1 value that maximizes f(epsilon_1)
-    """
-    # Define objective function to minimize (negative of f since we want to maximize f)
-    def objective(eps1):
-        return -f(eps1, n1, n2, A, epsilon)
-    
-    # Find minimum of negative f (maximum of f) in range [0, epsilon]
-    result = minimize_scalar(objective, bounds=(0, epsilon), method='bounded')
-    
-    return result.x
 
 
-from simulators import Simulator, BlockworldSimulator
-from helpers import similarity, solve_sat_instance, parse_args, generate_policy_comparison_report
-from helpers import parse_args, generate_label_combinations
+
+from simulator import BlockworldSimulator
+# from helpers import similarity, solve_sat_instance, parse_args, generate_policy_comparison_report
+from bwe_helpers import parse_args, generate_label_combinations, generate_policy_comparison_report, solve_sat_instance
 
 
 import config
+
 if __name__ == '__main__':
 
     args = parse_args()
     
     bw = BlocksWorldMDP(num_piles=config.NUM_PILES)
+
     transition_matrices, s2i, i2s = bw.extract_transition_matrices()
     n_states = bw.num_states
     n_actions = bw.num_actions
@@ -99,7 +81,7 @@ if __name__ == '__main__':
     soft_policy = np.load(config.POLICY_PATH)
     print(f"The shape of the policy is: {soft_policy.shape}")
 
-    bws = BlockworldSimulator(rm = rm,mdp = mdp,L = L,policy = soft_policy,state2index=s2i,index2state=i2s)
+    bws = BlockworldSimulator(rm = rm,mdp = mdp, L = L, policy = soft_policy, state2index=s2i, index2state=i2s)
     
     
     starting_states = [s2i[config.TARGET_STATE_1], s2i[config.TARGET_STATE_2], s2i[config.TARGET_STATE_3], 4, 24]
@@ -130,15 +112,7 @@ if __name__ == '__main__':
     
     counter_examples = generate_label_combinations(bws)
 
-    # for state, label_dists in bws.state_action_probs.items():
-    #     print(f"State: {state}")
-    #     for label, action_prob in label_dists.items():
-    #         print(f"  Label: {label}")
-    #         print(f"  Action Probabilities: {np.round(action_prob, 3)}")
-    #     if state in counter_examples:
-    #         print(f"  Combinations: {counter_examples[state]}")
-    #     else:
-    #         print("  Combinations: None")
+
 
     p_threshold = 0.95
     metric = "L1"

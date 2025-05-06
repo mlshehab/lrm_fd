@@ -11,11 +11,12 @@ from itertools import combinations
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-depth', type=int, default=10)
-    parser.add_argument('-n_traj', type=int, default=100)
-    # Fix the save argument to properly handle boolean values
-    parser.add_argument('-save', type=int, choices=[0, 1], default=1,
-                       help='0 for False, 1 for True')
+    parser.add_argument('-depth', type=int, required=True,
+                        help='Depth must be provided as an integer.')
+    parser.add_argument('-n_traj', type=int, required=True,
+                        help='Number of trajectories must be provided as an integer.')
+    parser.add_argument('-save', type=int, choices=[0, 1], required=True,
+                       help='0 for False, 1 for True. This argument is required.')
     return parser.parse_args()
 
 def similarity(p1, p2, metric):
