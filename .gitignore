@@ -13,3 +13,4 @@ transition_matrices.npy
 *.txt
 *.npz
 *.mp4
+*.png

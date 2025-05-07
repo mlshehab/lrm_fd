@@ -113,6 +113,8 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, p_threshold
             n1 = bws.state_label_counts[state][ce[0]] 
             n2 = bws.state_label_counts[state][ce[1]]
             A = bws.n_actions
+
+            
             
             optimal_epsilon1 = epsilon/2
             prob = f(optimal_epsilon1, n1, n2, A, epsilon)

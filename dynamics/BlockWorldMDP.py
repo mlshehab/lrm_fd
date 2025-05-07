@@ -229,60 +229,60 @@ class BlocksWorldMDP:
                     actions.append(from_pile * self.num_piles + to_pile)
         return actions
     
-    def extract_transition_matrices(self):
-        """
-        Generate transition matrices for the MDP.
-        Each action has a separate transition matrix.
-        Rows represent current states, and columns represent next states.
-        """
-        num_states = self.num_piles ** len(self.colors)
-        self.num_states = num_states
-        transition_matrices = np.zeros((self.num_actions, num_states, num_states))
+    # def extract_transition_matrices(self):
+    #     """
+    #     Generate transition matrices for the MDP.
+    #     Each action has a separate transition matrix.
+    #     Rows represent current states, and columns represent next states.
+    #     """
+    #     num_states = self.num_piles ** len(self.colors)
+    #     self.num_states = num_states
+    #     transition_matrices = np.zeros((self.num_actions, num_states, num_states))
 
-        # Map states to indices
-        state_to_index = {}
-        index_to_state = {}
+    #     # Map states to indices
+    #     state_to_index = {}
+    #     index_to_state = {}
 
-        state_counter = 0
-        for piles in range(self.num_piles ** len(self.colors)):
-            state = []
-            temp = piles
-            for _ in range(len(self.colors)):
-                state.append(temp % self.num_piles)
-                temp //= self.num_piles
+    #     state_counter = 0
+    #     for piles in range(self.num_piles ** len(self.colors)):
+    #         state = []
+    #         temp = piles
+    #         for _ in range(len(self.colors)):
+    #             state.append(temp % self.num_piles)
+    #             temp //= self.num_piles
 
-            state_to_index[tuple(state)] = state_counter
-            index_to_state[state_counter] = tuple(state)
-            state_counter += 1
+    #         state_to_index[tuple(state)] = state_counter
+    #         index_to_state[state_counter] = tuple(state)
+    #         state_counter += 1
 
-        # Populate transition matrices
-        for action in range(self.num_actions):
-            from_pile = action // self.num_piles
-            if from_pile == 3:
-                print("Take from 3")
-            to_pile = action % self.num_piles
+    #     # Populate transition matrices
+    #     for action in range(self.num_actions):
+    #         from_pile = action // self.num_piles
+    #         if from_pile == 3:
+    #             print("Take from 3")
+    #         to_pile = action % self.num_piles
 
-            for state_index, state in index_to_state.items():
-                if from_pile not in state:
-                    # No block to move from this pile
-                    transition_matrices[action, state_index, state_index] += 1
-                    continue
+    #         for state_index, state in index_to_state.items():
+    #             if from_pile not in state:
+    #                 # No block to move from this pile
+    #                 transition_matrices[action, state_index, state_index] += 1
+    #                 continue
                 
-                # Perform the action
-                new_state = list(state)
-                moving_block_index = state.index(from_pile)
-                new_state[moving_block_index] = to_pile
-                new_state_tuple = tuple(new_state)
+    #             # Perform the action
+    #             new_state = list(state)
+    #             moving_block_index = state.index(from_pile)
+    #             new_state[moving_block_index] = to_pile
+    #             new_state_tuple = tuple(new_state)
 
-                if new_state_tuple in state_to_index:
-                    next_state_index = state_to_index[new_state_tuple]
-                    transition_matrices[action, state_index, next_state_index] += (1 - self.failure_prob)
-                    transition_matrices[action, state_index, state_index] += self.failure_prob
+    #             if new_state_tuple in state_to_index:
+    #                 next_state_index = state_to_index[new_state_tuple]
+    #                 transition_matrices[action, state_index, next_state_index] += (1 - self.failure_prob)
+    #                 transition_matrices[action, state_index, state_index] += self.failure_prob
 
-        return transition_matrices, state_to_index, index_to_state
+    #     return transition_matrices, state_to_index, index_to_state
 
 
-    def extract_transition_matrices_v2(self):
+    def extract_transition_matrices(self):
         """
         Generate transition matrices for the MDP where block order in each pile matters.
         Each action has a separate transition matrix.

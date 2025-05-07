@@ -115,6 +115,7 @@ def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
     
     wrong_ce_counts_previous = 0
     wrong_ce_counts_new = 0
+    
     for state, ce_set in tqdm(counter_examples.items()):
         filtered_ce_previous = []
         filtered_ce_new = []
