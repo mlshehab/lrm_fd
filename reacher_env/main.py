@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
 
   
-    with open("./objects/object_4_30_deterministic.pkl", "rb") as foo:
+    with open("./objects/object_5_4_abstract_policy_ntraj_20000000_randomized_ic.pkl", "rb") as foo:
         rds = pickle.load(foo)
 
     print(f"{rds.rd.n_actions}")

@@ -60,7 +60,7 @@ if __name__ == '__main__':
                 is_possible = mdp_.P[a][bar_s][bar_s_prime] > 0.0
 
                 if u == 2 and L[s_prime] == 'C':
-                    reward[bar_s, a, bar_s_prime] = 100.0
+                    reward[bar_s, a, bar_s_prime] = config.REWARD_PARAMETER
                 
     q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = True)
     print(f"The shape of the policy is: {soft_policy.shape}")

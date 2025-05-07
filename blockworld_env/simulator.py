@@ -1,8 +1,16 @@
+
+import os
+import sys
+from scipy.optimize import minimize_scalar
+# Get the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(parent_dir)
 import numpy as np
 from tqdm import tqdm
 from collections import Counter
 from scipy.stats import entropy
 from utils.ne_utils import u_from_obs
+from dynamics.BlockWorldMDP import BlocksWorldMDP
 
 class Simulator():
     
@@ -47,51 +55,7 @@ class Simulator():
                 self.state_action_probs[state][label] = action_probs
                 self.state_label_counts[state][label] = total_actions
 
-    def group_similar_policies(self, state, metric="TV", threshold=0.05):
-        """
-        Groups labels based on similar action distributions for each state.
-
-        Args:
-            metric (str): Similarity metric to use. Options: 'KL', 'TV', 'L1'.
-            threshold (float): Maximum allowed difference to consider policies similar.
-
-        Returns:
-            dict: {state: {policy_signature: [labels]}}
-        """
-        grouped_traces = {}
-
-        def similarity(p1, p2, metric):
-            """Computes similarity based on chosen metric."""
-            if metric == "KL":
-                p1 = np.clip(p1, 1e-10, 1)  # Avoid division by zero
-                p2 = np.clip(p2, 1e-10, 1)
-                return entropy(p1, p2)  # KL divergence
-            elif metric == "TV":
-                return 0.5 * np.sum(np.abs(p1 - p2))  # Total Variation Distance
-            elif metric == "L1":
-                return np.linalg.norm(p1 - p2, ord=1)  # 1-norm distance
-            else:
-                raise ValueError("Unsupported metric! Choose from 'KL', 'TV', 'L1'.")
-
-        if state not in self.state_action_probs:
-            raise ValueError(f"State {state} not found in state_action_probs.")
-
-        # Iterate over the labels for the given state
-        for label, action_probs in self.state_action_probs[state]:
-            matched = False
-
-            # Compare against existing policy groups
-            for existing_policy in grouped_traces:
-                if similarity(existing_policy, action_probs, metric) < threshold:
-                    grouped_traces[existing_policy].append(label)
-                    matched = True
-                    break
-            
-            # If no match, create a new group with this action_probs
-            if not matched:
-                grouped_traces[tuple(action_probs)] = [label]
-
-        return grouped_traces
+     
 
 
 class BlockworldSimulator(Simulator):
@@ -112,9 +76,7 @@ class BlockworldSimulator(Simulator):
 
     def sample_trajectory(self, starting_state, len_traj):
        
-        # find the state in the reward machine
-        # traj = []
-
+        
         state = starting_state
         label = self.L[state] + ','
         u = u_from_obs(label,self.rm)
@@ -155,12 +117,55 @@ class BlockworldSimulator(Simulator):
     
             state = next_state
 
+        # print(f"The trajectory is: {compressed_label}")
 
     def sample_dataset(self, starting_states, number_of_trajectories, max_trajectory_length):
         # for each starting state
-        for state in tqdm(starting_states):
+        for state in  starting_states:
             # for each length trajectory
             for l in range(max_trajectory_length):
                 # sample (number_of_trajectories) trajectories of length l 
                 for _ in range(number_of_trajectories):
                     self.sample_trajectory(starting_state= state,len_traj= l)
+
+
+
+from reward_machine.reward_machine import RewardMachine
+import config
+from dynamics.BlockWorldMDP import BlocksWorldMDP
+from utils.mdp import MDP
+
+if __name__ == "__main__":
+    rm = RewardMachine(config.RM_PATH)
+    policy = np.load(config.POLICY_PATH)
+    # mdp = BlocksWorldMDP(num_piles=config.NUM_PILES)
+    bw = BlocksWorldMDP(num_piles=config.NUM_PILES)
+    transition_matrices, s2i, i2s = bw.extract_transition_matrices()
+
+    L = {
+        s2i[config.TARGET_STATE_1]: 'A',
+        s2i[config.TARGET_STATE_2]: 'B',
+        s2i[config.TARGET_STATE_3]: 'C'
+    }
+    n_states = bw.num_states
+    for s in range(n_states):
+        if s not in L:
+            L[s] = 'I'
+
+    n_states = bw.num_states
+    n_actions = bw.num_actions
+
+    P = []
+
+    for a in range(n_actions):
+       
+        P.append(transition_matrices[a,:,:])
+
+    mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = config.GAMMA,horizon=config.HORIZON)
+
+    rm = RewardMachine(config.RM_PATH)
+
+    starting_states = [s2i[config.TARGET_STATE_1], s2i[config.TARGET_STATE_2], s2i[config.TARGET_STATE_3], 4, 24]
+    simulator = BlockworldSimulator(rm=rm, mdp=mdp, L=L, policy=policy, state2index=s2i, index2state=i2s)
+    # simulator.sample_dataset(starting_states, number_of_trajectories=1000, max_trajectory_length=100)
+    simulator.sample_trajectory(starting_state=4, len_traj=25)
