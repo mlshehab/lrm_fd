@@ -138,7 +138,7 @@ def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
             prob = f(optimal_epsilon1, n1, n2, A, epsilon)
             
             
-            if prob > 0.995:
+            if prob >  1 - alpha:
                 filtered_ce_previous.append((ce, prob))  # Store probability with counter example
                 n_total_previous += 1
                 if u_from_obs(ce[0],rm) == u_from_obs(ce[1],rm):
@@ -207,7 +207,7 @@ def solve_sat_instance(bws, counter_examples, rm, kappa, AP, alpha ):
     # Add C4 constraints for filtered counter examples
     print(f"Previous method - Total examples: {n_total_previous}, Wrong examples: {wrong_ce_counts_previous}, Ratio: {wrong_ce_counts_previous/n_total_previous:.2f}")
     print(f"New method - Total examples: {n_total_new}, Wrong examples: {wrong_ce_counts_new}, Ratio: {wrong_ce_counts_new/n_total_new:.2f}")
-    wrong_ce_counts = 0
+   
     for state in tqdm(filtered_counter_examples.keys()):
         ce_set = filtered_counter_examples[state]
         total_constraints += len(ce_set)

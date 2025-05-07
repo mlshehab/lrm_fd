@@ -1,4 +1,4 @@
- 
+
 from multiprocessing import Pool
 import math
 import gymnasium as gym
@@ -118,7 +118,7 @@ from train_PPO_policy_randomized_ic_discrete import DiscreteReacherActionWrapper
 #         self,
 #         target_dict,
 #         theta_grid_size=np.deg2rad(10),      # 5° resolution ≈ 0.087 rad
-#         vel_grid_size=1.0,                  # rad s⁻¹ resolution
+#         vel_grid_size=1.0,                  # rad s⁻¹ resolution
 #         action_grid_size=0.1,               # torque resolution
 #         theta_bound=np.pi,                  # joint limits [‑π, π]
 #         vel_bound=14,                      # assume |q̇| ≤ 1  (override per‑env)
@@ -457,7 +457,8 @@ from train_PPO_policy_randomized_ic_discrete import DiscreteReacherActionWrapper
 #                 grouped_traces[tuple(action_probs)] = [label]
 
 #         return grouped_traces
-    
+
+
 
 def worker_sample(args):
     """
@@ -472,13 +473,13 @@ def worker_sample(args):
     policy = PPO.load(policy_path, device="cpu")
     sim = ReacherDiscreteSimulator(env, policy, rd, ["blue","red","yellow"])
     sim.sample_dataset(starting_states, n_traj_batch, max_len)
-    return sim.state_action_counts
+    return sim.state_action_counts 
 
 
 if __name__ == "__main__":
     # Configuration
-    max_len = 150
-    n_traj = 10000
+    max_len = 160
+    n_traj = 20_000_000
     n_workers = 64
 
     # Targets and starting states
@@ -520,35 +521,22 @@ if __name__ == "__main__":
                     else:
                         existing[lbl] = ctr
                 master_counts[state_idx] = list(existing.items())
-                
-    # # Save master_counts to readable text file
-    # # Delete file if it exists
-    # if os.path.exists('master_counts_uniform.txt'):
-    #     os.remove('master_counts_uniform.txt')
-        
-    # with open('master_counts_uniform.txt', 'w') as f:
-    #     f.write("Master Counts by State Index:\n")
-    #     f.write("===========================\n\n")
-    #     for state_idx, label_list in master_counts.items():
-    #         f.write(f"State {state_idx}:\n")
-    #         for label, counter in label_list:
-    #             f.write(f"  Label: {label}\n")
-    #             f.write(f"  Action counts: {dict(counter)}\n")
-    #         f.write("\n")
-    # print("Master counts saved to master_counts_uniform.txt")
+
     # Reinstantiate discretizer and simulator container to assign merged counts
     rd = ReacherDiscretizerUniform(target_dict)
     sim = ReacherDiscreteSimulator(None, None, rd, ["blue","red","yellow"])
     sim.state_action_counts = master_counts
-    # sim.compute_action_distributions()
-    # Sequentially compute action distributions
     sim.compute_action_distributions()
 
     # Save the simulator object (drop policy to reduce size)
-    # sim.policy = None
-    # output_path = f"./objects/object_debug.pkl"
-    # with open(output_path, "wb") as f:
-    #     pickle.dump(sim, f)
+    sim.policy = None
+    output_path = f"./objects/object_5_4_abstract_policy_ntraj_{n_traj}_randomized_ic.pkl"
+    with open(output_path, "wb") as f:
+        pickle.dump(sim, f)
 
-    # elapsed = time.time() - t0
-    # print(f"Sampling+merge+compute took {elapsed:.2f} seconds. Simulator saved to {output_path}.")
+    # Calculate elapsed time in days, hours, minutes
+    elapsed = time.time() - t0
+    days = int(elapsed // (24 * 3600))
+    hours = int((elapsed % (24 * 3600)) // 3600)
+    minutes = int((elapsed % 3600) // 60)
+    print(f"Sampling+merge+compute took {days} days, {hours} hours, {minutes} minutes. Simulator saved to {output_path}.")

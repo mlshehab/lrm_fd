@@ -298,9 +298,8 @@ class ReacherDiscretizerUniform:
     def __init__(
         self,
         target_dict,
-        theta_grid_size=np.deg2rad(15),      # 5° resolution ≈ 0.087 rad
-        vel_grid_size=1.0,                  # rad s⁻¹ resolution
-        action_grid_size=0.2,               # torque resolution
+        theta_grid_size=np.deg2rad(10),      # 5° resolution ≈ 0.087 rad
+        vel_grid_size=0.25,                  # rad s⁻¹ resolution               # torque resolution
         theta_bound=np.pi,                  # joint limits [‑π, π]
         vel_bound=14,                      # assume |q̇| ≤ 1  (override per‑env)
         action_bound=1.0,                   # assume |τ| ≤ 1
@@ -309,7 +308,7 @@ class ReacherDiscretizerUniform:
         self.target_dict = target_dict
         self.theta_grid_size = theta_grid_size
         self.vel_grid_size = vel_grid_size
-        self.action_grid_size = action_grid_size
+        
         self.link_lengths = link_lengths
 
         # Build bins
@@ -338,6 +337,7 @@ class ReacherDiscretizerUniform:
     # ---------------------------------------------------------------------
     #                             BUILD MAPS
     # ---------------------------------------------------------------------
+
     def _build_theta_bins(self):
         blue_solutions = self._double_inverse_kinematics(self.target_dict["blue"][0], self.target_dict["blue"][1])
         red_solutions = self._double_inverse_kinematics(self.target_dict["red"][0], self.target_dict["red"][1])
@@ -469,6 +469,13 @@ class ReacherDiscreteSimulator():
         self.n_actions = self.rd.n_actions
         self.n_states = self.rd.n_states
         self.history = []
+        self.special_state =  4130541
+        self.special_state_label_1 = 'I,R,I,B,'
+        self.special_state_label_2 = 'Y,I,B,'
+        self.history_1 = []
+        self.history_2 = []
+        # self.label_1_count = 0
+        # self.label_2_count = 0
 
     def remove_consecutive_duplicates(self, s):
         elements = s.split(',')
@@ -491,12 +498,47 @@ class ReacherDiscreteSimulator():
         th1, th2 , th1dot, th2dot = (np.arctan2(obs[2],obs[0]), np.arctan2(obs[3],obs[1]) , obs[6] , obs[7])
         return (th1, th2 , th1dot, th2dot)
 
+    def obs_to_midpoint_obs(self, obs):
+
+        x_target = obs[4]
+        y_target = obs[5]
+        # th1, th2 , th1dot, th2dot = (np.arctan2(obs[2],obs[0]), np.arctan2(obs[3],obs[1]) , obs[6] , obs[7])
+        state = self.st4obs(obs)
+        state_tuple = self.rd.discretize_state(state)
+        state_idx = self.rd.state_to_idx[state_tuple]
+        
+
+        theta1mid, theta2mid , theta1dotmid, theta2dotmid  = self.rd.midpoint_from_state_idx(state_idx)
+
+        x, y = self.rd._forward_kinematics(theta1mid, theta2mid)
+        # print(f"The end effector is at {round(obs[8]+obs[4], 4)} , {round(obs[9]+obs[5], 4)} and the midpoint of abstract state is at {round(x, 4)}, {round(y, 4)}")
+        # time.sleep(2)
+        out_obs = obs.copy()
+
+        out_obs[0] = np.cos(theta1mid) 
+        out_obs[1] = np.cos(theta2mid)
+        out_obs[2] = np.sin(theta1mid)
+        out_obs[3] = np.sin(theta2mid)
+        out_obs[4] = x_target
+        out_obs[5] = y_target
+        out_obs[6] = theta1dotmid
+        out_obs[7] = theta2dotmid
+        out_obs[8] = x - x_target
+        out_obs[9] = y - y_target
+
+
+        return out_obs
+
+
     def sample_trajectory(self, starting_state, len_traj,render=False, threshold=0.02 ):
+
         self.history = []
 
-        theta1, theta2 = inverse_kinematics(starting_state[0], starting_state[1])
+        # theta1, theta2 = inverse_kinematics(starting_state[0], starting_state[1])
 
-        obs, _ = self.env.reset(qpos_override=[theta1, theta2])
+        # obs, _ = self.env.reset(qpos_override=[theta1, theta2])
+        obs, _ = self.env.reset()
+
         current_target = self.rd.target_dict[self.target_goals[0]]
 
         set_target_position(self.env, current_target[0], current_target[1])
@@ -512,7 +554,10 @@ class ReacherDiscreteSimulator():
         t_hit_yellow = []
 
         for t in range(len_traj):
-            continuous_action, _ = self.policy.predict(obs, deterministic=False)
+
+            obs4policy = self.obs_to_midpoint_obs(obs)
+            continuous_action, _ = self.policy.predict(obs4policy, deterministic=False)
+
             self.history.append((next_continuous_state, continuous_action))
 
             obs, reward, terminated, truncated, info = self.env.step(continuous_action)
@@ -522,6 +567,9 @@ class ReacherDiscreteSimulator():
                  
             discrete_action_tuple = self.rd.discretize_action(continuous_action)
             discrete_action_idx = self.rd.action_to_idx[discrete_action_tuple]
+
+            # print(f"cont - {continuous_action} , discrete - {discrete_action_tuple} , idx - {discrete_action_idx}")
+            
             compressed_label = self.remove_consecutive_duplicates(label)
             
 
@@ -533,141 +581,159 @@ class ReacherDiscreteSimulator():
                 if existing_label == compressed_label:
                     counter[discrete_action_idx] += 1
                     label_exists = True
+
+
+                    # if discrete_state_idx == self.special_state:    
+                    #     if compressed_label == self.special_state_label_1:
+                    #         self.history_1.append(counter.copy())
+                    #     elif compressed_label == self.special_state_label_2:
+                    #         self.history_2.append(counter.copy())
+
                     break
             
             if not label_exists:
                 self.state_action_counts[discrete_state_idx].append((compressed_label, Counter({discrete_action_idx: 1})))
+            
+            
 
             next_continuous_state = self.st4obs(obs)
            
             next_discrete_state_tuple = self.rd.discretize_state(next_continuous_state)
+
             try:
                 next_discrete_state_idx = self.rd.state_to_idx[next_discrete_state_tuple]
+
             except KeyError:
-                print(f"The state is: (θ1: {next_continuous_state[0]:.3f}, θ2: {next_continuous_state[1]:.3f}, θ1_dot: {next_continuous_state[2]:.3f}, θ2_dot: {next_continuous_state[3]:.3f})")
+                print(f"The state is out bound")
                 return
 
+
+            
             l = self.rd.L(next_continuous_state)
+
             if l == 'B':
-                t_hit_blue.append([t,next_discrete_state_idx])
+                t_hit_blue.append([t+1,next_discrete_state_idx])
             elif l == 'R':
-                t_hit_red.append([t,next_discrete_state_idx])
+                t_hit_red.append([t+1,next_discrete_state_idx])
             elif l == 'Y':
-                t_hit_yellow.append([t,next_discrete_state_idx])
+                t_hit_yellow.append([t+1,next_discrete_state_idx])
 
             label = label + l + ','
+
             discrete_state_idx = next_discrete_state_idx
 
             target_label = self.target_goals[0][0].upper()
 
             if l == target_label:
+
                 self.target_goals.append(self.target_goals.pop(0))
                 current_target = self.rd.target_dict[self.target_goals[0]]
                 set_target_position(self.env, current_target[0], current_target[1])
 
 
             if terminated or truncated:
-                # Extract data for plotting
-                theta1dots = [state[2] for state, _ in self.history]
-                theta2dots = [state[3] for state, _ in self.history]
 
-                actions = [self.action(action) for _, action in self.history]
-                # Create the plot
-                plt.figure(figsize=(12, 8))
-                
-                # First subplot for angular velocities
-                plt.subplot(3, 1, 1)
-                plt.plot(theta1dots, label='θ1_dot')
-                plt.plot(theta2dots, label='θ2_dot')
-                for y in [1, 0.5, 0, -0.5, -1]:
-                    plt.axhline(y=y, color='gray', linestyle=':', linewidth=0.5)
+                # # Extract data for plotting
+                # theta1dots = [state[2] for state, _ in self.history]
+                # theta2dots = [state[3] for state, _ in self.history]
 
-                for t, state_idx in t_hit_blue:
-                    if state_idx == 141649:
-                        plt.axvline(x=t, color='blue', linestyle='--', linewidth=2.5)
-                    else:
-                        plt.axvline(x=t, color='blue', linestyle='--', linewidth=1)
+                # actions = [self.action(action) for _, action in self.history]
+                # # Create the plot
+                # plt.figure(figsize=(12, 8))
+                
+                # # First subplot for angular velocities
+                # plt.subplot(3, 1, 1)
+                # plt.plot(theta1dots, label='θ1_dot')
+                # plt.plot(theta2dots, label='θ2_dot')
+                # for y in [1, 0.5, 0, -0.5, -1]:
+                #     plt.axhline(y=y, color='gray', linestyle=':', linewidth=0.5)
 
-                for t, state_idx in t_hit_red:
-                    plt.axvline(x=t, color='red', linestyle='--', linewidth=1)
-                    if state_idx == 141649:
-                        plt.text(t, max(max(theta1dots), max(theta2dots)) * 1.05, f'State: {state_idx}', 
-                                rotation=90, verticalalignment='top', color='red')
-                for t, state_idx in t_hit_yellow:
-                    plt.axvline(x=t, color='yellow', linestyle='--', linewidth=1)
-                    if state_idx == 141649:
-                        plt.text(t, max(max(theta1dots), max(theta2dots)) * 1.05, f'State: {state_idx}', 
-                                rotation=90, verticalalignment='top', color='yellow')
-                plt.ylabel('Angular Velocity')
-                plt.legend()
-                
-                # Second subplot for first action coordinate
-                plt.subplot(3, 1, 2)
-                action1 = [a[0] for a in actions]
-                plt.step(range(len(action1)), action1, where='post', label='Action 1')
-                for y in [1, 0.5, 0, -0.5, -1]:
-                    plt.axhline(y=y, color='gray', linestyle=':', linewidth=0.5)
+                # for t, state_idx in t_hit_blue:
+                #     if state_idx == 141649:
+                #         plt.axvline(x=t, color='blue', linestyle='--', linewidth=2.5)
+                #     else:
+                #         plt.axvline(x=t, color='blue', linestyle='--', linewidth=1)
 
-                for t, state_idx in t_hit_blue:
-                    if state_idx == 141649:
-                        plt.axvline(x=t, color='blue', linestyle='--', linewidth=2.5)
-                    else:
-                        plt.axvline(x=t, color='blue', linestyle='--', linewidth=1)
-                for t, state_idx in t_hit_red:
-                    plt.axvline(x=t, color='red', linestyle='--', linewidth=1)
-                    if state_idx == 141649:
-                        plt.text(t, max(action1) * 1.05, f'State: {state_idx}', 
-                                rotation=90, verticalalignment='top', color='red')
-                for t, state_idx in t_hit_yellow:
-                    plt.axvline(x=t, color='yellow', linestyle='--', linewidth=1)
-                    if state_idx == 141649:
-                        plt.text(t, max(action1) * 1.05, f'State: {state_idx}', 
-                                rotation=90, verticalalignment='top', color='yellow')
-                plt.ylabel('Action 1')
-                plt.legend()
+                # for t, state_idx in t_hit_red:
+                #     plt.axvline(x=t, color='red', linestyle='--', linewidth=1)
+                #     if state_idx == 141649:
+                #         plt.text(t, max(max(theta1dots), max(theta2dots)) * 1.05, f'State: {state_idx}', 
+                #                 rotation=90, verticalalignment='top', color='red')
+                # for t, state_idx in t_hit_yellow:
+                #     plt.axvline(x=t, color='yellow', linestyle='--', linewidth=1)
+                #     if state_idx == 141649:
+                #         plt.text(t, max(max(theta1dots), max(theta2dots)) * 1.05, f'State: {state_idx}', 
+                #                 rotation=90, verticalalignment='top', color='yellow')
+                # plt.ylabel('Angular Velocity')
+                # plt.legend()
                 
-                # Third subplot for second action coordinate
-                plt.subplot(3, 1, 3)
-                action2 = [a[1] for a in actions]
-                plt.step(range(len(action2)), action2, where='post', label='Action 2')
-                for y in [1, 0.5, 0, -0.5, -1]:
-                    plt.axhline(y=y, color='gray', linestyle=':', linewidth=0.5)
+                # # Second subplot for first action coordinate
+                # plt.subplot(3, 1, 2)
+                # action1 = [a[0] for a in actions]
+                # plt.step(range(len(action1)), action1, where='post', label='Action 1')
+                # for y in [1, 0.5, 0, -0.5, -1]:
+                #     plt.axhline(y=y, color='gray', linestyle=':', linewidth=0.5)
 
-                for t, state_idx in t_hit_blue:
-                    if state_idx == 141649:
-                        plt.axvline(x=t, color='blue', linestyle='--', linewidth=2.5)
-                    else:
-                        plt.axvline(x=t, color='blue', linestyle='--', linewidth=1)
-                for t, state_idx in t_hit_red:
-                    plt.axvline(x=t, color='red', linestyle='--', linewidth=1)
-                    if state_idx == 141649:
-                        plt.text(t, max(action2) * 1.05, f'State: {state_idx}', 
-                                rotation=90, verticalalignment='top', color='red')
-                for t, state_idx in t_hit_yellow:
-                    plt.axvline(x=t, color='yellow', linestyle='--', linewidth=1)
-                    if state_idx == 141649:
-                        plt.text(t, max(action2) * 1.05, f'State: {state_idx}', 
-                                rotation=90, verticalalignment='top', color='yellow')
-                plt.ylabel('Action 2')
-                plt.xlabel('Time Step')
-                plt.title(f'Thick Line is state {141649}')
-                plt.legend()
+                # for t, state_idx in t_hit_blue:
+                #     if state_idx == 141649:
+                #         plt.axvline(x=t, color='blue', linestyle='--', linewidth=2.5)
+                #     else:
+                #         plt.axvline(x=t, color='blue', linestyle='--', linewidth=1)
+                # for t, state_idx in t_hit_red:
+                #     plt.axvline(x=t, color='red', linestyle='--', linewidth=1)
+                #     if state_idx == 141649:
+                #         plt.text(t, max(action1) * 1.05, f'State: {state_idx}', 
+                #                 rotation=90, verticalalignment='top', color='red')
+                # for t, state_idx in t_hit_yellow:
+                #     plt.axvline(x=t, color='yellow', linestyle='--', linewidth=1)
+                #     if state_idx == 141649:
+                #         plt.text(t, max(action1) * 1.05, f'State: {state_idx}', 
+                #                 rotation=90, verticalalignment='top', color='yellow')
+                # plt.ylabel('Action 1')
+                # plt.legend()
                 
-                plt.tight_layout()
+                # # Third subplot for second action coordinate
+                # plt.subplot(3, 1, 3)
+                # action2 = [a[1] for a in actions]
+                # plt.step(range(len(action2)), action2, where='post', label='Action 2')
+                # for y in [1, 0.5, 0, -0.5, -1]:
+                #     plt.axhline(y=y, color='gray', linestyle=':', linewidth=0.5)
+
+                # for t, state_idx in t_hit_blue:
+                #     if state_idx == 141649:
+                #         plt.axvline(x=t, color='blue', linestyle='--', linewidth=2.5)
+                #     else:
+                #         plt.axvline(x=t, color='blue', linestyle='--', linewidth=1)
+                # for t, state_idx in t_hit_red:
+                #     plt.axvline(x=t, color='red', linestyle='--', linewidth=1)
+                #     if state_idx == 141649:
+                #         plt.text(t, max(action2) * 1.05, f'State: {state_idx}', 
+                #                 rotation=90, verticalalignment='top', color='red')
+                # for t, state_idx in t_hit_yellow:
+                #     plt.axvline(x=t, color='yellow', linestyle='--', linewidth=1)
+                #     if state_idx == 141649:
+                #         plt.text(t, max(action2) * 1.05, f'State: {state_idx}', 
+                #                 rotation=90, verticalalignment='top', color='yellow')
+                # plt.ylabel('Action 2')
+                # plt.xlabel('Time Step')
+                # plt.title(f'Thick Line is state {141649}')
+                # plt.legend()
                 
-                # Create debug_results directory if it doesn't exist
-                import os
-                if not os.path.exists('debug_results'):
-                    os.makedirs('debug_results')
+                # plt.tight_layout()
                 
-                # Check if state 141649 is in t_hit_blue and save the plot
-                if any(state_idx == 141649 for _, state_idx in t_hit_blue):
-                    if not hasattr(self, 'plot_counter'):
-                        self.plot_counter = 0
-                    self.plot_counter += 1
-                    plt.savefig(f'debug_results/state_141649_plot_{self.plot_counter}.png')
-                plt.close()
-                # Clear history for next trajectory
+                # # Create debug_results directory if it doesn't exist
+                # import os
+                # if not os.path.exists('debug_results'):
+                #     os.makedirs('debug_results')
+                
+                # # Check if state 141649 is in t_hit_blue and save the plot
+                # if any(state_idx == 141649 for _, state_idx in t_hit_blue):
+                #     if not hasattr(self, 'plot_counter'):
+                #         self.plot_counter = 0
+                #     self.plot_counter += 1
+                #     plt.savefig(f'debug_results/state_141649_plot_{self.plot_counter}.png')
+                # plt.close()
+                # # Clear history for next trajectory
                 self.history = []
                 self.target_goals_reset()
                 break
@@ -719,7 +785,7 @@ if __name__ == "__main__":
 
     max_len = 150
 
-    render = False
+    render = True
     video =False
 
     if render:
@@ -763,8 +829,8 @@ if __name__ == "__main__":
     
     n_traj = 10_000
     starting_states = [target_random_1, target_red, target_blue, target_yellow]
-    for t in range(10000):
-        rds.sample_trajectory(starting_state= target_random_1, len_traj= max_len, render=render, threshold=0.02)
+    for t in range(n_traj):
+        rds.sample_trajectory(starting_state= target_yellow, len_traj= max_len, render=render, threshold=0.02)
     # rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
     # end = time.time()
 
