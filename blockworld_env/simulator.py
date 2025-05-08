@@ -74,17 +74,22 @@ class BlockworldSimulator(Simulator):
                 result.append(elements[i])
         return ','.join(result)
 
-    def sample_trajectory(self, starting_state, len_traj):
+    def sample_trajectory(self, len_traj):
        
-        
+        starting_state = np.random.randint(0, self.n_states)
+        # if starting_state ==0 :
+        #     print(f"The starting state is: {self.L[starting_state]}")
         state = starting_state
         label = self.L[state] + ','
+        compressed_label = self.remove_consecutive_duplicates(label)
         u = u_from_obs(label,self.rm)
+        # print(f"The initial state is: {state}, the initial label is: ({label}), the initial u is: {u}")
         
         for _ in range(len_traj):
             idx = u * self.n_states + state
-            action_dist = self.policy[u*self.n_states + state,:]
+            action_dist = self.policy[idx,:]
 
+            
             # Sample an action from the action distribution
             a = np.random.choice(np.arange(self.n_actions), p=action_dist)
             
@@ -94,6 +99,10 @@ class BlockworldSimulator(Simulator):
 
             # Compress the label
             compressed_label = self.remove_consecutive_duplicates(label)
+
+            # if state == 0:
+            #     print(f"current state: {state}, current label: ({compressed_label}), current u is: {u}")
+            #     print(f"action distribution: {np.round(action_dist, 3)}\n")
 
             # Ensure state exists in dictionary
             if state not in self.state_action_counts:
@@ -114,19 +123,19 @@ class BlockworldSimulator(Simulator):
             l = self.L[next_state]
             label = label + l + ','
             u = u_from_obs(label, self.rm)
-    
+            
             state = next_state
 
         # print(f"The trajectory is: {compressed_label}")
 
     def sample_dataset(self, starting_states, number_of_trajectories, max_trajectory_length):
         # for each starting state
-        for state in  starting_states:
-            # for each length trajectory
-            for l in range(max_trajectory_length):
-                # sample (number_of_trajectories) trajectories of length l 
-                for _ in range(number_of_trajectories):
-                    self.sample_trajectory(starting_state= state,len_traj= l)
+        
+        # for each length trajectory
+        for l in range(max_trajectory_length):
+            # sample (number_of_trajectories) trajectories of length l 
+            for _ in range(number_of_trajectories):
+                self.sample_trajectory(len_traj= l)
 
 
 
@@ -136,10 +145,15 @@ from dynamics.BlockWorldMDP import BlocksWorldMDP
 from utils.mdp import MDP
 
 if __name__ == "__main__":
+
+    
     rm = RewardMachine(config.RM_PATH)
+    # print(f" The node is: {u_from_obs('A,I,B,I,C,I,A,',rm)}")
+
     policy = np.load(config.POLICY_PATH)
     # mdp = BlocksWorldMDP(num_piles=config.NUM_PILES)
     bw = BlocksWorldMDP(num_piles=config.NUM_PILES)
+
     transition_matrices, s2i, i2s = bw.extract_transition_matrices()
 
     L = {
@@ -168,4 +182,4 @@ if __name__ == "__main__":
     starting_states = [s2i[config.TARGET_STATE_1], s2i[config.TARGET_STATE_2], s2i[config.TARGET_STATE_3], 4, 24]
     simulator = BlockworldSimulator(rm=rm, mdp=mdp, L=L, policy=policy, state2index=s2i, index2state=i2s)
     # simulator.sample_dataset(starting_states, number_of_trajectories=1000, max_trajectory_length=100)
-    simulator.sample_trajectory(starting_state=4, len_traj=25)
+    simulator.sample_trajectory(starting_state=s2i[config.TARGET_STATE_1], len_traj=25)

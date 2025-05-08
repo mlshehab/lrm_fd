@@ -33,9 +33,10 @@ def similarity(p1, p2, metric):
             raise ValueError("Unsupported metric! Choose from 'KL', 'TV', 'L1'.")
         
 def f(epsilon_1, n1, n2, A, epsilon):
-    term1 = np.maximum(1 - ((2**A - 2) * np.exp((-n1 * epsilon_1**2) / (2 ))), 0)
-    term2 = np.maximum(1 - ((2**A - 2) * np.exp((-n2 * (epsilon - epsilon_1)**2) / (2 ))), 0)
-    return term1 * term2
+    term1 =    ((2**A - 2) * np.exp((-n1 * epsilon_1**2) / (2 ))) 
+    term2 =    ((2**A - 2) * np.exp((-n2 * (epsilon - epsilon_1)**2) / (2 ))) 
+    return 1- term1 - term2
+
 
 
 def generate_label_combinations(bws):
@@ -138,6 +139,17 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, p_threshold
 
             if u_from_obs(ce[0],rm) == u_from_obs(ce[1],rm):
                 wrong_ce_counts += 1
+                # Save wrong counter example to file
+                with open(f"./objects/wrong_counter_examples.txt", "a") as foo:
+                    foo.write(f"State: {state}\n")
+                    foo.write(f"Counter Example: {ce}\n")
+                    foo.write(f"Probability: {prob}\n")
+                    foo.write(f"Counts: {bws.state_label_counts[state][ce[0]]}, {bws.state_label_counts[state][ce[1]]}\n")
+                    foo.write(f"Policy 1: {np.round(bws.state_action_probs[state][ce[0]], 3)}\n")
+                    foo.write(f"Policy 2: {np.round(bws.state_action_probs[state][ce[1]], 3)}\n")
+                    foo.write("-" * 50 + "\n")
+
+
 
             p1 = prefix2indices(ce[0])
             p2 = prefix2indices(ce[1])

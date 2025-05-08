@@ -104,8 +104,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--depth', type=int, default=20)
-    parser.add_argument('--n_traj', type=int, default=10_000_000)
-    parser.add_argument('--n_procs', type=int, default=int(mp.cpu_count()/2))
+    parser.add_argument('--n_traj', type=int, default=50000)
+    parser.add_argument('--n_procs', type=int, default=int(mp.cpu_count()))
     parser.add_argument('--save', action='store_true')
     args = parser.parse_args()
 
@@ -139,12 +139,14 @@ if __name__ == '__main__':
 
     rm = RewardMachine(config.RM_PATH)
 
-    p_threshold = 0.95
+    p_threshold = 0.99
     metric = "L1"
     kappa = 3
     AP = 4
     
-    solutions, n_constraints, n_states, solve_time, prob_values, wrong_ce_counts = solve_sat_instance(bws, counter_examples,rm, metric, kappa, AP, p_threshold=0.95)
+    solutions, n_constraints, n_states, solve_time, prob_values, wrong_ce_counts = \
+                     solve_sat_instance(bws, counter_examples,rm, metric, kappa, AP, p_threshold= p_threshold)
+    print(f"The time taken to solve the SAT instance is: {solve_time} seconds")
     print(f"The number of wrong counter examples is: {wrong_ce_counts}")
     print(f"The number of constraints is: {n_constraints}")
     print(f"The number of solutions is: {len(solutions)}")
@@ -163,6 +165,7 @@ if __name__ == '__main__':
                 for row in matrix:
                     f.write("  " + " ".join("1" if x else "0" for x in row) + "\n")
             f.write("\n" + "-" * 30 + "\n\n")
+
     print(f"[Main] Saved solutions in readable format to {solutions_text_path}")
 
 

@@ -28,7 +28,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import pickle 
 import argparse
-
+import multiprocessing as mp
  
 
 from simulator import BlockworldSimulator
@@ -40,7 +40,12 @@ import config
 
 if __name__ == '__main__':
 
-    args = parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--depth', type=int, default=20)
+    parser.add_argument('--n_traj', type=int, default=1_000_000)
+    parser.add_argument('--n_procs', type=int, default=int(mp.cpu_count()))
+    parser.add_argument('--save', action='store_true')
+    args = parser.parse_args()
     
     bw = BlocksWorldMDP(num_piles=config.NUM_PILES)
 
@@ -123,3 +128,19 @@ if __name__ == '__main__':
     minutes, seconds = divmod(rem, 60)
     print(f"The solve time is: {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
     # print(f"The count of state 51 is: {bws.state_label_counts[51]}")
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    solutions_text_path = f"./objects/solutions_{args.n_traj}_{args.depth}_{timestamp}.txt"
+
+    if args.save:
+        with open(solutions_text_path, "w") as f:
+            f.write(f"Solutions for n_traj={args.n_traj}, depth={args.depth}\n")
+            f.write("=" * 50 + "\n\n")
+            for i, solution in enumerate(solutions):
+                f.write(f"Solution {i+1}:\n")
+                for j, matrix in enumerate(solution):
+                    f.write(f"\nMatrix {j} ({['A', 'B', 'C', 'I'][j]}):\n")
+                    for row in matrix:
+                        f.write("  " + " ".join("1" if x else "0" for x in row) + "\n")
+                f.write("\n" + "-" * 30 + "\n\n")
+
+    print(f"[Main] Saved solutions in readable format to {solutions_text_path}")

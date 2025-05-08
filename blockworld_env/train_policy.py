@@ -32,17 +32,26 @@ if __name__ == '__main__':
 
     rm = RewardMachine(config.RM_PATH)
  
-    L = {}
+    L = {
+        s2i[config.TARGET_STATE_1]: 'A',
+        s2i[config.TARGET_STATE_2]: 'B',
+        s2i[config.TARGET_STATE_3]: 'C'
+    }
 
-    for state_index in range(bw.num_states):
-        if state_index == s2i[config.TARGET_STATE_1]:
-            L[state_index] = 'A'
-        elif state_index == s2i[config.TARGET_STATE_2]:
-            L[state_index] = 'B'
-        elif state_index == s2i[config.TARGET_STATE_3]:
-            L[state_index] = 'C'
-        else:
-            L[state_index] = 'I'
+    for s in range(n_states):
+        if s not in L:
+            L[s] = 'I'
+    # L = {}
+
+    # for state_index in range(bw.num_states):
+    #     if state_index == s2i[config.TARGET_STATE_1]:
+    #         L[state_index] = 'A'
+    #     elif state_index == s2i[config.TARGET_STATE_2]:
+    #         L[state_index] = 'B'
+    #     elif state_index == s2i[config.TARGET_STATE_3]:
+    #         L[state_index] = 'C'
+    #     else:
+    #         L[state_index] = 'I'
 
     
     mdpRM = MDPRM(mdp,rm,L)
@@ -64,4 +73,4 @@ if __name__ == '__main__':
                 
     q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = True)
     print(f"The shape of the policy is: {soft_policy.shape}")
-    np.save(os.path.join(os.path.dirname(__file__), "policies", "soft_policy.npy"), soft_policy)
+    np.save(os.path.join(os.path.dirname(__file__), "policies", f"soft_policy_{config.REWARD_PARAMETER}.npy"), soft_policy)
