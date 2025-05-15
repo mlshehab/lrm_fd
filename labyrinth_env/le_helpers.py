@@ -55,8 +55,6 @@ def generate_label_combinations(bws):
     return label_combinations
 
 
-
-
 def solve_sat_instance(sim, counter_examples, kappa, AP, alpha ):
     """
     Solve SAT instance for given counter examples, filtering by probability threshold

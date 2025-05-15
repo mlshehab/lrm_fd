@@ -2,6 +2,8 @@
 
 RM_PATH = "../rm_examples/dynamic_stacking.txt"
 RM_PATH_WRONG = "../rm_examples/dynamic_stacking_wrong.txt"
+RM_PATH_ADV = "../rm_examples/adv_stacking.txt"
+
 NUM_PILES = 3
 
 
@@ -14,6 +16,8 @@ GAMMA = 0.99
 HORIZON = 10
 
 REWARD_PARAMETER = 15.0
+REWARD_PARAMETER_ADV_1 = 1.0
+REWARD_PARAMETER_ADV_2 = 0.2
 
-
-POLICY_PATH = f"./policies/soft_policy_{REWARD_PARAMETER}.npy"
+POLICY_PATH = f"policies/soft_policy_{REWARD_PARAMETER}"
+POLICY_PATH_ADV = f"policies/soft_policy_adv_{REWARD_PARAMETER_ADV_1}_{REWARD_PARAMETER_ADV_2}"

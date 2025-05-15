@@ -1,3 +1,12 @@
+import os
+import sys
+
+# Get the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+# Append the parent directory to sys.path
+sys.path.append(parent_dir)
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -91,11 +100,7 @@ class LabyrinthEnvSimulator():
                 self.state_action_probs[state][label] = action_probs
                 self.state_label_counts[state][label] = total_actions
          
-            
-
-
-
-
+        
 if __name__ == "__main__":
     
     GEN_DIR_NAME = './data/mouse_data/'
@@ -107,12 +112,12 @@ if __name__ == "__main__":
 
 
     # Load restricted training indices
-    restricted_train_indices = np.load(GEN_DIR_NAME + 'restricted_train_indices.npy')
+    # restricted_train_indices = np.load(GEN_DIR_NAME + 'restricted_train_indices.npy')
 
 
     # Load trajectories
     trajs = pd.read_pickle(TRAJS_DIR_NAME)
-    print(len(trajs))
+    # print(len(trajs))
 
 
     L = {}
@@ -133,20 +138,10 @@ if __name__ == "__main__":
     
     kappa = 2
     AP = 3
-    alpha = 0.1
+    alpha = 0.001
     solutions, total_constraints,  filtered_counter_examples , solve_time = solve_sat_instance(sim, counter_examples, kappa, AP, alpha)
     # print(f"The number of constraints is: {total_constraints}, { filtered_counter_examples }")
     print(f"The number of solutions is: {len(solutions)}")
     print(f"the solution is: {solutions}")
 
-    # print(restricted_train_indices)
-    # print(len(restricted_train_indices))
-    # # Visualize the indices
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(restricted_train_indices, 'b-', label='Restricted Training Indices')
-    # plt.title('Restricted Training Indices Over Time')
-    # plt.xlabel('Index')
-    # plt.ylabel('Value')
-    # plt.legend()
-    # plt.grid(True)
-    # plt.show()
+ 

@@ -46,8 +46,9 @@ class RewardMachine:
                 if evaluate_dnf(self.delta_u[u1][u2], true_props):
                     return u2 
         except KeyError as e:
-            # print("I'mhere ")
             return self.terminal_u
+        # print("I'm here ")
+        # print(f"u1: {u1}, self.delta_u[u1]: {self.delta_u[u1]}, true_props: {true_props}")
         return self.terminal_u # no transition is defined for true_props
 
     def get_next_state(self, u1, true_props):
@@ -160,5 +161,27 @@ class RewardMachine:
            
         return new_d
     
+def u_from_obs(obs_str, rm):
+    # obs_traj : 'l0l1l2l3 ...'
 
+    # Given the observation trajectory, find the current reward machine state
 
+    u0 = rm.u0
+    current_u = u0
+    
+    parsed_labels = [l for l in obs_str.split(',') if l]
+
+    print(f"The parsed labels are: {parsed_labels}")
+
+    for l in parsed_labels:
+        current_u = rm._compute_next_state(current_u,l)
+
+    return current_u
+
+if __name__ == "__main__":
+    rm = RewardMachine("../rm_examples/labyrinth_rm.txt")
+    print(rm.delta_u)
+
+    prop = 'H,I,W,I'
+    u = u_from_obs(prop, rm)
+    print(f"u: {u}")

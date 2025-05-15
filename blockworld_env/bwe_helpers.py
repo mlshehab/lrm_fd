@@ -59,8 +59,14 @@ def generate_label_combinations(bws):
 
     return label_combinations
 
+def prefix2indices(s, proposition2index):
+    out = []
+    for l in s.split(','):
+        if l:
+            out.append(proposition2index[l])
+    return out
 
-def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, p_threshold=0.8):
+def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, proposition2index,  p_threshold=0.8):
     """
     Solve SAT instance for given counter examples, filtering by probability threshold
     Returns all SAT solutions found
@@ -92,14 +98,9 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, p_threshold
     for k in range(AP):
         s.add(one_entry_per_row(B[k]))
 
-    proposition2index = {'A':0,'B':1,'C':2,'I':3}
+    
 
-    def prefix2indices(s):
-        out = []
-        for l in s.split(','):
-            if l:
-                out.append(proposition2index[l])
-        return out
+    
 
     # Filter counter examples by probability threshold
     filtered_counter_examples = {}
@@ -151,8 +152,8 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, p_threshold
 
 
 
-            p1 = prefix2indices(ce[0])
-            p2 = prefix2indices(ce[1])
+            p1 = prefix2indices(ce[0], proposition2index)
+            p2 = prefix2indices(ce[1], proposition2index)
 
             sub_B1 = bool_matrix_mult_from_indices(B,p1, x)
             sub_B2 = bool_matrix_mult_from_indices(B,p2, x)
@@ -161,6 +162,15 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, p_threshold
             for elt in res_:
                 s.add(Not(elt))
 
+    # p1 = prefix2indices('A,D,I,', proposition2index)
+    # p2 = prefix2indices('A,I,', proposition2index)
+
+    # sub_B1 = bool_matrix_mult_from_indices(B,p1, x)
+    # sub_B2 = bool_matrix_mult_from_indices(B,p2, x)
+    # res_ = element_wise_and_boolean_vectors(sub_B1, sub_B2)
+
+    # for elt in res_:
+    #     s.add(Not(elt))
     # Find all solutions
     solutions = []
     start = time.time()

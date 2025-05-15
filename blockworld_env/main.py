@@ -41,9 +41,11 @@ import config
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+
     parser.add_argument('--depth', type=int, default=20)
-    parser.add_argument('--n_traj', type=int, default=1_000_000)
+    parser.add_argument('--n_traj', type=int, default=4_000_000)
     parser.add_argument('--n_procs', type=int, default=int(mp.cpu_count()))
+    parser.add_argument('--adv', action='store_true')
     parser.add_argument('--save', action='store_true')
     args = parser.parse_args()
     
@@ -61,20 +63,35 @@ if __name__ == '__main__':
 
     mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = config.GAMMA,horizon=config.HORIZON)
 
-    rm = RewardMachine(config.RM_PATH)
-
-    L = {
+    if args.adv:
+        policy_path = config.POLICY_PATH_ADV
+        rm = RewardMachine(config.RM_PATH_ADV)
+        L = {
+        s2i[config.TARGET_STATE_1]: 'A',
+        s2i[config.TARGET_STATE_2]: 'B',
+        s2i[config.BAD_STATE]: 'D',
+        }
+        
+        for s in range(n_states):
+            if s not in L:
+                L[s] = 'I'
+        
+    else:
+        policy_path = config.POLICY_PATH
+        rm = RewardMachine(config.RM_PATH)
+        L = {
         s2i[config.TARGET_STATE_1]: 'A',
         s2i[config.TARGET_STATE_2]: 'B',
         s2i[config.TARGET_STATE_3]: 'C'
-    }
-    for s in range(n_states):
-        if s not in L:
-            L[s] = 'I'
+        }
+        for s in range(n_states):
+            if s not in L:
+                L[s] = 'I'
 
     
-    soft_policy = np.load(config.POLICY_PATH)
-    print(f"The shape of the policy is: {soft_policy.shape}")
+    soft_policy = np.load("./"+ policy_path + ".npy")
+
+    
 
     bws = BlockworldSimulator(rm = rm,mdp = mdp, L = L, policy = soft_policy, state2index=s2i, index2state=i2s)
     
@@ -113,8 +130,15 @@ if __name__ == '__main__':
     metric = "L1"
     kappa = 3
     AP = 4
+ 
+    if args.adv:
+        proposition2index = { 'A': 0,'B': 1,'D': 2,'I': 3}
+    else:
+        proposition2index = {'A': 0,'B': 1,'C': 2,'I': 3 }
     
-    solutions, n_constraints, n_states, solve_time, prob_values, wrong_ce_counts = solve_sat_instance(bws, counter_examples,rm, metric, kappa, AP, p_threshold=0.95)
+    solutions, n_constraints, n_states, solve_time, prob_values, wrong_ce_counts = \
+               solve_sat_instance(bws, counter_examples,rm, metric, kappa, AP, proposition2index, p_threshold=p_threshold)
+
     print(f"The number of constraints is: {n_constraints}")
     print(f"The number of solutions is: {len(solutions)}")
     # for solution in solutions:

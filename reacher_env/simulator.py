@@ -783,9 +783,9 @@ from train_PPO_policy_randomized_ic_discrete import DiscreteReacherActionWrapper
 
 if __name__ == "__main__":
 
-    max_len = 150
+    max_len = 160
 
-    render = True
+    render = False
     video =False
 
     if render:
@@ -825,31 +825,29 @@ if __name__ == "__main__":
     policy = PPO.load("ppo_reacher_randomized_ic_discrete_5_actions", device="cpu")
     rds = ReacherDiscreteSimulator(env, policy, rd, targets_goals)
 
-    start = time.time()
     
-    n_traj = 10_000
+    t0 = time.time()
+    n_traj = 1_000_000
     starting_states = [target_random_1, target_red, target_blue, target_yellow]
-    for t in range(n_traj):
+    for t in tqdm(range(n_traj)):
         rds.sample_trajectory(starting_state= target_yellow, len_traj= max_len, render=render, threshold=0.02)
-    # rds.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
-    # end = time.time()
+    
+     
 
-    # elapsed_time = end - start
-    # hours, rem = divmod(elapsed_time, 3600)
-    # minutes, seconds = divmod(rem, 60)
-    # print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
+    rds.compute_action_distributions()
 
      
 
-    # rds.compute_action_distributions()
-
-     
-
-    # rds.policy = None  # Drop the PPO policy before saving
-    # with open(f"./objects/object{n_traj}_{max_len}.pkl", "wb") as foo:
-    #     pickle.dump(rds, foo)
+    rds.policy = None  # Drop the PPO policy before saving
+    with open(f"./objects/object_no_parallel_5_9.pkl", "wb") as foo:
+        pickle.dump(rds, foo)
    
- 
+    elapsed = time.time() - t0
+    days = int(elapsed // (24 * 3600))
+    hours = int((elapsed % (24 * 3600)) // 3600)
+    minutes = int((elapsed % 3600) // 60)
+    print(f"Sampling+merge+compute took {days} days, {hours} hours, {minutes} minutes. Simulator saved to {output_path}.")
+
     # print(f"The object has been saved to ./objects/object{n_traj}_{max_len}.pkl")        
 
 

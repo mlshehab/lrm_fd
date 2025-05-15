@@ -10,10 +10,16 @@ import numpy as np
 from utils.mdp import MDP, MDPRM
 from reward_machine.reward_machine import RewardMachine
 from dynamics.BlockWorldMDP import BlocksWorldMDP, infinite_horizon_soft_bellman_iteration
-
+import argparse
 import config
 
 if __name__ == '__main__':
+    
+    parser = argparse.ArgumentParser()    
+    parser.add_argument('--adv', action='store_true')
+    args = parser.parse_args()
+
+    
     # Create policies directory if it doesn't exist
     os.makedirs(os.path.join(os.path.dirname(__file__), "policies"), exist_ok=True)
 
@@ -30,47 +36,70 @@ if __name__ == '__main__':
 
     mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = config.GAMMA,horizon=config.HORIZON)
 
-    rm = RewardMachine(config.RM_PATH)
- 
-    L = {
+    if args.adv:
+        policy_path = config.POLICY_PATH_ADV
+        rm = RewardMachine(config.RM_PATH_ADV)
+        L = {
+        s2i[config.TARGET_STATE_1]: 'A',
+        s2i[config.TARGET_STATE_2]: 'B',
+        s2i[config.BAD_STATE]: 'D',
+        }
+        
+        for s in range(n_states):
+            if s not in L:
+                L[s] = 'I'
+        
+    else:
+        policy_path = config.POLICY_PATH
+        rm = RewardMachine(config.RM_PATH)
+        L = {
         s2i[config.TARGET_STATE_1]: 'A',
         s2i[config.TARGET_STATE_2]: 'B',
         s2i[config.TARGET_STATE_3]: 'C'
-    }
-
-    for s in range(n_states):
-        if s not in L:
-            L[s] = 'I'
-    # L = {}
-
-    # for state_index in range(bw.num_states):
-    #     if state_index == s2i[config.TARGET_STATE_1]:
-    #         L[state_index] = 'A'
-    #     elif state_index == s2i[config.TARGET_STATE_2]:
-    #         L[state_index] = 'B'
-    #     elif state_index == s2i[config.TARGET_STATE_3]:
-    #         L[state_index] = 'C'
-    #     else:
-    #         L[state_index] = 'I'
+        }
+        for s in range(n_states):
+            if s not in L:
+                L[s] = 'I'
+  
 
     
     mdpRM = MDPRM(mdp,rm,L)
     mdp_ =  mdpRM.construct_product()
-    # now we need a state action state reward for the product MDP
+ 
     reward = np.zeros((mdp_.n_states, mdp_.n_actions, mdp_.n_states))
-    print(f"Reward: {reward.shape}, S: {mdp.n_states}, A: {mdp.n_actions}, RM: {rm.n_states}")
 
-    for bar_s in range(mdp_.n_states):
-        for a in range(mdp_.n_actions):
-            for bar_s_prime in range(mdp_.n_states):
-                (s,u) = mdpRM.su_pair_from_s(bar_s)
-                (s_prime,u_prime) = mdpRM.su_pair_from_s(bar_s_prime)
+    if args.adv:
+        # adv policy reward
+        for bar_s in range(mdp_.n_states):
+            for a in range(mdp_.n_actions):
+                for bar_s_prime in range(mdp_.n_states):
+                    (s,u) = mdpRM.su_pair_from_s(bar_s)
+                    (s_prime,u_prime) = mdpRM.su_pair_from_s(bar_s_prime)
 
-                is_possible = mdp_.P[a][bar_s][bar_s_prime] > 0.0
+                    if u == 2:
 
-                if u == 2 and L[s_prime] == 'C':
-                    reward[bar_s, a, bar_s_prime] = config.REWARD_PARAMETER
+                        reward[bar_s, a, bar_s_prime] = config.REWARD_PARAMETER_ADV_1
+                    
+                    if u == 0 and u_prime == 3 and L[s_prime] == 'D':
+                        reward[bar_s, a, bar_s_prime] = config.REWARD_PARAMETER_ADV_2
+
+                    if u == 1 and u_prime == 3 and L[s_prime] == 'D':
+                        reward[bar_s, a, bar_s_prime] = config.REWARD_PARAMETER_ADV_2
+
+    else:
+        
+        for bar_s in range(mdp_.n_states):
+            for a in range(mdp_.n_actions):
+                for bar_s_prime in range(mdp_.n_states):
+                    (s,u) = mdpRM.su_pair_from_s(bar_s)
+                    (s_prime,u_prime) = mdpRM.su_pair_from_s(bar_s_prime)
+
+                    is_possible = mdp_.P[a][bar_s][bar_s_prime] > 0.0
+
+                    if u == 2 and L[s_prime] == 'C':
+                        reward[bar_s, a, bar_s_prime] = config.REWARD_PARAMETER
                 
-    q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = True)
+    q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = False)
     print(f"The shape of the policy is: {soft_policy.shape}")
-    np.save(os.path.join(os.path.dirname(__file__), "policies", f"soft_policy_{config.REWARD_PARAMETER}.npy"), soft_policy)
+    
+    np.save(os.path.join(os.path.dirname(__file__), policy_path + ".npy"), soft_policy)

@@ -52,16 +52,20 @@ def get_u_ap_tuple(j, rm_states, ap_list):
     u = j // ap_len  # Calculate the RM state (u)
     ap = j % ap_len  # Calculate the AP index
     return (u, ap)
+from utils.ne_utils import u_from_obs
+
 
 if __name__ == "__main__":
  
     bw = BlocksWorldMDP(num_piles = config.NUM_PILES)
 
     soft_policy = np.load(config.POLICY_PATH)
+    
      
     n_states = bw.num_states
     n_actions = bw.num_actions
 
+   
    
     transition_matrices,s2i, i2s = bw.extract_transition_matrices()
     n_states = bw.num_states
@@ -78,6 +82,8 @@ if __name__ == "__main__":
     mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = config.GAMMA,horizon=config.HORIZON)
 
     rm = RewardMachine(config.RM_PATH_WRONG)
+
+     
 
     print(f"rm.delta_u = {rm.delta_u}")
 
@@ -108,7 +114,7 @@ if __name__ == "__main__":
     A = np.hstack((Psi, -E + config.GAMMA*P))
     print(f"The shape of A is {A.shape}")
     print(f"The shape of soft_policy is {soft_policy.shape}")
-    print(f"The shape of mdp_.n_states is {mdp_.n_states}")
+    # print(f"The shape of mdp_.n_states is {mdp_.n_states}")
 
     # b = np.log(soft_policy)[:mdp_.n_states,:]
     b = np.log(soft_policy)

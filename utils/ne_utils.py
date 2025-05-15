@@ -47,7 +47,7 @@ def u_from_obs(obs_str, rm):
     u0 = rm.u0
     current_u = u0
     
-    parsed_labels = obs_str.split(',')
+    parsed_labels = parsed_labels = [l for l in obs_str.split(',') if l]
 
     # print(f"The parsed labels are: {parsed_labels}")
 
