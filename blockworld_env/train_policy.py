@@ -133,4 +133,6 @@ if __name__ == '__main__':
 
     
     if args.save:
+        print(f"The policy is saved to {policy_path}.npy")
         np.save(os.path.join(os.path.dirname(__file__), policy_path + ".npy"), soft_policy)
+        

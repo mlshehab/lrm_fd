@@ -11,11 +11,12 @@ from itertools import combinations
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-depth', type=int, default=10)
-    parser.add_argument('-n_traj', type=int, default=100)
-    # Fix the save argument to properly handle boolean values
-    parser.add_argument('-save', type=int, choices=[0, 1], default=1,
-                       help='0 for False, 1 for True')
+    parser.add_argument('-depth', type=int, required=True,
+                        help='Depth must be provided as an integer.')
+    parser.add_argument('-n_traj', type=int, required=True,
+                        help='Number of trajectories must be provided as an integer.')
+    parser.add_argument('-save', type=int, choices=[0, 1], required=True,
+                       help='0 for False, 1 for True. This argument is required.')
     return parser.parse_args()
 
 def similarity(p1, p2, metric):
@@ -32,22 +33,14 @@ def similarity(p1, p2, metric):
             raise ValueError("Unsupported metric! Choose from 'KL', 'TV', 'L1'.")
         
 def f(epsilon_1, n1, n2, A, epsilon):
-    term1 = np.maximum(1 - ((2**A - 2) * np.exp((-n1 * epsilon_1**2) / (2 ))), 0)
-    term2 = np.maximum(1 - ((2**A - 2) * np.exp((-n2 * (epsilon - epsilon_1)**2) / (2 ))), 0)
-    return term1 * term2
+    term1 =    ((2**A - 2) * np.exp((-n1 * epsilon_1**2) / (2 ))) 
+    term2 =    ((2**A - 2) * np.exp((-n2 * (epsilon - epsilon_1)**2) / (2 ))) 
+    return 1- term1 - term2
+
 
 
 def generate_label_combinations(bws):
-    """
-    Generate a dictionary where each state maps to combinations of labels of length 2 corresponding to it.
-
-    Args:
-        bws (BlockworldSimulator): The BlockworldSimulator object.
-
-    Returns:
-        dict: {state: [label_combinations]}
-    """
-    
+ 
 
     label_combinations = {}
 
@@ -57,8 +50,14 @@ def generate_label_combinations(bws):
 
     return label_combinations
 
+def prefix2indices(s, proposition2index):
+    out = []
+    for l in s.split(','):
+        if l:
+            out.append(proposition2index[l])
+    return out
 
-def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, p_threshold=0.8):
+def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, proposition2index,  p_threshold=0.8):
     """
     Solve SAT instance for given counter examples, filtering by probability threshold
     Returns all SAT solutions found
@@ -90,21 +89,13 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, p_threshold
     for k in range(AP):
         s.add(one_entry_per_row(B[k]))
 
-    proposition2index = {'A':0,'B':1,'C':2,'I':3}
-
-    def prefix2indices(s):
-        out = []
-        for l in s.split(','):
-            if l:
-                out.append(proposition2index[l])
-        return out
 
     # Filter counter examples by probability threshold
     filtered_counter_examples = {}
     prob_values = []  # Store probability values for visualization
 
     wrong_ce_counts = 0
-
+    # tot_ = 0
     for state, ce_set in counter_examples.items():
         filtered_ce = []
         for ce in ce_set:
@@ -113,8 +104,6 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, p_threshold
             n1 = bws.state_label_counts[state][ce[0]] 
             n2 = bws.state_label_counts[state][ce[1]]
             A = bws.n_actions
-
-            
             
             optimal_epsilon1 = epsilon/2
             prob = f(optimal_epsilon1, n1, n2, A, epsilon)
@@ -139,9 +128,20 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, p_threshold
 
             if u_from_obs(ce[0],rm) == u_from_obs(ce[1],rm):
                 wrong_ce_counts += 1
+                # Save wrong counter example to file
+                with open(f"./objects/wrong_counter_examples.txt", "a") as foo:
+                    foo.write(f"State: {state}\n")
+                    foo.write(f"Counter Example: {ce}\n")
+                    foo.write(f"Probability: {prob}\n")
+                    foo.write(f"Counts: {bws.state_label_counts[state][ce[0]]}, {bws.state_label_counts[state][ce[1]]}\n")
+                    foo.write(f"Policy 1: {np.round(bws.state_action_probs[state][ce[0]], 3)}\n")
+                    foo.write(f"Policy 2: {np.round(bws.state_action_probs[state][ce[1]], 3)}\n")
+                    foo.write("-" * 50 + "\n")
 
-            p1 = prefix2indices(ce[0])
-            p2 = prefix2indices(ce[1])
+
+
+            p1 = prefix2indices(ce[0], proposition2index)
+            p2 = prefix2indices(ce[1], proposition2index)
 
             sub_B1 = bool_matrix_mult_from_indices(B,p1, x)
             sub_B2 = bool_matrix_mult_from_indices(B,p2, x)
@@ -149,11 +149,15 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, p_threshold
 
             for elt in res_:
                 s.add(Not(elt))
-
-    # Find all solutions
+            
+    print(f"The total number of constraints is: {total_constraints}")
+ 
     solutions = []
     start = time.time()
+    nsol = 0
     while s.check() == sat:
+        nsol += 1
+        print(f"The number of solutions is: {nsol}")
         m = s.model()
         solution = []
         for ap in range(AP):
@@ -177,42 +181,4 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, p_threshold
 
 
 
-def generate_policy_comparison_report(bws, rm, soft_policy, n_traj, max_len, timestamp):
-        data = [] 
-        for key, item in bws.state_action_probs.items():
-            for label, action_prob in item:
-                u = u_from_obs(label, rm)
-                policy = np.round(action_prob, 3)
-                
-                true_policy = np.round(soft_policy[u * bws.n_states + key, :], 3)
-                kl_div = similarity(policy, true_policy, 'KL')
-                l1_norm = similarity(policy, true_policy, 'L1')
-                tv_distance = similarity(policy, true_policy, 'TV')
-                count = bws.state_label_counts[key][label]
-
-                data.append([key, label, count, policy, true_policy, kl_div, l1_norm, tv_distance])
-        
-        # Create DataFrame
-        df = pd.DataFrame(data, columns=["State", "Label", "Count (n)", "Policy", "True Policy", "KL Divergence", "L1 Norm", "TV Distance"])
-
-        # Compute min and max values for the last three columns
-        min_values = df[["KL Divergence", "L1 Norm", "TV Distance"]].min()
-        max_values = df[["KL Divergence", "L1 Norm", "TV Distance"]].max()
-
-        # Create summary rows for min and max values
-        summary_df = pd.DataFrame({
-            "State": ["Min", "Max"],
-            "Label": ["-", "-"],
-            "Count (n)": ["-", "-"],
-            "Policy": ["-", "-"],
-            "True Policy": ["-", "-"],
-            "KL Divergence": [min_values["KL Divergence"], max_values["KL Divergence"]],
-            "L1 Norm": [min_values["L1 Norm"], max_values["L1 Norm"]],
-            "TV Distance": [min_values["TV Distance"], max_values["TV Distance"]]
-        })
-
-        # Append summary rows to the DataFrame
-        df = pd.concat([df, summary_df], ignore_index=True)
-
-        # Save DataFrame to Excel
-        df.to_excel(f"./results/test_policy_comparison_nt_{n_traj}_ml_{max_len}_{timestamp}.xlsx", index=False)
+ 

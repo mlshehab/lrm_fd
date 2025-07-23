@@ -171,11 +171,9 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, proposition
     # Find all solutions
     solutions = []
     start = time.time()
-    sol_count = 0
+  
     while s.check() == sat:
-        sol_count += 1
-        if sol_count % 10 == 0:
-            print(f"The number of solutions is: {sol_count}")
+        
         m = s.model()
         solution = []
         for ap in range(AP):

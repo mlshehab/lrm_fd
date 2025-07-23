@@ -1,8 +1,17 @@
+
+import os
+import sys
+from scipy.optimize import minimize_scalar
+# Get the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(parent_dir)
 import numpy as np
 from tqdm import tqdm
 from collections import Counter
 from scipy.stats import entropy
 from utils.ne_utils import u_from_obs
+from dynamics.GridWorld import BasicGridWorld
+import config
 
 class Simulator():
     
@@ -47,58 +56,13 @@ class Simulator():
                 self.state_action_probs[state][label] = action_probs
                 self.state_label_counts[state][label] = total_actions
 
-    def group_similar_policies(self, state, metric="TV", threshold=0.05):
-        """
-        Groups labels based on similar action distributions for each state.
-
-        Args:
-            metric (str): Similarity metric to use. Options: 'KL', 'TV', 'L1'.
-            threshold (float): Maximum allowed difference to consider policies similar.
-
-        Returns:
-            dict: {state: {policy_signature: [labels]}}
-        """
-        grouped_traces = {}
-
-        def similarity(p1, p2, metric):
-            """Computes similarity based on chosen metric."""
-            if metric == "KL":
-                p1 = np.clip(p1, 1e-10, 1)  # Avoid division by zero
-                p2 = np.clip(p2, 1e-10, 1)
-                return entropy(p1, p2)  # KL divergence
-            elif metric == "TV":
-                return 0.5 * np.sum(np.abs(p1 - p2))  # Total Variation Distance
-            elif metric == "L1":
-                return np.linalg.norm(p1 - p2, ord=1)  # 1-norm distance
-            else:
-                raise ValueError("Unsupported metric! Choose from 'KL', 'TV', 'L1'.")
-
-        if state not in self.state_action_probs:
-            raise ValueError(f"State {state} not found in state_action_probs.")
-
-        # Iterate over the labels for the given state
-        for label, action_probs in self.state_action_probs[state]:
-            matched = False
-
-            # Compare against existing policy groups
-            for existing_policy in grouped_traces:
-                if similarity(existing_policy, action_probs, metric) < threshold:
-                    grouped_traces[existing_policy].append(label)
-                    matched = True
-                    break
-            
-            # If no match, create a new group with this action_probs
-            if not matched:
-                grouped_traces[tuple(action_probs)] = [label]
-
-        return grouped_traces
+     
 
 
-class BlockworldSimulator(Simulator):
-    def __init__(self, rm, mdp, L, policy, state2index, index2state):
+class GridworldSimulator(Simulator):
+    def __init__(self, rm, mdp, L, policy):
         super().__init__(rm, mdp, L, policy)
-        self.state2index = state2index
-        self.index2state = index2state
+   
 
     def remove_consecutive_duplicates(self, s):
         elements = s.split(',')
@@ -112,27 +76,27 @@ class BlockworldSimulator(Simulator):
 
     def sample_trajectory(self, starting_state, len_traj):
        
-        # find the state in the reward machine
-        # traj = []
-
+ 
         state = starting_state
         label = self.L[state] + ','
+        compressed_label = self.remove_consecutive_duplicates(label)
         u = u_from_obs(label,self.rm)
-        
+   
         for _ in range(len_traj):
             idx = u * self.n_states + state
-            action_dist = self.policy[u*self.n_states + state,:]
+            action_dist = self.policy[idx,:]
 
             # Sample an action from the action distribution
             a = np.random.choice(np.arange(self.n_actions), p=action_dist)
             
             # Sample a next state 
             next_state = self.sample_next_state(state, a)
-            # traj.append((state,a,next_state))
+          
 
             # Compress the label
             compressed_label = self.remove_consecutive_duplicates(label)
 
+           
             # Ensure state exists in dictionary
             if state not in self.state_action_counts:
                 self.state_action_counts[state] = []
@@ -152,15 +116,66 @@ class BlockworldSimulator(Simulator):
             l = self.L[next_state]
             label = label + l + ','
             u = u_from_obs(label, self.rm)
-    
+            
             state = next_state
-
+        # print(f"The trajectory is: {compressed_label}")
 
     def sample_dataset(self, starting_states, number_of_trajectories, max_trajectory_length):
-        # for each starting state
-        for state in tqdm(starting_states):
-            # for each length trajectory
-            for l in range(max_trajectory_length):
-                # sample (number_of_trajectories) trajectories of length l 
-                for _ in range(number_of_trajectories):
-                    self.sample_trajectory(starting_state= state,len_traj= l)
+       
+        for _ in range(number_of_trajectories):
+            ss = np.random.randint(0, len(starting_states))
+            self.sample_trajectory(starting_state=ss, len_traj= max_trajectory_length)
+
+from reward_machine.reward_machine import RewardMachine
+import config
+ 
+from utils.mdp import MDP
+
+if __name__ == "__main__":
+
+    
+    rm = RewardMachine(config.RM_PATH)
+     
+
+    policy = np.load(config.POLICY_PATH + ".npy")
+     
+    grid_size = config.GRID_SIZE
+    wind = config.WIND
+    discount = config.GAMMA
+    horizon = config.HORIZON   
+ 
+    gw = BasicGridWorld(grid_size,wind,discount,horizon)
+    
+    n_states = gw.n_states
+    n_actions = gw.n_actions
+
+    P = []
+
+    for a in range(n_actions):
+        P.append(gw.transition_probability[:,a,:])
+
+    mdp = MDP(n_states=n_states, n_actions=n_actions, P = P,gamma = gw.discount,horizon=10)
+
+
+    L = {}
+    # The grid numbering and labeling is :
+    # 0 4 8 12    D D C C 
+    # 1 5 9 13    D D C C 
+    # 2 6 10 14   A A B B
+    # 3 7 11 15   A A B B
+    
+    L[2], L[6], L[3], L[7] = 'A', 'A', 'A', 'A'
+    L[0], L[4], L[8], L[12] = 'D', 'D', 'C', 'C'
+    L[1], L[5], L[9], L[13] = 'D', 'D', 'C', 'C'
+    L[10], L[14] = 'B', 'B'
+    L[11], L[15] = 'B', 'B'
+
+    simulator = GridworldSimulator(rm=rm, mdp=mdp, L=L, policy=policy)
+    simulator.sample_trajectory(starting_state=1, len_traj=10)
+
+
+
+    
+ 
+
+  

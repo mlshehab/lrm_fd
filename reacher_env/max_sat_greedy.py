@@ -14,7 +14,7 @@ from utils.sat_utils import *
 from utils.ne_utils import get_label, u_from_obs
 import argparse
 import pandas as pd
-from z3 import Bool, Solver, Implies, Not, BoolRef, sat,print_matrix, Or, And, AtMost # type: ignore
+from z3 import Optimize, Bool, Solver, Implies, Not, BoolRef, sat,print_matrix, Or, And, AtMost # type: ignore
 from itertools import combinations
 from tqdm import tqdm
 import pickle
@@ -40,8 +40,6 @@ def f(epsilon_1, n1, n2, A, epsilon):
     term2 =    ((2**A - 2) * np.exp((-n2 * (epsilon - epsilon_1)**2) / (2 ))) 
     return 1- term1 - term2
 
-
-
 def generate_label_combinations(bws):
     """
     Generate a dictionary where each state maps to combinations of labels of length 2 corresponding to it.
@@ -60,11 +58,6 @@ def generate_label_combinations(bws):
         
         labels = [label for label in label_dists.keys()]
         label_combinations[state] = list(combinations(labels, 2))
-
-        # if state == 141766:
-        #     print("The list combinations are:")
-        #     for combo in label_combinations[141766]:
-        #         print(combo[0][-2:] , combo[1][-2:])
 
     return label_combinations
 
@@ -175,41 +168,6 @@ def solve_with_clauses(c4_clauses):
 
     return count
 
-import random
-from collections import deque
-
-
-def greedy_max_sat(all_clauses):
-    """
-    Given a large list of C4 clauses and the reward machine `rm`,
-    returns a maximal subset (in greedy order) that remains SAT.
-    """
-    # 1) Make a shuffled queue of all clauses
-    clauses = all_clauses[:]          # copy
-    random.shuffle(clauses)
-    queue = deque(clauses)
-
-    # 2) Greedy list
-    c4_clauses_greedy = []
-
-    # 3) Pop and try to add each clause
-    while queue:
-        ce = queue.popleft()
-        c4_clauses_greedy.append(ce)
-
-        # Check satisfiability with the current greedy set
-        num_solutions = solve_with_clauses(c4_clauses_greedy)
-
-        if num_solutions == 0:
-            # dropping this clause keeps us SAT
-            c4_clauses_greedy.pop()
-    print(f"The number of clauses in the greedy set is: {len(c4_clauses_greedy)}, number of solutions: {num_solutions}")
-    return c4_clauses_greedy
-
-
-
-from z3 import Optimize, Bool, Implies, Not, Or
-
 def maxsat_clauses(all_clauses):
     """
     Given a list of C4 clauses and the reward machine `rm`,
@@ -288,10 +246,6 @@ if __name__ == "__main__":
 
     print(f"{rds.rd.n_actions}")
 
-
-    # print(f"DEBUG: {np.round(rds.state_action_probs[16371]['I,B,'],3)}")
-    # print(f"DEBUG: {np.round(rds.state_action_probs[16371]['I,B,I,R,I,Y,I,B,'],3)}")
-    # time.sleep(1000)
     counter_examples = generate_label_combinations(rds)
 
     
