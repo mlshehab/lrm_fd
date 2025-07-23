@@ -180,5 +180,64 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, proposition
 
 
 
+def infinite_horizon_soft_policy_evaluation(MDP, reward, pi, tol=1e-4, logging=True, log_iter=5):
+    """
+    Evaluate a fixed stochastic policy pi in a max-entropy RL setting.
+    
+    Arguments:
+        MDP: object with attributes
+            - gamma: discount factor
+            - P: list of transition matrices P[a] of shape (n_states, n_states)
+            - n_states: number of states
+            - n_actions: number of actions
+        reward: array of shape (n_states, n_actions, n_states), i.e., R[s, a, s']
+        pi: array of shape (n_states, n_actions), policy probabilities π(a|s)
+        tol: convergence threshold
+        logging: whether to print progress
+        log_iter: log every k iterations
 
+    Returns:
+        q_soft: shape (n_states, n_actions)
+        v_soft: shape (n_states,)
+    """
+    print("Evaluating fixed stochastic policy with soft Bellman updates ...")
+    
+    gamma = MDP.gamma
+    n_states = MDP.n_states
+    n_actions = MDP.n_actions
+
+    v_soft = np.zeros(n_states)
+    q_soft = np.zeros((n_states, n_actions))
+
+    delta = np.inf
+    it = 0
+    total_time = 0.0
+
+    while delta > tol:
+        it += 1
+        start_time = time.time()
+
+        # 1. Compute Q^\pi(s,a)
+        for a in range(n_actions):
+            P_a = MDP.P[a]                 # (n_states, n_states)
+            r_a = reward[:, a, :]          # (n_states, n_states)
+            expected_r = np.sum(P_a * r_a, axis=1)        # (n_states,)
+            expected_v = gamma * P_a @ v_soft             # (n_states,)
+            q_soft[:, a] = expected_r + expected_v        # (n_states,)
+
+        # 2. Compute V^\pi(s) = E_{a ∼ π}[Q(s,a) - log π(a|s)]
+        log_pi = np.log(pi + 1e-10)  # avoid log(0)
+        v_new_soft = np.sum(pi * (q_soft - log_pi), axis=1)  # (n_states,)
+
+        delta = np.linalg.norm(v_new_soft - v_soft)
+
+        end_time = time.time()
+        total_time += end_time - start_time
+
+        if logging and it % log_iter == 0:
+            print(f"Iter {it}: Δ={delta:.6f}, Time: {end_time - start_time:.2f}s, Total: {total_time:.2f}s")
+
+        v_soft = v_new_soft
+
+    return q_soft, v_soft
  

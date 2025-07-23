@@ -13,6 +13,7 @@ from dynamics.BlockWorldMDP import BlocksWorldMDP, infinite_horizon_soft_bellman
 from dynamics.GridWorld import BasicGridWorld
 import argparse
 import config
+from gwe_helpers import infinite_horizon_soft_policy_evaluation
 
 if __name__ == '__main__':
     
@@ -79,8 +80,18 @@ if __name__ == '__main__':
    
     q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = False)
          
+    q_soft_e, v_soft_e = infinite_horizon_soft_policy_evaluation(mdp_,reward,soft_policy, logging = False)
     
-    
+
+    random_soft_policy = np.random.randn(mdp_.n_states,mdp_.n_actions)
+    print(f"The shape of the policy is: {random_soft_policy.shape}")
+    random_soft_policy = np.exp(random_soft_policy) / np.sum(np.exp(random_soft_policy), axis=1, keepdims=True)
+    q_soft_e, v_soft_e = infinite_horizon_soft_policy_evaluation(mdp_,reward,random_soft_policy, logging = False)
+
+    # print("v_soft:", np.round(v_soft, 4))
+    # print("v_soft_e:", np.round(v_soft_e, 4))
+    print(f"The norm of the difference between the two value functions is: {np.linalg.norm(v_soft - v_soft_e)}")
+
     if args.save:
         print(f"The policy is saved to {policy_path}.npy")
         np.save(os.path.join(os.path.dirname(__file__), policy_path + ".npy"), soft_policy)
