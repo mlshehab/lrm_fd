@@ -42,11 +42,10 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--depth', type=int, default=20)
-    parser.add_argument('--n_traj', type=int, default=4_000_000)
-    parser.add_argument('--n_procs', type=int, default=int(mp.cpu_count()))
-    parser.add_argument('--adv', action='store_true')
-    parser.add_argument('--save', action='store_true')
+    parser.add_argument('--depth', type=int, default=14)
+    parser.add_argument('--n_traj', type=int, default=20000)
+    parser.add_argument('--rm', type=str, default='stack-extra')
+    parser.add_argument('--save', action='store_true', default=True)
     args = parser.parse_args()
     
     bw = BlocksWorldMDP(num_piles=config.NUM_PILES)
@@ -58,12 +57,12 @@ if __name__ == '__main__':
     P = []
 
     for a in range(n_actions):
-       
+        
         P.append(transition_matrices[a,:,:])
 
     mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = config.GAMMA,horizon=config.HORIZON)
 
-    if args.adv:
+    if args.rm == 'stack-adv':
         policy_path = config.POLICY_PATH_ADV
         rm = RewardMachine(config.RM_PATH_ADV)
         L = {
@@ -76,6 +75,16 @@ if __name__ == '__main__':
             if s not in L:
                 L[s] = 'I'
         
+    elif args.rm == 'stack-extra':
+        policy_path = config.POLICY_PATH_EXTRA
+        rm = RewardMachine(config.RM_PATH_EXTRA)
+        L = {
+        s2i[config.TARGET_STATE_1]: 'A',
+        s2i[config.TARGET_STATE_2]: 'B',
+        }
+        for s in range(n_states):
+            if s not in L:
+                L[s] = 'I'
     else:
         policy_path = config.POLICY_PATH
         rm = RewardMachine(config.RM_PATH)
@@ -88,15 +97,18 @@ if __name__ == '__main__':
             if s not in L:
                 L[s] = 'I'
 
-    
+
+   
     soft_policy = np.load("./"+ policy_path + ".npy")
 
-    
+    print(f"The number of trajectories is: {args.n_traj}")
 
     bws = BlockworldSimulator(rm = rm,mdp = mdp, L = L, policy = soft_policy, state2index=s2i, index2state=i2s)
     
-    
-    starting_states = [s2i[config.TARGET_STATE_1], s2i[config.TARGET_STATE_2], s2i[config.TARGET_STATE_3], 4, 24]
+    if args.rm == 'stack-extra':
+        starting_states = [s2i[config.TARGET_STATE_1], s2i[config.TARGET_STATE_2], s2i[config.TARGET_STATE_3], s2i[config.TARGET_STATE_4],4]
+    else:               
+        starting_states = [s2i[config.TARGET_STATE_1], s2i[config.TARGET_STATE_2], s2i[config.TARGET_STATE_3], 4, 24]
 
     start = time.time()
     max_len = args.depth
@@ -128,11 +140,21 @@ if __name__ == '__main__':
 
     p_threshold = 0.95
     metric = "L1"
-    kappa = 3
-    AP = 4
+
+    if args.rm == 'stack-extra':
+        kappa = 2
+        AP = 3
+    else:
+        kappa = 3
+        AP = 4
+    
  
-    if args.adv:
+    if args.rm == 'stack-adv':
         proposition2index = { 'A': 0,'B': 1,'D': 2,'I': 3}
+
+    elif args.rm == 'stack-extra':
+        proposition2index = {'A': 0,'B': 1,'I': 2 }
+        
     else:
         proposition2index = {'A': 0,'B': 1,'C': 2,'I': 3 }
     
@@ -141,19 +163,14 @@ if __name__ == '__main__':
 
     print(f"The number of constraints is: {n_constraints}")
     print(f"The number of solutions is: {len(solutions)}")
-    # for solution in solutions:
-    #     print("\nSolution matrices:")
-    #     for i, matrix in enumerate(solution):
-    #         print(f"\nMatrix {i} ({['A', 'B', 'C', 'I'][i]}):")
-    #         for row in matrix:
-    #             print("  " + " ".join("1" if x else "0" for x in row))
+    
     print(f"The wrong counter example counts are: {wrong_ce_counts}")
     hours, rem = divmod(solve_time, 3600)
     minutes, seconds = divmod(rem, 60)
     print(f"The solve time is: {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
     # print(f"The count of state 51 is: {bws.state_label_counts[51]}")
     timestamp = time.strftime("%Y%m%d-%H%M%S")
-    solutions_text_path = f"./objects/solutions_{args.n_traj}_{args.depth}_{timestamp}.txt"
+    solutions_text_path = f"./objects/solutions_{args.rm}_{args.n_traj}_{args.depth}_{timestamp}.txt"
 
     if args.save:
         with open(solutions_text_path, "w") as f:

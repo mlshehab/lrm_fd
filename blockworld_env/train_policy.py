@@ -16,7 +16,8 @@ import config
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()    
-    parser.add_argument('--adv', action='store_true')
+    parser.add_argument('--rm', type=str, default='stack')
+    parser.add_argument('--save', action='store_true')
     args = parser.parse_args()
 
     
@@ -36,9 +37,10 @@ if __name__ == '__main__':
 
     mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = config.GAMMA,horizon=config.HORIZON)
 
-    if args.adv:
+    if args.rm == 'stack-adv':
         policy_path = config.POLICY_PATH_ADV
         rm = RewardMachine(config.RM_PATH_ADV)
+        
         L = {
         s2i[config.TARGET_STATE_1]: 'A',
         s2i[config.TARGET_STATE_2]: 'B',
@@ -48,7 +50,17 @@ if __name__ == '__main__':
         for s in range(n_states):
             if s not in L:
                 L[s] = 'I'
-        
+    elif args.rm  == 'stack-extra':
+        policy_path = config.POLICY_PATH_EXTRA
+        rm = RewardMachine(config.RM_PATH_EXTRA)
+        L = {
+        s2i[config.TARGET_STATE_1]: 'A',
+        s2i[config.TARGET_STATE_2]: 'B',
+        }
+        for s in range(n_states):
+            if s not in L:
+                L[s] = 'I'
+  
     else:
         policy_path = config.POLICY_PATH
         rm = RewardMachine(config.RM_PATH)
@@ -68,7 +80,7 @@ if __name__ == '__main__':
  
     reward = np.zeros((mdp_.n_states, mdp_.n_actions, mdp_.n_states))
 
-    if args.adv:
+    if args.rm == 'stack-adv':
         # adv policy reward
         for bar_s in range(mdp_.n_states):
             for a in range(mdp_.n_actions):
@@ -86,6 +98,15 @@ if __name__ == '__main__':
                     if u == 1 and u_prime == 3 and L[s_prime] == 'D':
                         reward[bar_s, a, bar_s_prime] = config.REWARD_PARAMETER_ADV_2
 
+    elif args.rm == 'stack-extra':
+        for bar_s in range(mdp_.n_states):
+            for a in range(mdp_.n_actions):
+                for bar_s_prime in range(mdp_.n_states):
+                    (s,u) = mdpRM.su_pair_from_s(bar_s)
+                    (s_prime,u_prime) = mdpRM.su_pair_from_s(bar_s_prime)
+
+                    if u == 3 and L[s_prime] == 'D':
+                        reward[bar_s, a, bar_s_prime] = config.REWARD_PARAMETER
     else:
         
         for bar_s in range(mdp_.n_states):
@@ -98,8 +119,18 @@ if __name__ == '__main__':
 
                     if u == 2 and L[s_prime] == 'C':
                         reward[bar_s, a, bar_s_prime] = config.REWARD_PARAMETER
-                
-    q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = False)
-    print(f"The shape of the policy is: {soft_policy.shape}")
+
+
+    if not args.rm == 'stack-extra':
+        q_soft,v_soft , soft_policy = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = False)
+        print(f"The shape of the policy is: {soft_policy.shape}")
     
-    np.save(os.path.join(os.path.dirname(__file__), policy_path + ".npy"), soft_policy)
+    else:
+         
+        soft_policy = np.random.randn(mdp_.n_states,mdp_.n_actions)
+        print(f"The shape of the policy is: {soft_policy.shape}")
+        soft_policy = np.exp(soft_policy) / np.sum(np.exp(soft_policy), axis=1, keepdims=True)
+
+    
+    if args.save:
+        np.save(os.path.join(os.path.dirname(__file__), policy_path + ".npy"), soft_policy)

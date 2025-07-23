@@ -98,16 +98,13 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, proposition
     for k in range(AP):
         s.add(one_entry_per_row(B[k]))
 
-    
-
-    
 
     # Filter counter examples by probability threshold
     filtered_counter_examples = {}
     prob_values = []  # Store probability values for visualization
 
     wrong_ce_counts = 0
-
+    # tot_ = 0
     for state, ce_set in counter_examples.items():
         filtered_ce = []
         for ce in ce_set:
@@ -161,7 +158,7 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, proposition
 
             for elt in res_:
                 s.add(Not(elt))
-
+    print(f"The total number of constraints is: {total_constraints}")
     # p1 = prefix2indices('A,D,I,', proposition2index)
     # p2 = prefix2indices('A,I,', proposition2index)
 
@@ -174,7 +171,11 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, proposition
     # Find all solutions
     solutions = []
     start = time.time()
+    sol_count = 0
     while s.check() == sat:
+        sol_count += 1
+        if sol_count % 10 == 0:
+            print(f"The number of solutions is: {sol_count}")
         m = s.model()
         solution = []
         for ap in range(AP):

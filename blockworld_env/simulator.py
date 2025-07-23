@@ -74,11 +74,10 @@ class BlockworldSimulator(Simulator):
                 result.append(elements[i])
         return ','.join(result)
 
-    def sample_trajectory(self, len_traj):
+    def sample_trajectory(self, starting_state, len_traj):
        
-        starting_state = np.random.randint(0, self.n_states)
-        # if starting_state ==0 :
-        #     print(f"The starting state is: {self.L[starting_state]}")
+        # starting_state = np.random.randint(0, self.n_states)
+       
         state = starting_state
         label = self.L[state] + ','
         compressed_label = self.remove_consecutive_duplicates(label)
@@ -126,16 +125,12 @@ class BlockworldSimulator(Simulator):
             
             state = next_state
 
-        # print(f"The trajectory is: {compressed_label}")
 
     def sample_dataset(self, starting_states, number_of_trajectories, max_trajectory_length):
-        # for each starting state
-        
-        # for each length trajectory
-        for l in range(max_trajectory_length):
-            # sample (number_of_trajectories) trajectories of length l 
-            for _ in range(number_of_trajectories):
-                self.sample_trajectory(len_traj= l)
+       
+        for _ in range(number_of_trajectories):
+            ss = np.random.randint(0, len(starting_states))
+            self.sample_trajectory(starting_state=ss, len_traj= max_trajectory_length)
 
 
 
