@@ -7,3 +7,5 @@ REWARD_PARAMETER = 10.0
 
 RM_PATH = "../rm_examples/patrol.txt"
 POLICY_PATH = "./policies/soft_patrol_policy"
+
+SEED = 42

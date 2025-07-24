@@ -1,40 +1,24 @@
 import os
 import sys
-from scipy.optimize import minimize_scalar
+
 # Get the parent directory
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # Append the parent directory to sys.path
 sys.path.append(parent_dir)
-import pandas as pd
+
 import numpy as np
-from utils.mdp import MDP, MDPRM
-from reward_machine.reward_machine import RewardMachine
-import scipy.linalg
-import time 
-from scipy.special import softmax, logsumexp
-from tqdm import tqdm
- 
-from dynamics.BlockWorldMDP import BlocksWorldMDP, infinite_horizon_soft_bellman_iteration
-from utils.ne_utils import get_label, u_from_obs,save_tree_to_text_file, collect_state_traces_iteratively, get_unique_traces,group_traces_by_policy
-from utils.sat_utils import *
-from datetime import timedelta
 import time
-from collections import Counter, defaultdict
-from scipy.stats import entropy  # For KL divergence
-from tqdm import tqdm
-import matplotlib.pyplot as plt
-import pickle 
+import pickle
 import argparse
-import multiprocessing as mp
+from utils.mdp import MDP
+from reward_machine.reward_machine import RewardMachine
 from dynamics.GridWorld import BasicGridWorld
-
 from simulator import GridworldSimulator
-
-from gwe_helpers import parse_args, generate_label_combinations, solve_sat_instance
-
-
+from gwe_helpers import generate_label_combinations, solve_sat_instance, maxsat_clauses, solve_with_clauses, prepare_sat_problem
 import config
+
+
 
 if __name__ == '__main__':
 
@@ -42,6 +26,9 @@ if __name__ == '__main__':
 
     parser.add_argument('--depth', type=int, default=10)
     parser.add_argument('--n_traj', type=int, default=2500)
+    parser.add_argument('--umax', type=int, default=4)
+    parser.add_argument('--AP', type=int, default=4)
+    parser.add_argument('--use_maxsat', action='store_true', default=False)
     parser.add_argument('--save', action='store_true', default=False)
     args = parser.parse_args()
     
@@ -91,7 +78,8 @@ if __name__ == '__main__':
     start = time.time()
     max_len = args.depth
     n_traj = args.n_traj
-    
+
+    np.random.seed(config.SEED)
     gws.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
     end = time.time()
 
@@ -116,35 +104,56 @@ if __name__ == '__main__':
     metric = "L1"
 
      
-    kappa = 3
-    AP = 4
+    umax = args.umax
+    AP = args.AP
+
      
     proposition2index = {'A': 0,'B': 1,'C': 2,'D': 3 }
     
-    solutions, n_constraints, n_states, solve_time, prob_values, wrong_ce_counts = \
-               solve_sat_instance(gws, counter_examples,rm, metric, kappa, AP, proposition2index, p_threshold=p_threshold)
-
-    print(f"The number of constraints is: {n_constraints}")
-    print(f"The number of solutions is: {len(solutions)}")
+    if not args.use_maxsat:
+        solutions, n_constraints, n_states, solve_time, prob_values, wrong_ce_counts = \
+               solve_sat_instance(gws, counter_examples,rm, metric, umax, AP, proposition2index, p_threshold=p_threshold)
+        print(f"The number of constraints is: {n_constraints}")
+        print(f"The number of solutions is: {len(solutions)}")
     
-    print(f"The wrong counter example counts are: {wrong_ce_counts}")
-    hours, rem = divmod(solve_time, 3600)
-    minutes, seconds = divmod(rem, 60)
-    print(f"The solve time is: {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
-    # print(f"The count of state 51 is: {bws.state_label_counts[51]}")
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-    solutions_text_path = f"./objects/solutions_{args.n_traj}_{args.depth}_{timestamp}.txt"
+    else:
+        c4_clauses = prepare_sat_problem(gws, counter_examples, p_threshold)
+        ss = set()
+        for clause in c4_clauses:
+            ss.add(clause[0])
+            ss.add(clause[1])
+            
+        # Save the elements of ss to a file instead of printing
+        with open("ss_elements.txt", "w") as f:
+            for elt in ss:
+                f.write(f"{elt}\n")
+                f.write("-"*50 + "\n")
+            
+        maxsat_clauses = maxsat_clauses(c4_clauses, umax, AP, proposition2index)
+        
+        solutions = solve_with_clauses(maxsat_clauses, umax, AP, proposition2index)
+        print(f"Total clauses: {len(c4_clauses)} - Maxsat clauses: {len(maxsat_clauses)}")
+        print(f"The number of solutions in the maxsat set is: {solutions}")
 
-    if args.save:
-        with open(solutions_text_path, "w") as f:
-            f.write(f"Solutions for n_traj={args.n_traj}, depth={args.depth}\n")
-            f.write("=" * 50 + "\n\n")
-            for i, solution in enumerate(solutions):
-                f.write(f"Solution {i+1}:\n")
-                for j, matrix in enumerate(solution):
-                    f.write(f"\nMatrix {j} ({['A', 'B', 'C', 'I'][j]}):\n")
-                    for row in matrix:
-                        f.write("  " + " ".join("1" if x else "0" for x in row) + "\n")
-                f.write("\n" + "-" * 30 + "\n\n")
 
-        print(f"[Main] Saved solutions in readable format to {solutions_text_path}")
+    
+    # hours, rem = divmod(solve_time, 3600)
+    # minutes, seconds = divmod(rem, 60)
+    # print(f"The solve time is: {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
+    # # print(f"The count of state 51 is: {bws.state_label_counts[51]}")
+    # timestamp = time.strftime("%Y%m%d-%H%M%S")
+    # solutions_text_path = f"./objects/solutions_{args.n_traj}_{args.depth}_{timestamp}.txt"
+
+    # if args.save:
+    #     with open(solutions_text_path, "w") as f:
+    #         f.write(f"Solutions for n_traj={args.n_traj}, depth={args.depth}\n")
+    #         f.write("=" * 50 + "\n\n")
+    #         for i, solution in enumerate(solutions):
+    #             f.write(f"Solution {i+1}:\n")
+    #             for j, matrix in enumerate(solution):
+    #                 f.write(f"\nMatrix {j} ({['A', 'B', 'C', 'I'][j]}):\n")
+    #                 for row in matrix:
+    #                     f.write("  " + " ".join("1" if x else "0" for x in row) + "\n")
+    #             f.write("\n" + "-" * 30 + "\n\n")
+
+    #     print(f"[Main] Saved solutions in readable format to {solutions_text_path}")

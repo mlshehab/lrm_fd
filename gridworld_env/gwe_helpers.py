@@ -5,9 +5,9 @@ from utils.sat_utils import *
 from utils.ne_utils import get_label, u_from_obs
 import argparse
 import pandas as pd
-from z3 import Bool, Solver, Implies, Not, BoolRef, sat,print_matrix, Or, And, AtMost # type: ignore
+from z3 import Bool, Solver, Implies, Not, BoolRef, sat,print_matrix, Or, And, AtMost, Optimize # type: ignore
 from itertools import combinations
-
+from tqdm import tqdm
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -178,8 +178,6 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, proposition
     return solutions, total_constraints, len(filtered_counter_examples), solve_time, prob_values, wrong_ce_counts
 
 
-
-
 def infinite_horizon_soft_policy_evaluation(MDP, reward, pi, tol=1e-4, logging=True, log_iter=5):
     """
     Evaluate a fixed stochastic policy pi in a max-entropy RL setting.
@@ -241,3 +239,175 @@ def infinite_horizon_soft_policy_evaluation(MDP, reward, pi, tol=1e-4, logging=T
 
     return q_soft, v_soft
  
+
+
+def prepare_sat_problem(gws, counter_examples, alpha):
+    """
+    Do all the one‐time work:
+      1) build B, x, precompute powers, etc.
+      2) create a 'base' z3.Solver() with C1 & C2 constraints
+      3) compute filtered_counter_examples
+      4) build the list of all C4 clauses (Not(elt)) but don’t add them yet
+    Returns: (base_solver, c4_clauses, kappa, AP)
+    """
+    # 3) filter counter‐examples just once
+    filtered = {}
+ 
+    for state, ces in tqdm(counter_examples.items()):
+        kept = []
+        for ce in ces:
+            # previous‐method test
+            eps = similarity(
+                gws.state_action_probs[state][ce[0]],
+                gws.state_action_probs[state][ce[1]],
+                metric="L1")
+            n1 = gws.state_label_counts[state][ce[0]]
+            n2 = gws.state_label_counts[state][ce[1]]
+            A = gws.n_actions
+            prob = f(eps/2, n1, n2, A, eps)
+            if prob > 1 - alpha:
+                
+                kept.append(ce)
+        if kept:
+            filtered[state] = kept
+    
+    c4_clauses = []
+    for state, ces in filtered.items():
+        for ce in ces:
+            c4_clauses.append(ce)
+    
+    return  c4_clauses  
+
+
+
+def maxsat_clauses(all_clauses, kappa, AP, proposition2index):
+    """
+    Given a list of C4 clauses and the reward machine `rm`,
+    build a MaxSAT problem that tries to include the largest possible
+    subset of those clauses. Returns the list of clauses Z3 chose.
+    """
+    # helper to convert prefixes to indices
+ 
+    def prefix2indices(lbl):
+        return [proposition2index[p] for p in lbl.split(',') if p]
+
+    # 1) create the selector vars
+    selectors = [Bool(f"sel_{i}") for i in range(len(all_clauses))]
+
+    # 2) build an Optimize (MaxSAT) object
+    opt = Optimize()
+
+    # 3) HARD: C1 & C2 exactly as before
+    B = [[[Bool(f"x_{i}_{j}_{k}") for j in range(kappa)]
+           for i in range(kappa)]
+           for k in range(AP)]
+    
+    x = [False]*kappa
+    x[0] = True
+
+    # C1
+    for ap in range(AP):
+        for i in range(kappa):
+            for j in range(kappa):
+                opt.add(Implies(B[ap][i][j], B[ap][j][j]))
+    # C2
+    for ap in range(AP):
+        opt.add(one_entry_per_row(B[ap]))
+
+    # 4) for each C4 clause, add a guarded hard‐part and a soft selector
+    for idx, ce in enumerate(all_clauses):
+        sel = selectors[idx]
+
+        # build the actual Boolean constraints for this clause
+        p1 = prefix2indices(ce[0])
+        p2 = prefix2indices(ce[1])
+        sub1 = bool_matrix_mult_from_indices(B, p1, x)
+        sub2 = bool_matrix_mult_from_indices(B, p2, x)
+        res_ = element_wise_and_boolean_vectors(sub1, sub2)
+
+        # if sel is true, we must forbid every elt in res_
+        for elt in res_:
+            opt.add(Implies(sel, Not(elt)))
+
+        # make sel a soft constraint of weight=1
+        opt.add_soft(sel, weight=1, id=f"clause_{idx}")
+
+    # 5) run MaxSAT
+    opt.check()
+    m = opt.model()
+
+    # 6) collect which clauses were kept
+    chosen = [all_clauses[i]
+              for i, sel in enumerate(selectors)
+              if m.evaluate(sel)]
+
+    return chosen
+
+
+def solve_with_clauses(c4_clauses, kappa, AP, proposition2index):
+    """
+    Given a list of C4 clauses, add all of them as constraints and
+    enumerate all satisfying assignments. Returns the count of solutions.
+    """
+    # helper to convert prefixes to indices
+    
+    def prefix2indices(lbl):
+        return [proposition2index[p] for p in lbl.split(',') if p]
+
+    # 1) SAT variables
+    B = [[[Bool(f"x_{i}_{j}_{k}") for j in range(kappa)]
+           for i in range(kappa)]
+           for k in range(AP)]
+
+    # fixed vector x (as before)
+    x = [False] * kappa
+    x[0] = True
+
+    # 2) base solver with C1 & C2
+    s = Solver()
+    # C1: x[i][j][k] ⇒ x[j][j][k]
+    for ap in range(AP):
+        for i in range(kappa):
+            for j in range(kappa):
+                s.add(Implies(B[ap][i][j], B[ap][j][j]))
+    # C2: exactly one entry per row
+    for ap in range(AP):
+        s.add(one_entry_per_row(B[ap]))
+
+    # 3) Add all provided C4 clauses
+    for ce in c4_clauses:
+        p1 = prefix2indices(ce[0])
+        p2 = prefix2indices(ce[1])
+        sub1 = bool_matrix_mult_from_indices(B, p1, x)
+        sub2 = bool_matrix_mult_from_indices(B, p2, x)
+        res_ = element_wise_and_boolean_vectors(sub1, sub2)
+        for elt in res_:
+            s.add(Not(elt))
+
+    # 4) enumerate all models
+    count = 0
+    while s.check() == sat:
+        m = s.model()
+        # Print the current solution
+        print("\nSolution found:")
+        for ap in range(AP):
+            print(f"\nAP {ap}:")
+            for i in range(kappa):
+                row = []
+                for j in range(kappa):
+                    val = m.evaluate(B[ap][i][j], model_completion=True)
+                    row.append(1 if val else 0)
+                print(row)
+        
+        # block current model
+        block_clause = []
+        for ap in range(AP):
+            for i in range(kappa):
+                for j in range(kappa):
+                    block_clause.append(
+                        B[ap][i][j] != m.evaluate(B[ap][i][j], model_completion=True)
+                    )
+        s.add(Or(block_clause))
+        count += 1
+
+    return count

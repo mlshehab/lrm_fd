@@ -18,19 +18,17 @@ from gwe_helpers import infinite_horizon_soft_policy_evaluation
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()    
-    parser.add_argument('--rm', type=str, default='stack')
     parser.add_argument('--save', action='store_true')
     args = parser.parse_args()
 
-    
     # Create policies directory if it doesn't exist
     os.makedirs(os.path.join(os.path.dirname(__file__), "policies"), exist_ok=True)
-
+     
     grid_size = config.GRID_SIZE
     wind = config.WIND
     discount = config.GAMMA
     horizon = config.HORIZON   
- 
+    
     gw = BasicGridWorld(grid_size,wind,discount,horizon)
     
     n_states = gw.n_states
@@ -95,3 +93,6 @@ if __name__ == '__main__':
     if args.save:
         print(f"The policy is saved to {policy_path}.npy")
         np.save(os.path.join(os.path.dirname(__file__), policy_path + ".npy"), soft_policy)
+
+
+    
