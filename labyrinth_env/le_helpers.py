@@ -144,10 +144,6 @@ def solve_sat_instance(sim, counter_examples, kappa, AP, alpha ):
                 n_total_previous += 1
        
           
-           
-
-         
-
                 
         if filtered_ce:
             filtered_counter_examples[state] = filtered_ce

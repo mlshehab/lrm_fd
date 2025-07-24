@@ -184,4 +184,4 @@ if __name__ == '__main__':
                         f.write("  " + " ".join("1" if x else "0" for x in row) + "\n")
                 f.write("\n" + "-" * 30 + "\n\n")
 
-    print(f"[Main] Saved solutions in readable format to {solutions_text_path}")
+        print(f"[Main] Saved solutions in readable format to {solutions_text_path}")

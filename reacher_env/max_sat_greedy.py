@@ -258,7 +258,7 @@ if __name__ == "__main__":
     c4_clauses = prepare_sat_problem(rds, counter_examples, alpha)
 
     # greedy_clauses = greedy_max_sat(c4_clauses)
-
+    
     maxsat_clauses = maxsat_clauses(c4_clauses)
     print(f"The number of clauses in the maxsat set is: {len(maxsat_clauses)}")
     print(f"The number of solutions in the maxsat set is: {solve_with_clauses(maxsat_clauses)}")
