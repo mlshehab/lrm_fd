@@ -38,3 +38,12 @@ For example, to run the `(patrol)` task with umax = 3 and save the results, run:
 ```bash
 python main.py --umax 3 --use_maxsat --save 
 ```
+
+
+### Results
+
+| Umax | Total # of Clauses | # of Used Clauses | Total # of Rollouts | Trajectory Length | Avg. Total Reward per Rollout |
+|------|--------------------|-------------------|---------------------|-------------------|-------------------------------|
+|   4   |         1200           |          1200         |         10K            |           100        |             174.569                  |
+|   3   |          1168          |         849          |       10K              |        100           |              134.217                 |
+|   2   |         969           |            378       |          10K           |         100          |                 56.173              |

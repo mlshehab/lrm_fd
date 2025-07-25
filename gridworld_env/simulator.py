@@ -126,6 +126,8 @@ class GridworldSimulator(Simulator):
             ss = np.random.randint(0, len(starting_states))
             self.sample_trajectory(starting_state=ss, len_traj= max_trajectory_length)
 
+
+    
 from reward_machine.reward_machine import RewardMachine
 import config
  

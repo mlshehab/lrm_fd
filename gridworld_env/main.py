@@ -11,14 +11,15 @@ import numpy as np
 import time
 import pickle
 import argparse
-from utils.mdp import MDP
+from utils.mdp import MDP, MDPRM
 from reward_machine.reward_machine import RewardMachine
 from dynamics.GridWorld import BasicGridWorld
 from simulator import GridworldSimulator
-from gwe_helpers import generate_label_combinations, solve_sat_instance, maxsat_clauses, solve_with_clauses, prepare_sat_problem
+from gwe_helpers import generate_label_combinations, solve_sat_instance, maxsat_clauses, solve_with_clauses, prepare_sat_problem, constrtuct_product_policy
 import config
+from gwe_helpers import perfrom_policy_rollout
 
-
+from tqdm import tqdm
 
 if __name__ == '__main__':
 
@@ -79,7 +80,7 @@ if __name__ == '__main__':
     max_len = args.depth
     n_traj = args.n_traj
 
-    np.random.seed(config.SEED)
+    # np.random.seed(config.SEED)
     gws.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
     end = time.time()
 
@@ -117,23 +118,32 @@ if __name__ == '__main__':
         print(f"The number of solutions is: {len(solutions)}")
     
     else:
-        c4_clauses = prepare_sat_problem(gws, counter_examples, p_threshold)
-        ss = set()
-        for clause in c4_clauses:
-            ss.add(clause[0])
-            ss.add(clause[1])
-            
-        # Save the elements of ss to a file instead of printing
-        with open("ss_elements.txt", "w") as f:
-            for elt in ss:
-                f.write(f"{elt}\n")
-                f.write("-"*50 + "\n")
-            
-        maxsat_clauses = maxsat_clauses(c4_clauses, umax, AP, proposition2index)
+        c4_clauses, states = prepare_sat_problem(gws, counter_examples, p_threshold)
+        if args.umax == 3:
+            rm_maxsat = RewardMachine(config.RM_PATH_MAXSAT_3)
+        elif args.umax == 2:
+            rm_maxsat = RewardMachine(config.RM_PATH_MAXSAT_2)
         
-        solutions = solve_with_clauses(maxsat_clauses, umax, AP, proposition2index)
+         
+        maxsat_clauses, chosen_mask = maxsat_clauses(c4_clauses, umax, AP, proposition2index)
+        learned_product_policy = constrtuct_product_policy(gws,states, c4_clauses, chosen_mask, rm_maxsat, soft_policy)
+
+        print(f"The shape of the learned product policy is: {learned_product_policy.shape}")
+
+        # solutions = solve_with_clauses(maxsat_clauses, umax, AP, proposition2index)
+        it = 10000
+        total_reward = 0.0
+        for _ in tqdm(range(it)):
+            total_reward += perfrom_policy_rollout(gws, 0, 100, rm, rm, soft_policy)
+            # total_reward += perfrom_policy_rollout(gws, 0, 100, rm_maxsat, rm, learned_product_policy)
+        
+        print(f"The average reward is: {total_reward / it}")
+        
+        # perfrom_policy_rollout(gws, 0, 100, rm, rm, reward, soft_policy)
+
         print(f"Total clauses: {len(c4_clauses)} - Maxsat clauses: {len(maxsat_clauses)}")
-        print(f"The number of solutions in the maxsat set is: {solutions}")
+        
+        # print(f"The number of solutions in the maxsat set is: {solutions}")
 
 
     

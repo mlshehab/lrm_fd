@@ -8,6 +8,7 @@ import pandas as pd
 from z3 import Bool, Solver, Implies, Not, BoolRef, sat,print_matrix, Or, And, AtMost, Optimize # type: ignore
 from itertools import combinations
 from tqdm import tqdm
+import config
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -272,11 +273,13 @@ def prepare_sat_problem(gws, counter_examples, alpha):
             filtered[state] = kept
     
     c4_clauses = []
+    states = []
     for state, ces in filtered.items():
         for ce in ces:
             c4_clauses.append(ce)
+            states.append(state)
     
-    return  c4_clauses  
+    return  c4_clauses, states  
 
 
 
@@ -340,8 +343,11 @@ def maxsat_clauses(all_clauses, kappa, AP, proposition2index):
     chosen = [all_clauses[i]
               for i, sel in enumerate(selectors)
               if m.evaluate(sel)]
+    
+    # Create an array of 1s and 0s indicating which clauses were chosen
+    chosen_mask = [1 if m.evaluate(sel) else 0 for sel in selectors]
 
-    return chosen
+    return chosen, chosen_mask
 
 
 def solve_with_clauses(c4_clauses, kappa, AP, proposition2index):
@@ -411,3 +417,106 @@ def solve_with_clauses(c4_clauses, kappa, AP, proposition2index):
         count += 1
 
     return count
+
+
+
+
+def constrtuct_product_policy(gws,states, c4_clauses, chosen_mask, rm, true_product_policy):
+    
+    # first the shape of the policy
+    n_states = gws.n_states
+    n_actions = gws.n_actions
+
+    n_nodes = rm.n_states   
+    
+    product_policy = np.zeros((n_states*n_nodes, n_actions))
+ 
+    for state , ce , idx in  zip(states, c4_clauses, chosen_mask):
+        # fist find the corresponding rm node
+        if idx == 1:
+   
+            u_0 = u_from_obs(ce[0], rm)
+        
+            u_1 = u_from_obs(ce[1], rm)
+
+            product_state_0 = u_0 * n_states + state
+            product_state_1 = u_1 * n_states + state
+
+
+            product_policy[product_state_0, :] += gws.state_action_probs[state][ce[0]]
+            product_policy[product_state_1, :] += gws.state_action_probs[state][ce[1]]
+
+        else: # maxsat clause not chosen
+            continue
+    try:        
+        product_policy = product_policy / np.sum(product_policy, axis=1, keepdims=True)
+    except:
+        pass
+
+    
+    # Find the rows in product_policy that are all NaNs
+
+    for i, row in enumerate(product_policy):
+        if np.all(np.isnan(row)):
+            # extract the state and rm node
+            product_policy[i, :] = true_product_policy[i, :]
+            # state = i % n_states
+            # rm_node = i // n_states
+
+            # if rm_node == 0:
+            #     product_policy[i, :] = true_product_policy[state, :]
+            # else:
+            #     product_policy[i, :] = 0
+
+
+    # print(f"The product policy is: {product_policy}")
+     
+    return product_policy
+
+
+
+def perfrom_policy_rollout(bws,starting_state, len_traj, rm_learned, rm_true, policy):
+
+        
+    reward = 0.0
+    state = starting_state
+    label = bws.L[state] + ','
+    compressed_label = bws.remove_consecutive_duplicates(label)
+
+    # start of the synchronization
+    u_learned = u_from_obs(label,rm_learned)
+    u_true = u_from_obs(label,rm_true)
+    
+    true_product_state = u_true * bws.n_states + state
+
+    # start of the rollout
+    for _ in range(len_traj):
+        idx = u_learned * bws.n_states + state
+        action_dist = policy[idx,:]
+
+        # Sample an action from the action distribution
+        a = np.random.choice(np.arange(bws.n_actions), p=action_dist)
+        
+        # Sample a next state 
+        next_state = bws.sample_next_state(state, a)
+
+        # Compress the label
+        compressed_label = bws.remove_consecutive_duplicates(label)
+        # print(f"The compressed label is: {compressed_label}")
+        l = bws.L[next_state]
+
+        if u_true == 3 and l == 'D':
+            reward += config.REWARD_PARAMETER
+
+        label = label + l + ','
+        u_learned = u_from_obs(label, rm_learned)
+        u_true = u_from_obs(label, rm_true)
+        
+
+       
+
+        state = next_state
+
+    # print(f"The label is: {label}")
+    return reward
+
