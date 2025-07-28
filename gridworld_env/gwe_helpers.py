@@ -419,6 +419,122 @@ def solve_with_clauses(c4_clauses, kappa, AP, proposition2index):
     return count
 
 
+from collections import deque
+
+def get_prefixes_to_node(target_u, rm, max_depth=5):
+    """
+    Returns:
+    - A set of tuples. Each tuple is a sequence of propositions that leads to target_u.
+    """
+    visited = set()
+    prefixes = set()
+    queue = deque()
+
+    # Each item in the queue is: (current_u, path_so_far)
+    queue.append((rm.u0, []))
+
+    propositions = ['A', 'B', 'C', 'D']
+
+    while queue:
+        current_u, path = queue.popleft()
+
+        if len(path) > max_depth:
+            continue
+        
+        if current_u == target_u:
+            prefixes.add(tuple(path))
+            # Don't stop here — other shorter prefixes might exist
+
+        if current_u not in rm.delta_u:
+            continue
+
+        for prop in propositions:
+            prop_str = prop  # You can make this a comma string if multiple props are allowed
+            u_prime = rm.get_next_state(current_u, prop_str)
+          
+            new_path = path + [prop_str]
+            state_trace = (u_prime, tuple(new_path))
+            if state_trace not in visited:
+                visited.add(state_trace)
+                queue.append((u_prime, new_path))
+
+    return prefixes
+
+def get_future_states(s, mdp):
+    P = mdp.P
+    post_state = []
+    for Pa in P:
+        for index in np.argwhere(Pa[s]> 0.0):
+            post_state.append(index[0])     
+    return list(set(post_state))
+
+
+def get_prefixes_to_states(mdp, prefix, invL, L):
+    if prefix:
+        idx_ = 0
+        
+        p = prefix[idx_]
+        
+        prefix_state_dict = {}
+        
+        queue = invL[p].copy()  # Make a copy to avoid modifying the original
+        idx_ += 1
+        
+        while idx_ < len(prefix):
+            p = prefix[idx_]
+            new_queue = []  # Create a new queue for the next iteration
+            
+            for q in queue:
+                future_states = get_future_states(q, mdp)
+                for s in future_states:
+                    # print(f"s: {s}, L[s]: {L[int(s)]}, prefix[idx_]: {prefix[idx_]}")
+                    if L[int(s)] == prefix[idx_]:
+                        new_queue.append(int(s))  # Convert to regular int
+            
+            queue = list(set(new_queue))  # Remove duplicates and convert to regular ints
+            idx_ += 1
+        
+        
+        return queue
+    else:
+        return []
+
+
+def from_paths_to_prefixes(path):
+    prefix = ''
+    for p in path:
+        prefix += p+','
+    return prefix
+
+def construct_learned_product_policy(mdp, rm , max_depth, true_product_policy, true_rm, invL, L):
+    n_states = mdp.n_states
+    n_actions = mdp.n_actions
+    n_nodes = rm.n_states
+    
+    product_policy = np.zeros((n_states*n_nodes, n_actions))
+
+    for u in range(n_nodes):
+        prefixes = get_prefixes_to_node(u, rm, max_depth)
+        for prefix in prefixes:
+            states = get_prefixes_to_states(mdp, prefix, invL, L)
+            u_true = u_from_obs(from_paths_to_prefixes(prefix), true_rm)
+            for state in states:
+                product_policy[state + u*n_states, :] += true_product_policy[state + u_true*n_states, :]
+    
+    # Normalize the product policy by dividing each row by its sum
+    row_sums = np.sum(product_policy, axis=1, keepdims=True)
+    # Avoid division by zero by setting zero sums to one (this will result in a uniform distribution)
+    row_sums[row_sums == 0] = 1
+    product_policy = product_policy / row_sums
+    
+    for i, row in enumerate(product_policy):
+        if np.sum(row) == 0:
+            product_policy[i, :] = np.full(n_actions, 1.0 / n_actions)
+    
+    return product_policy
+
+
+
 
 
 def constrtuct_product_policy(gws,states, c4_clauses, chosen_mask, rm, true_product_policy):
@@ -519,4 +635,6 @@ def perfrom_policy_rollout(bws,starting_state, len_traj, rm_learned, rm_true, po
 
     # print(f"The label is: {label}")
     return reward
+
+
 

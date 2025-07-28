@@ -18,7 +18,7 @@ from simulator import GridworldSimulator
 from gwe_helpers import generate_label_combinations, solve_sat_instance, maxsat_clauses, solve_with_clauses, prepare_sat_problem, constrtuct_product_policy
 import config
 from gwe_helpers import perfrom_policy_rollout
-
+from gwe_helpers import construct_learned_product_policy
 from tqdm import tqdm
 
 if __name__ == '__main__':
@@ -67,7 +67,8 @@ if __name__ == '__main__':
     L[10], L[14] = 'B', 'B'
     L[11], L[15] = 'B', 'B'
         
-    
+    invL = {'A':[2,6,3,7], 'B':[10,11,14,15], 'C':[8,9,12,13], 'D':[0,1,4,5]}
+
     soft_policy = np.load(config.POLICY_PATH + ".npy")
 
     print(f"The number of trajectories is: {args.n_traj}")
@@ -118,52 +119,39 @@ if __name__ == '__main__':
         print(f"The number of solutions is: {len(solutions)}")
     
     else:
-        c4_clauses, states = prepare_sat_problem(gws, counter_examples, p_threshold)
+        # c4_clauses, states = prepare_sat_problem(gws, counter_examples, p_threshold)
         if args.umax == 3:
             rm_maxsat = RewardMachine(config.RM_PATH_MAXSAT_3)
         elif args.umax == 2:
             rm_maxsat = RewardMachine(config.RM_PATH_MAXSAT_2)
         
          
-        maxsat_clauses, chosen_mask = maxsat_clauses(c4_clauses, umax, AP, proposition2index)
-        learned_product_policy = constrtuct_product_policy(gws,states, c4_clauses, chosen_mask, rm_maxsat, soft_policy)
+        # maxsat_clauses, chosen_mask = maxsat_clauses(c4_clauses, umax, AP, proposition2index)
+        # learned_product_policy = constrtuct_product_policy(gws,states, c4_clauses, chosen_mask, rm_maxsat, soft_policy)
 
-        print(f"The shape of the learned product policy is: {learned_product_policy.shape}")
+        max_len = 6
+        learned_product_policy = construct_learned_product_policy(mdp, rm, max_len, soft_policy, rm, invL, L)
 
-        # solutions = solve_with_clauses(maxsat_clauses, umax, AP, proposition2index)
+        # print(f"The learned product policy is: {learned_product_policy}")
+
+        # time.sleep(4)
+
+        
+        # perform policy rollout
         it = 10000
         total_reward = 0.0
         for _ in tqdm(range(it)):
+            # UNCOMMENT THIS FOR THE GROUND TRUTH POLICY ROLLOUT, i.e. umax = 4
             total_reward += perfrom_policy_rollout(gws, 0, 100, rm, rm, soft_policy)
+            
             # total_reward += perfrom_policy_rollout(gws, 0, 100, rm_maxsat, rm, learned_product_policy)
         
         print(f"The average reward is: {total_reward / it}")
         
-        # perfrom_policy_rollout(gws, 0, 100, rm, rm, reward, soft_policy)
-
-        print(f"Total clauses: {len(c4_clauses)} - Maxsat clauses: {len(maxsat_clauses)}")
+        # print(f"Total clauses: {len(c4_clauses)} - Maxsat clauses: {len(maxsat_clauses)}")
         
-        # print(f"The number of solutions in the maxsat set is: {solutions}")
+         
 
 
     
-    # hours, rem = divmod(solve_time, 3600)
-    # minutes, seconds = divmod(rem, 60)
-    # print(f"The solve time is: {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
-    # # print(f"The count of state 51 is: {bws.state_label_counts[51]}")
-    # timestamp = time.strftime("%Y%m%d-%H%M%S")
-    # solutions_text_path = f"./objects/solutions_{args.n_traj}_{args.depth}_{timestamp}.txt"
-
-    # if args.save:
-    #     with open(solutions_text_path, "w") as f:
-    #         f.write(f"Solutions for n_traj={args.n_traj}, depth={args.depth}\n")
-    #         f.write("=" * 50 + "\n\n")
-    #         for i, solution in enumerate(solutions):
-    #             f.write(f"Solution {i+1}:\n")
-    #             for j, matrix in enumerate(solution):
-    #                 f.write(f"\nMatrix {j} ({['A', 'B', 'C', 'I'][j]}):\n")
-    #                 for row in matrix:
-    #                     f.write("  " + " ".join("1" if x else "0" for x in row) + "\n")
-    #             f.write("\n" + "-" * 30 + "\n\n")
-
-    #     print(f"[Main] Saved solutions in readable format to {solutions_text_path}")
+ 
