@@ -112,7 +112,7 @@ class GridworldSimulator(Simulator):
             # If the label was not found, add a new entry
             if not label_exists:
                 self.state_action_counts[state].append((compressed_label, Counter({a: 1})))
-
+            
             l = self.L[next_state]
             label = label + l + ','
             u = u_from_obs(label, self.rm)

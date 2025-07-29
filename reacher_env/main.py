@@ -1,3 +1,6 @@
+import numpy as np
+from scipy.stats import entropy
+import time
 import os
 import sys
 from scipy.optimize import minimize_scalar
@@ -6,46 +9,234 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # Append the parent directory to sys.path
 sys.path.append(parent_dir)
-import pandas as pd
-import numpy as np
-from utils.mdp import MDP, MDPRM
 from reward_machine.reward_machine import RewardMachine
-import scipy.linalg
-import time 
-from scipy.special import softmax, logsumexp
-from tqdm import tqdm
-import pprint
-import xml.etree.ElementTree as ET
-from collections import deque
-from dynamics.BlockWorldMDP import BlocksWorldMDP, infinite_horizon_soft_bellman_iteration
-from utils.ne_utils import get_label, u_from_obs,save_tree_to_text_file, collect_state_traces_iteratively, get_unique_traces,group_traces_by_policy
 from utils.sat_utils import *
-from datetime import timedelta
-import time
-from collections import Counter, defaultdict
-from scipy.stats import entropy  # For KL divergence
-from tqdm import tqdm
-import matplotlib.pyplot as plt
-import pickle 
+from utils.ne_utils import get_label, u_from_obs
 import argparse
+import pandas as pd
+from z3 import Optimize, Bool, Solver, Implies, Not, BoolRef, sat,print_matrix, Or, And, AtMost # type: ignore
+from itertools import combinations
+from tqdm import tqdm
+import pickle
+from simulator import ReacherDiscretizerUniform, ReacherDiscreteSimulator, ForceRandomizedReacher
+import matplotlib.pyplot as plt
 
+
+def similarity(p1, p2, metric):
+        """Computes similarity based on chosen metric."""
+        if metric == "KL":
+            p1 = np.clip(p1, 1e-10, 1)  # Avoid division by zero
+            p2 = np.clip(p2, 1e-10, 1)
+            return entropy(p1, p2)  # KL divergence
+        elif metric == "TV":
+            return 0.5 * np.sum(np.abs(p1 - p2))  # Total Variation Distance
+        elif metric == "L1":
+            return np.linalg.norm(p1 - p2, ord=1)  # 1-norm distance
+        else:
+            raise ValueError("Unsupported metric! Choose from 'KL', 'TV', 'L1'.")
+        
 def f(epsilon_1, n1, n2, A, epsilon):
-    term1 = np.maximum(1 - ((2**A - 2) * np.exp((-n1 * epsilon_1**2) / (2 ))), 0)
-    term2 = np.maximum(1 - ((2**A - 2) * np.exp((-n2 * (epsilon - epsilon_1)**2) / (2 ))), 0)
-    return term1 * term2
+    term1 =    ((2**A - 2) * np.exp((-n1 * epsilon_1**2) / (2 ))) 
+    term2 =    ((2**A - 2) * np.exp((-n2 * (epsilon - epsilon_1)**2) / (2 ))) 
+    return 1- term1 - term2
+
+def generate_label_combinations(bws):
+    """
+    Generate a dictionary where each state maps to combinations of labels of length 2 corresponding to it.
+
+    Args:
+        bws (BlockworldSimulator): The BlockworldSimulator object.
+
+    Returns:
+        dict: {state: [label_combinations]}
+    """
+    
+
+    label_combinations = {}
+
+    for state, label_dists in bws.state_action_probs.items():
+        
+        labels = [label for label in label_dists.keys()]
+        label_combinations[state] = list(combinations(labels, 2))
+
+    return label_combinations
 
 
-from simulators import Simulator, BlockworldSimulator
-from  re_helpers import similarity, solve_sat_instance, parse_args, generate_policy_comparison_report
-from  re_helpers import parse_args, generate_label_combinations
-from simulator import ReacherDiscreteSimulator, ForceRandomizedReacher, ReacherDiscretizerUniform
+def prepare_sat_problem(rds, counter_examples, alpha):
+    """
+    Do all the one‐time work:
+      1) build B, x, precompute powers, etc.
+      2) create a 'base' z3.Solver() with C1 & C2 constraints
+      3) compute filtered_counter_examples
+      4) build the list of all C4 clauses (Not(elt)) but don’t add them yet
+    Returns: (base_solver, c4_clauses, kappa, AP)
+    """
+    # 3) filter counter‐examples just once
+    filtered = {}
+ 
+    for state, ces in tqdm(counter_examples.items()):
+        kept = []
+        for ce in ces:
+            # previous‐method test
+            eps = similarity(
+                rds.state_action_probs[state][ce[0]],
+                rds.state_action_probs[state][ce[1]],
+                metric="L1")
+            n1 = rds.state_label_counts[state][ce[0]]
+            n2 = rds.state_label_counts[state][ce[1]]
+            A = rds.rd.n_actions
+            prob = f(eps/2, n1, n2, A, eps)
+            if prob > 1 - alpha:
+                
+                kept.append(ce)
+        if kept:
+            filtered[state] = kept
+    
+    c4_clauses = []
+    for state, ces in filtered.items():
+        for ce in ces:
+            c4_clauses.append(ce)
+    
+    return  c4_clauses   
 
 
+def solve_with_clauses(c4_clauses):
+    """
+    Given a list of C4 clauses, add all of them as constraints and
+    enumerate all satisfying assignments. Returns the count of solutions.
+    """
+    # helper to convert prefixes to indices
+    proposition2index = {'B': 0, 'R': 1, 'Y': 2, 'I': 3}
+    def prefix2indices(lbl):
+        return [proposition2index[p] for p in lbl.split(',') if p]
+
+    # 1) SAT variables
+    B = [[[Bool(f"x_{i}_{j}_{k}") for j in range(kappa)]
+           for i in range(kappa)]
+           for k in range(AP)]
+
+    # fixed vector x (as before)
+    x = [False] * kappa
+    x[0] = True
+
+    # 2) base solver with C1 & C2
+    s = Solver()
+    # C1: x[i][j][k] ⇒ x[j][j][k]
+    for ap in range(AP):
+        for i in range(kappa):
+            for j in range(kappa):
+                s.add(Implies(B[ap][i][j], B[ap][j][j]))
+    # C2: exactly one entry per row
+    for ap in range(AP):
+        s.add(one_entry_per_row(B[ap]))
+
+    # 3) Add all provided C4 clauses
+    for ce in c4_clauses:
+        p1 = prefix2indices(ce[0])
+        p2 = prefix2indices(ce[1])
+        sub1 = bool_matrix_mult_from_indices(B, p1, x)
+        sub2 = bool_matrix_mult_from_indices(B, p2, x)
+        res_ = element_wise_and_boolean_vectors(sub1, sub2)
+        for elt in res_:
+            s.add(Not(elt))
+
+    # 4) enumerate all models
+    count = 0
+    while s.check() == sat:
+        m = s.model()
+        # Print the current solution
+        print("\nSolution found:")
+        for ap in range(AP):
+            print(f"\nAP {ap}:")
+            for i in range(kappa):
+                row = []
+                for j in range(kappa):
+                    val = m.evaluate(B[ap][i][j], model_completion=True)
+                    row.append(1 if val else 0)
+                print(row)
+        
+        # block current model
+        block_clause = []
+        for ap in range(AP):
+            for i in range(kappa):
+                for j in range(kappa):
+                    block_clause.append(
+                        B[ap][i][j] != m.evaluate(B[ap][i][j], model_completion=True)
+                    )
+        s.add(Or(block_clause))
+        count += 1
+
+    return count
+
+def maxsat_clauses(all_clauses):
+    """
+    Given a list of C4 clauses and the reward machine `rm`,
+    build a MaxSAT problem that tries to include the largest possible
+    subset of those clauses. Returns the list of clauses Z3 chose.
+    """
+    # helper to convert prefixes to indices
+    proposition2index = {'B': 0, 'R': 1, 'Y': 2, 'I': 3}
+    def prefix2indices(lbl):
+        return [proposition2index[p] for p in lbl.split(',') if p]
+
+    # 1) create the selector vars
+    selectors = [Bool(f"sel_{i}") for i in range(len(all_clauses))]
+
+    # 2) build an Optimize (MaxSAT) object
+    opt = Optimize()
+
+    # 3) HARD: C1 & C2 exactly as before
+    B = [[[Bool(f"x_{i}_{j}_{k}") for j in range(kappa)]
+           for i in range(kappa)]
+           for k in range(AP)]
+    x = [False]*kappa
+    x[0] = True
+
+    # C1
+    for ap in range(AP):
+        for i in range(kappa):
+            for j in range(kappa):
+                opt.add(Implies(B[ap][i][j], B[ap][j][j]))
+    # C2
+    for ap in range(AP):
+        opt.add(one_entry_per_row(B[ap]))
+
+    # 4) for each C4 clause, add a guarded hard‐part and a soft selector
+    for idx, ce in enumerate(all_clauses):
+        sel = selectors[idx]
+
+        # build the actual Boolean constraints for this clause
+        p1 = prefix2indices(ce[0])
+        p2 = prefix2indices(ce[1])
+        sub1 = bool_matrix_mult_from_indices(B, p1, x)
+        sub2 = bool_matrix_mult_from_indices(B, p2, x)
+        res_ = element_wise_and_boolean_vectors(sub1, sub2)
+
+        # if sel is true, we must forbid every elt in res_
+        for elt in res_:
+            opt.add(Implies(sel, Not(elt)))
+
+        # make sel a soft constraint of weight=1
+        opt.add_soft(sel, weight=1, id=f"clause_{idx}")
+
+    # 5) run MaxSAT
+    opt.check()
+    m = opt.model()
+
+    # 6) collect which clauses were kept
+    chosen = [all_clauses[i]
+              for i, sel in enumerate(selectors)
+              if m.evaluate(sel)]
+
+    return chosen
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    # ────────────────────────────────────────────────────────────────
+    # Example usage (e.g. in your main()):
+    #
+    # 1) do the one‐time prep
 
-  
     rm = RewardMachine("../rm_examples/reacher.txt")
 
 
@@ -55,32 +246,24 @@ if __name__ == '__main__':
 
     print(f"{rds.rd.n_actions}")
 
-
-    # print(f"DEBUG: {np.round(rds.state_action_probs[16371]['I,B,'],3)}")
-    # print(f"DEBUG: {np.round(rds.state_action_probs[16371]['I,B,I,R,I,Y,I,B,'],3)}")
-    # time.sleep(1000)
     counter_examples = generate_label_combinations(rds)
 
     
     kappa = 3
     AP = 4
-    alpha = 0.0001
-    solutions, total_constraints,  filtered_counter_examples , solve_time = solve_sat_instance(rds, counter_examples, rm, kappa, AP, alpha)
-    print(f"The number of constraints is: {total_constraints}, { filtered_counter_examples }")
-    print(f"The number of solutions is: {len(solutions)}")
+    
+    alpha = 0.01
+    
 
-    solutions_text_path = f"./objects/solutionsss.txt"
-    with open(solutions_text_path, "w") as f:
-        f.write(f"Solutions for n_traj={1000000}, depth={160}\n")
-        f.write("=" * 50 + "\n\n")
-        for i, solution in enumerate(solutions):
-            f.write(f"Solution {i+1}:\n")
-            for j, matrix in enumerate(solution):
-                f.write(f"\nMatrix {j} ({['B', 'R', 'Y', 'I'][j]}):\n")
-                for row in matrix:
-                    f.write("  " + " ".join("1" if x else "0" for x in row) + "\n")
-            f.write("\n" + "-" * 30 + "\n\n")
+    c4_clauses = prepare_sat_problem(rds, counter_examples, alpha)
 
-    print(f"[Main] Saved solutions in readable format to {solutions_text_path}")
+  
+    
+    maxsat_clauses = maxsat_clauses(c4_clauses)
+    print(f"The number of clauses in the maxsat set is: {len(maxsat_clauses)}")
+    print(f"The number of solutions in the maxsat set is: {solve_with_clauses(maxsat_clauses)}")
+       
 
+
+ 
 

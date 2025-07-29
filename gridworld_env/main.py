@@ -129,12 +129,10 @@ if __name__ == '__main__':
         # maxsat_clauses, chosen_mask = maxsat_clauses(c4_clauses, umax, AP, proposition2index)
         # learned_product_policy = constrtuct_product_policy(gws,states, c4_clauses, chosen_mask, rm_maxsat, soft_policy)
 
-        max_len = 6
+        max_len = config.DEPTH_FOR_CONSTRUCTING_PRODUCT_POLICY
         learned_product_policy = construct_learned_product_policy(mdp, rm, max_len, soft_policy, rm, invL, L)
 
-        # print(f"The learned product policy is: {learned_product_policy}")
-
-        # time.sleep(4)
+    
 
         
         # perform policy rollout
@@ -142,16 +140,13 @@ if __name__ == '__main__':
         total_reward = 0.0
         for _ in tqdm(range(it)):
             # UNCOMMENT THIS FOR THE GROUND TRUTH POLICY ROLLOUT, i.e. umax = 4
-            total_reward += perfrom_policy_rollout(gws, 0, 100, rm, rm, soft_policy)
+            # total_reward += perfrom_policy_rollout(gws, 0, 100, rm, rm, soft_policy)
             
-            # total_reward += perfrom_policy_rollout(gws, 0, 100, rm_maxsat, rm, learned_product_policy)
+            total_reward += perfrom_policy_rollout(gws, 0, config.ROLLOUT_LENGTH, rm_maxsat, rm, learned_product_policy)
         
         print(f"The average reward is: {total_reward / it}")
         
-        # print(f"Total clauses: {len(c4_clauses)} - Maxsat clauses: {len(maxsat_clauses)}")
-        
-         
-
+      
 
     
  

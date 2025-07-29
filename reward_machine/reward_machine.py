@@ -46,6 +46,7 @@ class RewardMachine:
                 if evaluate_dnf(self.delta_u[u1][u2], true_props):
                     return u2 
         except KeyError as e:
+            print(f"KeyError: {e}")
             return self.terminal_u
         # print("I'm here ")
         # print(f"u1: {u1}, self.delta_u[u1]: {self.delta_u[u1]}, true_props: {true_props}")

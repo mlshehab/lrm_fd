@@ -11,3 +11,8 @@ RM_PATH_MAXSAT_2 = "../rm_examples/patrol_max_sat_umax_2.txt"
 POLICY_PATH = "./policies/soft_patrol_policy"
 
 SEED = 42
+
+
+DEPTH_FOR_CONSTRUCTING_PRODUCT_POLICY = 6
+
+ROLLOUT_LENGTH = 100

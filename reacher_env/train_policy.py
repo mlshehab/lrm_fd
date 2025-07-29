@@ -18,10 +18,6 @@ class DiscreteReacherActionWrapper(gym.ActionWrapper):
         # mapped_action = np.array(action) - 1/
         return self.discrete_vals[np.array(action)]
     
-# import torch
-# print(torch.cuda.is_available())  # should return True
-# print(torch.cuda.get_device_name(0))  # prints your GPU name
-# Create the environment with rendering
 
 class ForceRandomizedReacher(gym.Wrapper):
 
@@ -75,28 +71,4 @@ if __name__ == "__main__":
 
 
 
-# if __name__ == "__main__":
 
-#     env = gym.make('Reacher-v5', render_mode='human', xml_file="./reacher.xml", max_episode_steps=150)
-#     env = ForceRandomizedReacher(env)  # Wrap it
-#     env = DiscreteReacherActionWrapper(env)
-
-#     # Evaluate the trained agent with rendering
-#     model = PPO.load("ppo_reacher_randomized_ic_discrete_5_actions", device="cpu")
-
-#     obs, _ = env.reset()
-#     done = False
-
-#     total_reward = 0
-#     steps = 0
-#     while not done:
-#         action, _ = model.predict(obs, deterministic=True)
-#         print("action", action)
-#         obs, reward, terminated, truncated, info = env.step(action)
-#         total_reward += reward
-#         steps += 1
-#         env.render()
-#         done = terminated or truncated
-
-#     print(f"Average reward per step: {total_reward:.3f}")
-#     env.close()
