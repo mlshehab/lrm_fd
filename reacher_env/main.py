@@ -230,18 +230,18 @@ def maxsat_clauses(all_clauses):
 
     return chosen
 
-
+import config
 if __name__ == "__main__":
     # ────────────────────────────────────────────────────────────────
     # Example usage (e.g. in your main()):
     #
     # 1) do the one‐time prep
 
-    rm = RewardMachine("../rm_examples/reacher.txt")
+    rm = RewardMachine(config.RM_PATH)
 
 
   
-    with open("./objects/object_no_parallel_5_9.pkl", "rb") as foo:
+    with open(config.SIM_DATA_PATH, "rb") as foo:
         rds = pickle.load(foo)
 
     print(f"{rds.rd.n_actions}")
