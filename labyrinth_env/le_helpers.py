@@ -133,14 +133,7 @@ def solve_sat_instance(sim, counter_examples, kappa, AP, alpha ):
             
             if prob > 1 - alpha:
                 filtered_ce.append((ce, prob))  # Store probability with counter example
-                print(f"\nNegative Example Found:")
-                print(f"State: {state}")
-                print(f"Label 1: {ce[0]}")
-                print(f"Label 2: {ce[1]}")
-                print(f"Probability: {prob:.4f}")
-                print(f"Sample sizes: n1={n1}, n2={n2}")
-                print(f"Epsilon: {epsilon:.4f}")
-                print("-" * 50)
+               
                 n_total_previous += 1
        
           
@@ -148,9 +141,7 @@ def solve_sat_instance(sim, counter_examples, kappa, AP, alpha ):
         if filtered_ce:
             filtered_counter_examples[state] = filtered_ce
 
-    # Add C4 constraints for filtered counter examples
-    # print(f"Previous method - Total examples: {n_total_previous}, Wrong examples: {wrong_ce_counts_previous}, Ratio: {wrong_ce_counts_previous/n_total_previous:.2f}")
-    # print(f"New method - Total examples: {n_total_new}, Wrong examples: {wrong_ce_counts_new}, Ratio: {wrong_ce_counts_new/n_total_new:.2f}")
+    
     wrong_ce_counts = 0
     for state in tqdm(filtered_counter_examples.keys()):
         ce_set = filtered_counter_examples[state]

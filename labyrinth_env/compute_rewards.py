@@ -130,7 +130,7 @@ if __name__ == "__main__":
     
     print(f"The number of states in the labyrinth env is: {n_states}")
     print(f"The number of actions in the labyrinth env is: {n_actions}")
-    print(f"The number of rows in the transition matrix is: {P_a.shape}")
+ 
 
 
  
@@ -152,20 +152,18 @@ if __name__ == "__main__":
         f.write(f"Total trajectories: {len(trajs)}\n")
     
     print(f"Trajectories saved to {traj_file}")
-    # Load restricted training indices
-
-    # soft_policy = np.load(config.POLICY_PATH)
+     
    
 
     P = []
 
     for a in range(n_actions):
-        # print(f"The matrix shape is: {transition_matrices[a,:,:]}")
+    
         P.append(P_a[:,:,a])
 
     mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = config.GAMMA,horizon=config.HORIZON)
 
-    rm = RewardMachine(config.RM_PATH_DEBUG)
+    rm = RewardMachine(config.RM_PATH)
 
 
     print(f"rm.delta_u = {rm.delta_u}")
@@ -193,72 +191,69 @@ if __name__ == "__main__":
         P = np.vstack((P,mdp_.P[a]))
         E = np.vstack((E, np.eye(mdp_.n_states)))
 
-    print(f"The shape of P is {P.shape}")
+     
 
     Psi = d(P)
 
-    A = np.hstack((Psi, -E + config.GAMMA*P))
-    # # print(f"The shape of A is {A.shape}")
-    # # print(f"The shape of soft_policy is {soft_policy.shape}")
-    # print(f"The shape of mdp_.n_states is {mdp_.n_states}")
+    # A = np.hstack((Psi, -E + config.GAMMA*P))
+    # # # print(f"The shape of A is {A.shape}")
+    # # # print(f"The shape of soft_policy is {soft_policy.shape}")
+    # # print(f"The shape of mdp_.n_states is {mdp_.n_states}")
 
-    # b = np.log(soft_policy)[:mdp_.n_states,:]
-    b = np.log(soft_policy)
-    # bb = np.log(soft_policy)[:mdp_.n_states,:]
+    # # b = np.log(soft_policy)[:mdp_.n_states,:]
+    # b = np.log(soft_policy)
+    # # bb = np.log(soft_policy)[:mdp_.n_states,:]
 
-    # b = b.reshape((A.shape[0],1))
-    b = b.flatten('F')[:,None]
-
-    start = time.time()
-    x = np.linalg.lstsq(A,b, rcond = None)
-    end = time.time()
-    print(f"This took a total of {end - start} secs.")
-    print(f"The residual is: {x[1]}")
-    print(f"x[0].shape is {x[0].shape} , A.shape is {A.shape} , b.shape is {b.shape}")
-    print(f"The residual is: {np.linalg.norm(A@x[0]-b)}")
-    
-    
-    # AP = ['H','W','I']
-    # ap2index = {'H':0,'W':1,'I':2}
-    # row_F = mdp.n_states**2*rm.n_states**2*mdp.n_actions
-    # col_F = rm.n_states*len(AP)
-    # F = np.zeros(shape = (row_F,col_F))
-
-    
-
-
-    # index_to_tuple = create_index_to_tuple_dict(mdp_states = mdp.n_states , rm_states= rm.n_states, actions = mdp.n_actions)
-
-
-    # for j in range(col_F):
-        
-    #     u_j, ap_j = get_u_ap_tuple(j, rm.n_states, AP)
-       
-    #     for i in range(row_F):
-    #         (s,u,a,s_prime, u_prime) = index_to_tuple[i]
-
-    #         L_s_prime = L[s_prime]
-
-    #         if u == u_j and L_s_prime == AP[ap_j]:
-    #             F[i,j] = 1.0
-
-    # A = np.hstack((Psi@F, -E + config.GAMMA*P))
-
-    # b = np.log(soft_policy) 
-
+    # # b = b.reshape((A.shape[0],1))
     # b = b.flatten('F')[:,None]
 
     # start = time.time()
     # x = np.linalg.lstsq(A,b, rcond = None)
     # end = time.time()
     # print(f"This took a total of {end - start} secs.")
-    # # print(f"The residual is: {x[1]}")
-    # # plt.hist(x[0][:291600])
-
+    # print(f"The residual is: {x[1]}")
+    # print(f"x[0].shape is {x[0].shape} , A.shape is {A.shape} , b.shape is {b.shape}")
     # print(f"The residual is: {np.linalg.norm(A@x[0]-b)}")
-    # # print(f"The shape of x is: {x[0].shape}")
-    # reward_vec = x[0][:F.shape[1]]
-    # print(f"The reward vector is: {np.round(reward_vec + abs(reward_vec.min()), decimals = 3)}")
+    
+    
+    AP = ['H','W','I']
+    ap2index = {'H':0,'W':1,'I':2}
+    row_F = mdp.n_states**2*rm.n_states**2*mdp.n_actions
+    col_F = rm.n_states*len(AP)
+    F = np.zeros(shape = (row_F,col_F))
+
+    index_to_tuple = create_index_to_tuple_dict(mdp_states = mdp.n_states , rm_states= rm.n_states, actions = mdp.n_actions)
+
+
+    for j in range(col_F):
+        
+        u_j, ap_j = get_u_ap_tuple(j, rm.n_states, AP)
+       
+        for i in range(row_F):
+            (s,u,a,s_prime, u_prime) = index_to_tuple[i]
+
+            L_s_prime = L[s_prime]
+
+            if u == u_j and L_s_prime == AP[ap_j]:
+                F[i,j] = 1.0
+
+    A = np.hstack((Psi@F, -E + config.GAMMA*P))
+
+    b = np.log(soft_policy) 
+
+    b = b.flatten('F')[:,None]
+
+    
+    x = np.linalg.lstsq(A,b, rcond = None)
+     
+     
+    reward_vec = x[0][:F.shape[1]]
+    # Print the reward vector in a more readable way: node <u> AP '<ap>': <reward>
+    reward_vec_shifted = np.round(reward_vec + abs(reward_vec.min()), decimals=3)
+    for j in range(F.shape[1]):
+        u_j, ap_j = get_u_ap_tuple(j, rm.n_states, AP)
+        ap_label = AP[ap_j]
+        print(f"node {u_j} AP '{ap_label}': {reward_vec_shifted[j][0]}")
 
     # # now we need a state action state reward for the product MDP
     # reward = np.zeros((mdp_.n_states, mdp_.n_actions, mdp_.n_states))
@@ -285,7 +280,7 @@ if __name__ == "__main__":
 
     # out = np.log(soft_policy_special_reward).flatten('F')[:,None]
    
- 
+    
  
     # print(f"The norm difference between the policies is: {np.linalg.norm(soft_policy_special_reward - soft_policy)}")
     # uniform_policy = np.ones((mdp_.n_states, mdp_.n_actions)) / mdp_.n_actions

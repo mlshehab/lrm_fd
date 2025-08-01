@@ -140,8 +140,14 @@ if __name__ == "__main__":
     AP = 3
     alpha = 0.001
     solutions, total_constraints,  filtered_counter_examples , solve_time = solve_sat_instance(sim, counter_examples, kappa, AP, alpha)
-    # print(f"The number of constraints is: {total_constraints}, { filtered_counter_examples }")
-    print(f"The number of solutions is: {len(solutions)}")
-    print(f"the solution is: {solutions}")
+  
+     
+    index2proposition = {0: 'H', 1: 'W', 2: 'I'}
+    for sol_num, sol in enumerate(solutions, 1):
+        print(f"\nSolution {sol_num}:")
+        for ap_idx, ap_matrix in enumerate(sol):
+            print(f"  AP {index2proposition[ap_idx]}:")
+            for row in ap_matrix:
+                print("    " + " ".join(str(bool(val)) for val in row))
 
  

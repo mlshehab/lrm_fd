@@ -1,9 +1,8 @@
 import numpy as np
 from scipy.stats import entropy
-import time
 import os
 import sys
-from scipy.optimize import minimize_scalar
+
 # Get the parent directory
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -11,15 +10,12 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
 from reward_machine.reward_machine import RewardMachine
 from utils.sat_utils import *
-from utils.ne_utils import get_label, u_from_obs
+from utils.ne_utils import u_from_obs
 import argparse
-import pandas as pd
-from z3 import Optimize, Bool, Solver, Implies, Not, BoolRef, sat,print_matrix, Or, And, AtMost # type: ignore
+from z3 import Optimize, Bool, Solver, Implies, Not, sat, Or
 from itertools import combinations
 from tqdm import tqdm
 import pickle
-from simulator import ReacherDiscretizerUniform, ReacherDiscreteSimulator, ForceRandomizedReacher
-import matplotlib.pyplot as plt
 import config
 
 def similarity(p1, p2, metric):
