@@ -102,6 +102,7 @@ def solve_with_clauses(c4_clauses, print_solutions=False):
     """
     # helper to convert prefixes to indices
     proposition2index = {'B': 0, 'R': 1, 'Y': 2, 'I': 3}
+    index2proposition = {0: 'B', 1: 'R', 2: 'Y', 3: 'I'}
     def prefix2indices(lbl):
         return [proposition2index[p] for p in lbl.split(',') if p]
 
@@ -143,7 +144,7 @@ def solve_with_clauses(c4_clauses, print_solutions=False):
         if print_solutions:
             print("\nSolution found:")
             for ap in range(AP):
-                print(f"\nAP {ap}:")
+                print(f"\nAP {index2proposition[ap]}:")
                 for i in range(kappa):
                     row = []
                     for j in range(kappa):
@@ -232,7 +233,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--alpha', type=float, default=0.0001)
+    parser.add_argument('--alpha', type=float, nargs='+', default=[0.0001], 
+                       help='Array of alpha values to test')
     parser.add_argument('--print', action='store_true', default=False)
     args = parser.parse_args()
  
@@ -246,18 +248,19 @@ if __name__ == "__main__":
     kappa = config.KAPPA
     AP = config.AP
     
-    alpha = args.alpha
-    
-
-    c4_clauses, FP_count = prepare_sat_problem(rds, counter_examples, alpha, rm)
-
-  
-    
-    maxsat_clauses = maxsat_clauses(c4_clauses)
-    print(f"The total number of negative examples is: {len(c4_clauses)}")
-    print(f"The false positive rate is: {np.round(100*FP_count/len(c4_clauses), 3)}%")
-    print(f"The number of solutions in the maxsat set is: {solve_with_clauses(maxsat_clauses, args.print)}")
-       
+    # Process each alpha value
+    for alpha in args.alpha:
+        print(f"\n{'='*50}")
+        print(f"Testing with alpha = {alpha}")
+        print(f"{'='*50}")
+        
+        c4_clauses, FP_count = prepare_sat_problem(rds, counter_examples, alpha, rm)
+        
+        chosen_clauses = maxsat_clauses(c4_clauses)
+        print(f"The total number of negative examples is: {len(c4_clauses)}")
+        print(f"The false positive rate is: {np.round(100*FP_count/len(c4_clauses), 3)}%")
+        print(f"The number of solutions in the maxsat set is: {solve_with_clauses(chosen_clauses, args.print)}")
+        
 
 
  
