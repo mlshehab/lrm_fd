@@ -24,11 +24,12 @@ from tqdm import tqdm
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-
+    parser.add_argument('--run_rmm_learning', action='store_true', default=False)
     parser.add_argument('--depth', type=int, default=10)
     parser.add_argument('--n_traj', type=int, default=2500)
     parser.add_argument('--umax', type=int, default=4)
     parser.add_argument('--AP', type=int, default=4)
+    parser.add_argument('--print_solutions', action='store_true', default=False)
     parser.add_argument('--use_maxsat', action='store_true', default=False)
     parser.add_argument('--use_irl', action='store_true', default=False)
     parser.add_argument('--save', action='store_true', default=False)
@@ -51,8 +52,6 @@ if __name__ == '__main__':
 
     mdp = MDP(n_states=n_states, n_actions=n_actions, P = P,gamma = gw.discount,horizon= config.HORIZON)
 
-    
-   
     rm = RewardMachine(config.RM_PATH)
 
     L = {}
@@ -72,25 +71,18 @@ if __name__ == '__main__':
 
     soft_policy = np.load(config.POLICY_PATH + ".npy")
 
-    print(f"The number of trajectories is: {args.n_traj}")
 
     gws = GridworldSimulator(rm = rm,mdp = mdp, L = L, policy = soft_policy)
     
     starting_states = np.arange(n_states)
  
-    start = time.time()
+    
     max_len = args.depth
     n_traj = args.n_traj
-
+    
     np.random.seed(config.SEED)
-    gws.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
-    end = time.time()
-
-    elapsed_time = end - start
-    hours, rem = divmod(elapsed_time, 3600)
-    minutes, seconds = divmod(rem, 60)
-    print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
-
+    gws.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len, seed = config.SEED)
+ 
     gws.compute_action_distributions()
 
     # Save the object to a file
@@ -108,51 +100,51 @@ if __name__ == '__main__':
 
      
     umax = args.umax
-    AP = args.AP
-
-     
+    AP = args.AP   
+    
     proposition2index = {'A': 0,'B': 1,'C': 2,'D': 3 }
     
-    if not args.use_maxsat:
-        solutions, n_constraints, n_states, solve_time, prob_values, wrong_ce_counts = \
-               solve_sat_instance(gws, counter_examples,rm, metric, umax, AP, proposition2index, p_threshold=p_threshold)
-        print(f"The number of constraints is: {n_constraints}")
-        print(f"The number of solutions is: {len(solutions)}")
-    
-    else:
-        # c4_clauses, states = prepare_sat_problem(gws, counter_examples, p_threshold)
-        if args.umax == 3:
+    if args.run_rmm_learning:
+        print(f"Running RMM learning with MAX-SAT and umax = {umax}")
+        c4_clauses = prepare_sat_problem(gws, counter_examples, p_threshold)
+        maxsat_clauses = maxsat_clauses(c4_clauses, umax, AP, proposition2index)
+        solutions = solve_with_clauses(maxsat_clauses, umax, AP, proposition2index, print_solutions = args.print_solutions)
+        print(f"Total # clauses: {len(c4_clauses)}")
+        print(f"# used clauses: {len(maxsat_clauses)}")
+        print(f"The number of solutions is: {solutions}")
+             
+    else:    
+        # do evaluation instead  
+        if args.umax == 4:
+            rm_maxsat = rm
+        elif args.umax == 3:
             rm_maxsat = RewardMachine(config.RM_PATH_MAXSAT_3)
         elif args.umax == 2:
             rm_maxsat = RewardMachine(config.RM_PATH_MAXSAT_2)
+        else:
+            raise ValueError(f"Invalid umax: {args.umax}")
         
-         
-        # maxsat_clauses, chosen_mask = maxsat_clauses(c4_clauses, umax, AP, proposition2index)
-        # learned_product_policy = constrtuct_product_policy(gws,states, c4_clauses, chosen_mask, rm_maxsat, soft_policy)
 
         max_len = config.DEPTH_FOR_CONSTRUCTING_PRODUCT_POLICY
-        learned_product_policy = construct_learned_product_policy(mdp, rm, max_len, soft_policy, rm, invL, L)
 
         if args.use_irl:
             learned_product_policy = np.load(config.IRL_POLICY_PATH + ".npy")
 
-        
+        else:
+            learned_product_policy = construct_learned_product_policy(mdp, rm_maxsat, max_len, soft_policy, rm, invL, L)
+      
         # perform policy rollout
-        it = 10000
+        it = config.ROLLOUTS
         total_reward = 0.0
         for _ in tqdm(range(it)):
-            # UNCOMMENT THIS FOR THE GROUND TRUTH POLICY ROLLOUT, i.e. umax = 4
-            # total_reward += perfrom_policy_rollout(gws, 0, 100, rm, rm, soft_policy)
-
+    
             if args.use_irl:
-                print("Using IRL policy")
-                total_reward += perfrom_policy_rollout_IRL(gws, 0, config.ROLLOUT_LENGTH, rm, learned_product_policy)
+                total_reward += perfrom_policy_rollout_IRL(gws,  config.ROLLOUT_LENGTH, rm, learned_product_policy)
             else:
-                total_reward += perfrom_policy_rollout(gws, 0, config.ROLLOUT_LENGTH, rm_maxsat, rm, learned_product_policy)
+                total_reward += perfrom_policy_rollout(gws, config.ROLLOUT_LENGTH, rm_maxsat, rm, learned_product_policy)
         
         print(f"The average reward is: {total_reward / it}")
         
-      
+    
 
     
- 

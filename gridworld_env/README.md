@@ -40,10 +40,20 @@ python main.py --umax 3 --use_maxsat --save
 ```
 
 
-### 3. Results
+### 3. Reproducability
 
-| Umax | Total # of Clauses | # of Used Clauses | Total # of Rollouts | Trajectory Length | Avg. Total Reward per Rollout |
-|------|--------------------|-------------------|---------------------|-------------------|-------------------------------|
-|   4   |         1200           |          1200         |         10K            |           100        |             174.606                  |
-|   3   |          1168          |         849          |       10K              |        100           |              151.986                 |
-|   2   |         969           |            378       |          10K           |         100          |                 91.194              |
+To reproduce Figure 11 and print the solutions, run:
+
+```bash
+python main.py --run_rmm_learning --umax 4 --print_solutions
+python main.py --run_rmm_learning --umax 3 --print_solutions
+python main.py --run_rmm_learning --umax 2 --print_solutions
+```
+
+To reproduce Table 6, run:
+```bash
+python main.py --umax 4  # ROW 1 of TABLE 6
+python main.py --umax 3  # ROW 2 of TABLE 6
+python main.py --umax 2  # ROW 3 of TABLE 6
+python main.py --use_irl # ROW 4 of TABLE 6
+```

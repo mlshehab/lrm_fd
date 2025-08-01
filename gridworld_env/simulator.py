@@ -120,8 +120,10 @@ class GridworldSimulator(Simulator):
             state = next_state
         # print(f"The trajectory is: {compressed_label}")
 
-    def sample_dataset(self, starting_states, number_of_trajectories, max_trajectory_length):
-       
+    def sample_dataset(self, starting_states, number_of_trajectories, max_trajectory_length, seed = None):
+        if seed is not None:
+            np.random.seed(seed)
+        
         for _ in range(number_of_trajectories):
             ss = np.random.randint(0, len(starting_states))
             self.sample_trajectory(starting_state=ss, len_traj= max_trajectory_length)

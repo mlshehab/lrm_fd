@@ -273,13 +273,13 @@ def prepare_sat_problem(gws, counter_examples, alpha):
             filtered[state] = kept
     
     c4_clauses = []
-    states = []
+    
     for state, ces in filtered.items():
         for ce in ces:
             c4_clauses.append(ce)
-            states.append(state)
+            
     
-    return  c4_clauses, states  
+    return  c4_clauses  
 
 
 
@@ -344,13 +344,12 @@ def maxsat_clauses(all_clauses, kappa, AP, proposition2index):
               for i, sel in enumerate(selectors)
               if m.evaluate(sel)]
     
-    # Create an array of 1s and 0s indicating which clauses were chosen
-    chosen_mask = [1 if m.evaluate(sel) else 0 for sel in selectors]
+  
 
-    return chosen, chosen_mask
+    return chosen
 
 
-def solve_with_clauses(c4_clauses, kappa, AP, proposition2index):
+def solve_with_clauses(c4_clauses, kappa, AP, proposition2index, print_solutions = False):
     """
     Given a list of C4 clauses, add all of them as constraints and
     enumerate all satisfying assignments. Returns the count of solutions.
@@ -395,15 +394,16 @@ def solve_with_clauses(c4_clauses, kappa, AP, proposition2index):
     while s.check() == sat:
         m = s.model()
         # Print the current solution
-        print("\nSolution found:")
-        for ap in range(AP):
-            print(f"\nAP {ap}:")
-            for i in range(kappa):
-                row = []
-                for j in range(kappa):
-                    val = m.evaluate(B[ap][i][j], model_completion=True)
-                    row.append(1 if val else 0)
-                print(row)
+        if print_solutions:
+            print("\nSolution found:")
+            for ap in range(AP):
+                print(f"\nAP {ap}:")
+                for i in range(kappa):
+                    row = []
+                    for j in range(kappa):
+                        val = m.evaluate(B[ap][i][j], model_completion=True)
+                        row.append(1 if val else 0)
+                    print(row)
         
         # block current model
         block_clause = []
@@ -591,11 +591,11 @@ def constrtuct_product_policy(gws,states, c4_clauses, chosen_mask, rm, true_prod
 
 
 
-def perfrom_policy_rollout(bws,starting_state, len_traj, rm_learned, rm_true, policy):
+def perfrom_policy_rollout(bws, len_traj, rm_learned, rm_true, policy):
 
         
     reward = 0.0
-    state = starting_state
+    state = np.random.randint(0, bws.n_states)
     label = bws.L[state] + ','
     compressed_label = bws.remove_consecutive_duplicates(label)
 
@@ -638,11 +638,11 @@ def perfrom_policy_rollout(bws,starting_state, len_traj, rm_learned, rm_true, po
 
 
 
-def perfrom_policy_rollout_IRL(bws,starting_state, len_traj, rm_true, policy):
+def perfrom_policy_rollout_IRL(bws, len_traj, rm_true, policy):
 
         
     reward = 0.0
-    state = starting_state
+    state = np.random.randint(0, bws.n_states)
     label = bws.L[state] + ','
     compressed_label = bws.remove_consecutive_duplicates(label)
 
