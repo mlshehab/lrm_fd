@@ -25,3 +25,8 @@ REWARD_PARAMETER_ADV_2 = 0.2
 POLICY_PATH = f"policies/soft_policy_{REWARD_PARAMETER}"
 POLICY_PATH_ADV = f"policies/soft_policy_adv_{REWARD_PARAMETER_ADV_1}_{REWARD_PARAMETER_ADV_2}"
 POLICY_PATH_EXTRA = f"policies/soft_policy_extra"
+
+
+import numpy as np
+SEED = 43# 43
+ 

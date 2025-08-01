@@ -42,10 +42,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--depth', type=int, default=14)
-    parser.add_argument('--n_traj', type=int, default=20000)
-    parser.add_argument('--rm', type=str, default='stack-extra')
-    parser.add_argument('--save', action='store_true', default=True)
+    
+    parser.add_argument('--rm', type=str, default='stack')
+    parser.add_argument('--depth', type=int, default=20)
+    parser.add_argument('--n_traj', type=int, nargs='+', default=[20000], help='List of integers for number of trajectories')
+    parser.add_argument('--save', action='store_true', default=False)
     args = parser.parse_args()
     
     bw = BlocksWorldMDP(num_piles=config.NUM_PILES)
@@ -86,6 +87,7 @@ if __name__ == '__main__':
             if s not in L:
                 L[s] = 'I'
     else:
+  
         policy_path = config.POLICY_PATH
         rm = RewardMachine(config.RM_PATH)
         L = {
@@ -101,8 +103,8 @@ if __name__ == '__main__':
    
     soft_policy = np.load("./"+ policy_path + ".npy")
 
-    print(f"The number of trajectories is: {args.n_traj}")
-
+     
+    
     bws = BlockworldSimulator(rm = rm,mdp = mdp, L = L, policy = soft_policy, state2index=s2i, index2state=i2s)
     
     if args.rm == 'stack-extra':
@@ -110,78 +112,74 @@ if __name__ == '__main__':
     else:               
         starting_states = [s2i[config.TARGET_STATE_1], s2i[config.TARGET_STATE_2], s2i[config.TARGET_STATE_3], 4, 24]
 
-    start = time.time()
+     
     max_len = args.depth
-    n_traj = args.n_traj
-    
-    bws.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
-    end = time.time()
 
-    elapsed_time = end - start
-    hours, rem = divmod(elapsed_time, 3600)
-    minutes, seconds = divmod(rem, 60)
-    print(f"Simulating the dataset took {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
+    np.random.seed(config.SEED) # SEED to reproduce results found in the paper
 
-    bws.compute_action_distributions()
+    for n_traj in args.n_traj:
 
-    # Save the object to a file
-    if args.save:
-        timestamp = time.strftime("%Y%m%d-%H%M%S")
-        with open(f"./objects/object{n_traj}_{max_len}_{timestamp}.pkl", "wb") as foo:
-            pickle.dump(bws, foo)
-        print(f"The object has been saved to ./objects/object{n_traj}_{max_len}_{timestamp}.pkl")
+        print(f"\n{'='*50}")
+        print(f"Testing with n_traj = {n_traj}")
+        print(f"{'='*50}")
+         
+        bws = BlockworldSimulator(rm = rm,mdp = mdp, L = L, policy = soft_policy, state2index=s2i, index2state=i2s)
 
-        # generate_policy_comparison_report(bws, rm, soft_policy, n_traj, max_len, timestamp)
-  
-    
-    counter_examples = generate_label_combinations(bws)
+        bws.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len, seed = config.SEED)
+        bws.compute_action_distributions()
+
+        # Save the object to a file
+        if args.save:
+            timestamp = time.strftime("%Y%m%d-%H%M%S")
+            with open(f"./objects/object{n_traj}_{max_len}_{timestamp}.pkl", "wb") as foo:
+                pickle.dump(bws, foo)
+            print(f"The object has been saved to ./objects/object{n_traj}_{max_len}_{timestamp}.pkl")
+
+         
+        counter_examples = generate_label_combinations(bws)
 
 
+        p_threshold = 0.95 # = 1 - alpha so alpha = 0.05
+        metric = "L1"
 
-    p_threshold = 0.95
-    metric = "L1"
-
-    if args.rm == 'stack-extra':
-        kappa = 2
-        AP = 3
-    else:
-        kappa = 3
-        AP = 4
-    
- 
-    if args.rm == 'stack-adv':
-        proposition2index = { 'A': 0,'B': 1,'D': 2,'I': 3}
-
-    elif args.rm == 'stack-extra':
-        proposition2index = {'A': 0,'B': 1,'I': 2 }
+        if args.rm == 'stack-extra':
+            kappa = 2
+            AP = 3
+        else:
+            kappa = 3
+            AP = 4
         
-    else:
-        proposition2index = {'A': 0,'B': 1,'C': 2,'I': 3 }
     
-    solutions, n_constraints, n_states, solve_time, prob_values, wrong_ce_counts = \
-               solve_sat_instance(bws, counter_examples,rm, metric, kappa, AP, proposition2index, p_threshold=p_threshold)
+        if args.rm == 'stack-adv':
+            proposition2index = { 'A': 0,'B': 1,'D': 2,'I': 3}
 
-    print(f"The number of constraints is: {n_constraints}")
-    print(f"The number of solutions is: {len(solutions)}")
-    
-    print(f"The wrong counter example counts are: {wrong_ce_counts}")
-    hours, rem = divmod(solve_time, 3600)
-    minutes, seconds = divmod(rem, 60)
-    print(f"The solve time is: {int(hours)} hour {int(minutes)} minute {seconds:.2f} sec.")
-    # print(f"The count of state 51 is: {bws.state_label_counts[51]}")
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-    solutions_text_path = f"./objects/solutions_{args.rm}_{args.n_traj}_{args.depth}_{timestamp}.txt"
+        elif args.rm == 'stack-extra':
+            proposition2index = {'A': 0,'B': 1,'I': 2 }
+            
+        else:
+            proposition2index = {'A': 0,'B': 1,'C': 2,'I': 3 }
+        
+        solutions, n_constraints, n_states, solve_time, prob_values, wrong_ce_counts = \
+                solve_sat_instance(bws, counter_examples,rm, metric, kappa, AP, proposition2index, p_threshold=p_threshold)
 
-    if args.save:
-        with open(solutions_text_path, "w") as f:
-            f.write(f"Solutions for n_traj={args.n_traj}, depth={args.depth}\n")
-            f.write("=" * 50 + "\n\n")
-            for i, solution in enumerate(solutions):
-                f.write(f"Solution {i+1}:\n")
-                for j, matrix in enumerate(solution):
-                    f.write(f"\nMatrix {j} ({['A', 'B', 'C', 'I'][j]}):\n")
-                    for row in matrix:
-                        f.write("  " + " ".join("1" if x else "0" for x in row) + "\n")
-                f.write("\n" + "-" * 30 + "\n\n")
+        print(f"The number of negative examples is: {n_constraints}")
+        print(f"The number of solutions is: {len(solutions)}")
+        
+         
+        # print(f"The count of state 51 is: {bws.state_label_counts[51]}")
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        solutions_text_path = f"./objects/solutions_{args.rm}_{args.n_traj}_{args.depth}_{timestamp}.txt"
 
-        print(f"[Main] Saved solutions in readable format to {solutions_text_path}")
+        if args.save:
+            with open(solutions_text_path, "w") as f:
+                f.write(f"Solutions for n_traj={args.n_traj}, depth={args.depth}\n")
+                f.write("=" * 50 + "\n\n")
+                for i, solution in enumerate(solutions):
+                    f.write(f"Solution {i+1}:\n")
+                    for j, matrix in enumerate(solution):
+                        f.write(f"\nMatrix {j} ({['A', 'B', 'C', 'I'][j]}):\n")
+                        for row in matrix:
+                            f.write("  " + " ".join("1" if x else "0" for x in row) + "\n")
+                    f.write("\n" + "-" * 30 + "\n\n")
+
+            print(f"[Main] Saved solutions in readable format to {solutions_text_path}")

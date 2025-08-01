@@ -158,17 +158,8 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, proposition
 
             for elt in res_:
                 s.add(Not(elt))
-    print(f"The total number of constraints is: {total_constraints}")
-    # p1 = prefix2indices('A,D,I,', proposition2index)
-    # p2 = prefix2indices('A,I,', proposition2index)
-
-    # sub_B1 = bool_matrix_mult_from_indices(B,p1, x)
-    # sub_B2 = bool_matrix_mult_from_indices(B,p2, x)
-    # res_ = element_wise_and_boolean_vectors(sub_B1, sub_B2)
-
-    # for elt in res_:
-    #     s.add(Not(elt))
-    # Find all solutions
+     
+    
     solutions = []
     start = time.time()
   

@@ -76,13 +76,13 @@ class BlockworldSimulator(Simulator):
 
     def sample_trajectory(self, starting_state, len_traj):
        
-        # starting_state = np.random.randint(0, self.n_states)
+        
        
         state = starting_state
         label = self.L[state] + ','
         compressed_label = self.remove_consecutive_duplicates(label)
         u = u_from_obs(label,self.rm)
-        # print(f"The initial state is: {state}, the initial label is: ({label}), the initial u is: {u}")
+         
         
         for _ in range(len_traj):
             idx = u * self.n_states + state
@@ -99,9 +99,7 @@ class BlockworldSimulator(Simulator):
             # Compress the label
             compressed_label = self.remove_consecutive_duplicates(label)
 
-            # if state == 0:
-            #     print(f"current state: {state}, current label: ({compressed_label}), current u is: {u}")
-            #     print(f"action distribution: {np.round(action_dist, 3)}\n")
+            
 
             # Ensure state exists in dictionary
             if state not in self.state_action_counts:
@@ -124,12 +122,16 @@ class BlockworldSimulator(Simulator):
             u = u_from_obs(label, self.rm)
             
             state = next_state
+        
+        
 
 
-    def sample_dataset(self, starting_states, number_of_trajectories, max_trajectory_length):
-       
+    def sample_dataset(self, starting_states, number_of_trajectories, max_trajectory_length, seed = None):
+        if seed is not None:
+            np.random.seed(seed)
+        
         for _ in range(number_of_trajectories):
-            ss = np.random.randint(0, len(starting_states))
+            ss = np.random.choice(starting_states)
             self.sample_trajectory(starting_state=ss, len_traj= max_trajectory_length)
 
 
@@ -145,7 +147,7 @@ if __name__ == "__main__":
     rm = RewardMachine(config.RM_PATH)
     # print(f" The node is: {u_from_obs('A,I,B,I,C,I,A,',rm)}")
 
-    policy = np.load(config.POLICY_PATH)
+    policy = np.load("./"+ config.POLICY_PATH + ".npy")
     # mdp = BlocksWorldMDP(num_piles=config.NUM_PILES)
     bw = BlocksWorldMDP(num_piles=config.NUM_PILES)
 

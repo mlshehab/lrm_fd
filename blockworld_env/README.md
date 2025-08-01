@@ -41,3 +41,18 @@ For example, in order to run the experiment for the `(stack)` task with 50K traj
 ```bash
 python main.py --rm stack --depth 20 --n_traj 50_000 --save
 ```
+
+### 3. Reproducability
+
+In order to reproduce the results in Table 4, run:
+```bash
+python main.py --rm stack --n_traj 1000 3000 5000 10000 100_000 1_000_000
+```
+To reproduce the results in Table 5, run:
+```bash
+python main.py --rm stack-adv --n_traj  100 200 500 1000 100_000 1_000_000
+```
+To reproduce the results of Section C, run:
+```bash
+python main.py --rm stack-extra --depth 14 --n_traj 50_000
+```
