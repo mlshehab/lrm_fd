@@ -1,3 +1,4 @@
+### Reacher Environment
 In order to run this experiment, we provide the simulated dataset here. Please download it (~1Gb) and run the following.
 
 ```bash
@@ -18,6 +19,7 @@ options:
 ```
 Use `--print` if you would like to see the learned reward machines. These are given using the Boolean matrices associated with each atomic proposition. 
 
+## Reproducability
 To reproduce Table 3, please run:
 ```bash
 python main.py --alpha 0.001 0.0001 0.00001
