@@ -20,7 +20,7 @@ from tqdm import tqdm
 import pickle
 from simulator import ReacherDiscretizerUniform, ReacherDiscreteSimulator, ForceRandomizedReacher
 import matplotlib.pyplot as plt
-
+import config
 
 def similarity(p1, p2, metric):
         """Computes similarity based on chosen metric."""
@@ -62,18 +62,11 @@ def generate_label_combinations(bws):
     return label_combinations
 
 
-def prepare_sat_problem(rds, counter_examples, alpha):
-    """
-    Do all the one‐time work:
-      1) build B, x, precompute powers, etc.
-      2) create a 'base' z3.Solver() with C1 & C2 constraints
-      3) compute filtered_counter_examples
-      4) build the list of all C4 clauses (Not(elt)) but don’t add them yet
-    Returns: (base_solver, c4_clauses, kappa, AP)
-    """
-    # 3) filter counter‐examples just once
+def prepare_sat_problem(rds, counter_examples, alpha, ground_truth_rm):
+    
+     
     filtered = {}
- 
+    FP_count = 0
     for state, ces in tqdm(counter_examples.items()):
         kept = []
         for ce in ces:
@@ -86,8 +79,10 @@ def prepare_sat_problem(rds, counter_examples, alpha):
             n2 = rds.state_label_counts[state][ce[1]]
             A = rds.rd.n_actions
             prob = f(eps/2, n1, n2, A, eps)
+
             if prob > 1 - alpha:
-                
+                if u_from_obs(ce[0],ground_truth_rm) == u_from_obs(ce[1],ground_truth_rm):
+                    FP_count += 1
                 kept.append(ce)
         if kept:
             filtered[state] = kept
@@ -97,10 +92,10 @@ def prepare_sat_problem(rds, counter_examples, alpha):
         for ce in ces:
             c4_clauses.append(ce)
     
-    return  c4_clauses   
+    return  c4_clauses, FP_count  
 
 
-def solve_with_clauses(c4_clauses):
+def solve_with_clauses(c4_clauses, print_solutions=False):
     """
     Given a list of C4 clauses, add all of them as constraints and
     enumerate all satisfying assignments. Returns the count of solutions.
@@ -145,15 +140,16 @@ def solve_with_clauses(c4_clauses):
     while s.check() == sat:
         m = s.model()
         # Print the current solution
-        print("\nSolution found:")
-        for ap in range(AP):
-            print(f"\nAP {ap}:")
-            for i in range(kappa):
-                row = []
-                for j in range(kappa):
-                    val = m.evaluate(B[ap][i][j], model_completion=True)
-                    row.append(1 if val else 0)
-                print(row)
+        if print_solutions:
+            print("\nSolution found:")
+            for ap in range(AP):
+                print(f"\nAP {ap}:")
+                for i in range(kappa):
+                    row = []
+                    for j in range(kappa):
+                        val = m.evaluate(B[ap][i][j], model_completion=True)
+                        row.append(1 if val else 0)
+                    print(row)
         
         # block current model
         block_clause = []
@@ -165,7 +161,7 @@ def solve_with_clauses(c4_clauses):
                     )
         s.add(Or(block_clause))
         count += 1
-
+    
     return count
 
 def maxsat_clauses(all_clauses):
@@ -230,38 +226,37 @@ def maxsat_clauses(all_clauses):
 
     return chosen
 
-import config
-if __name__ == "__main__":
-    # ────────────────────────────────────────────────────────────────
-    # Example usage (e.g. in your main()):
-    #
-    # 1) do the one‐time prep
+ 
 
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--alpha', type=float, default=0.0001)
+    parser.add_argument('--print', action='store_true', default=False)
+    args = parser.parse_args()
+ 
     rm = RewardMachine(config.RM_PATH)
 
-
-  
     with open(config.SIM_DATA_PATH, "rb") as foo:
         rds = pickle.load(foo)
 
-    print(f"{rds.rd.n_actions}")
-
     counter_examples = generate_label_combinations(rds)
 
+    kappa = config.KAPPA
+    AP = config.AP
     
-    kappa = 3
-    AP = 4
-    
-    alpha = 0.01
+    alpha = args.alpha
     
 
-    c4_clauses = prepare_sat_problem(rds, counter_examples, alpha)
+    c4_clauses, FP_count = prepare_sat_problem(rds, counter_examples, alpha, rm)
 
   
     
     maxsat_clauses = maxsat_clauses(c4_clauses)
-    print(f"The number of clauses in the maxsat set is: {len(maxsat_clauses)}")
-    print(f"The number of solutions in the maxsat set is: {solve_with_clauses(maxsat_clauses)}")
+    print(f"The total number of negative examples is: {len(c4_clauses)}")
+    print(f"The false positive rate is: {np.round(100*FP_count/len(c4_clauses), 3)}%")
+    print(f"The number of solutions in the maxsat set is: {solve_with_clauses(maxsat_clauses, args.print)}")
        
 
 

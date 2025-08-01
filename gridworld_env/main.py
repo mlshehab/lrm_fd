@@ -17,7 +17,7 @@ from dynamics.GridWorld import BasicGridWorld
 from simulator import GridworldSimulator
 from gwe_helpers import generate_label_combinations, solve_sat_instance, maxsat_clauses, solve_with_clauses, prepare_sat_problem, constrtuct_product_policy
 import config
-from gwe_helpers import perfrom_policy_rollout
+from gwe_helpers import perfrom_policy_rollout, perfrom_policy_rollout_IRL
 from gwe_helpers import construct_learned_product_policy
 from tqdm import tqdm
 
@@ -30,6 +30,7 @@ if __name__ == '__main__':
     parser.add_argument('--umax', type=int, default=4)
     parser.add_argument('--AP', type=int, default=4)
     parser.add_argument('--use_maxsat', action='store_true', default=False)
+    parser.add_argument('--use_irl', action='store_true', default=False)
     parser.add_argument('--save', action='store_true', default=False)
     args = parser.parse_args()
     
@@ -81,7 +82,7 @@ if __name__ == '__main__':
     max_len = args.depth
     n_traj = args.n_traj
 
-    # np.random.seed(config.SEED)
+    np.random.seed(config.SEED)
     gws.sample_dataset(starting_states=starting_states, number_of_trajectories= n_traj, max_trajectory_length=max_len)
     end = time.time()
 
@@ -132,7 +133,8 @@ if __name__ == '__main__':
         max_len = config.DEPTH_FOR_CONSTRUCTING_PRODUCT_POLICY
         learned_product_policy = construct_learned_product_policy(mdp, rm, max_len, soft_policy, rm, invL, L)
 
-    
+        if args.use_irl:
+            learned_product_policy = np.load(config.IRL_POLICY_PATH + ".npy")
 
         
         # perform policy rollout
@@ -141,8 +143,12 @@ if __name__ == '__main__':
         for _ in tqdm(range(it)):
             # UNCOMMENT THIS FOR THE GROUND TRUTH POLICY ROLLOUT, i.e. umax = 4
             # total_reward += perfrom_policy_rollout(gws, 0, 100, rm, rm, soft_policy)
-            
-            total_reward += perfrom_policy_rollout(gws, 0, config.ROLLOUT_LENGTH, rm_maxsat, rm, learned_product_policy)
+
+            if args.use_irl:
+                print("Using IRL policy")
+                total_reward += perfrom_policy_rollout_IRL(gws, 0, config.ROLLOUT_LENGTH, rm, learned_product_policy)
+            else:
+                total_reward += perfrom_policy_rollout(gws, 0, config.ROLLOUT_LENGTH, rm_maxsat, rm, learned_product_policy)
         
         print(f"The average reward is: {total_reward / it}")
         

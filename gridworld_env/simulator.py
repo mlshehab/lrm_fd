@@ -155,6 +155,11 @@ if __name__ == "__main__":
 
     for a in range(n_actions):
         P.append(gw.transition_probability[:,a,:])
+    
+
+    print(f"The transition probability is: {gw.transition_probability[:,0,:]}")
+
+
 
     mdp = MDP(n_states=n_states, n_actions=n_actions, P = P,gamma = gw.discount,horizon=10)
 
@@ -172,8 +177,8 @@ if __name__ == "__main__":
     L[10], L[14] = 'B', 'B'
     L[11], L[15] = 'B', 'B'
 
-    simulator = GridworldSimulator(rm=rm, mdp=mdp, L=L, policy=policy)
-    simulator.sample_trajectory(starting_state=1, len_traj=10)
+    # simulator = GridworldSimulator(rm=rm, mdp=mdp, L=L, policy=policy)
+    # simulator.sample_trajectory(starting_state=1, len_traj=10)
 
 
 

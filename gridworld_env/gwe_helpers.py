@@ -151,14 +151,14 @@ def solve_sat_instance(bws, counter_examples, rm, metric, kappa, AP, proposition
             for elt in res_:
                 s.add(Not(elt))
             
-    print(f"The total number of constraints is: {total_constraints}")
+
  
     solutions = []
     start = time.time()
     nsol = 0
     while s.check() == sat:
         nsol += 1
-        print(f"The number of solutions is: {nsol}")
+        # print(f"The number of solutions is: {nsol}")
         m = s.model()
         solution = []
         for ap in range(AP):
@@ -638,3 +638,44 @@ def perfrom_policy_rollout(bws,starting_state, len_traj, rm_learned, rm_true, po
 
 
 
+def perfrom_policy_rollout_IRL(bws,starting_state, len_traj, rm_true, policy):
+
+        
+    reward = 0.0
+    state = starting_state
+    label = bws.L[state] + ','
+    compressed_label = bws.remove_consecutive_duplicates(label)
+
+    # start of the synchronization
+    
+    u_true = u_from_obs(label,rm_true)
+    
+   
+    # start of the rollout
+    for _ in range(len_traj):
+     
+        action_dist = policy[state,:]
+
+        # Sample an action from the action distribution
+        a = np.random.choice(np.arange(bws.n_actions), p=action_dist)
+        
+        # Sample a next state 
+        next_state = bws.sample_next_state(state, a)
+
+        # Compress the label
+        compressed_label = bws.remove_consecutive_duplicates(label)
+        # print(f"The compressed label is: {compressed_label}")
+        l = bws.L[next_state]
+
+        if u_true == 3 and l == 'D':
+            reward += config.REWARD_PARAMETER
+
+        label = label + l + ','
+       
+        u_true = u_from_obs(label, rm_true)
+    
+
+        state = next_state
+
+    # print(f"The label is: {label}")
+    return reward

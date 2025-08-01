@@ -11,7 +11,7 @@ import pickle
 import matplotlib.pyplot as plt
 import os
 
-from train_PPO_policy_randomized_ic_discrete import DiscreteReacherActionWrapper
+from train_policy import DiscreteReacherActionWrapper
 
 def inverse_kinematics(x, y, L1=0.1, L2=0.11):
     """
@@ -483,8 +483,7 @@ class ReacherDiscreteSimulator():
                 self.state_label_counts[state][label] = total_actions
 
     
-    
-from train_PPO_policy_randomized_ic_discrete import DiscreteReacherActionWrapper
+ 
 
 if __name__ == "__main__":
 

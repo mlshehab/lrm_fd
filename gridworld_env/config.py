@@ -9,8 +9,9 @@ RM_PATH = "../rm_examples/patrol.txt"
 RM_PATH_MAXSAT_3 = "../rm_examples/patrol_max_sat_umax_3.txt"
 RM_PATH_MAXSAT_2 = "../rm_examples/patrol_max_sat_umax_2.txt"
 POLICY_PATH = "./policies/soft_patrol_policy"
+IRL_POLICY_PATH = "./policies/IRL_soft_policy"
 
-SEED = 42
+SEED = 44
 
 
 DEPTH_FOR_CONSTRUCTING_PRODUCT_POLICY = 6

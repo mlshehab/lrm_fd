@@ -5,7 +5,7 @@ import numpy as np
 import mujoco
 from gymnasium.spaces import MultiDiscrete
 import os
-print("Number of logical CPUs:", os.cpu_count())
+ 
 
 class DiscreteReacherActionWrapper(gym.ActionWrapper):
     def __init__(self, env):
