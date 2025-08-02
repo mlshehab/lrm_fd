@@ -27,6 +27,9 @@ import labyrinth_with_stay
 from le_helpers import generate_label_combinations
 from collections import Counter
 from le_helpers import solve_sat_instance
+from utils.ne_utils import u_from_obs
+from main import LabyrinthEnvSimulator as lenvs
+import argparse
 
 def d(P):
     m,n = P.shape
@@ -62,8 +65,6 @@ def get_u_ap_tuple(j, rm_states, ap_list):
     ap = j % ap_len  # Calculate the AP index
     return (u, ap)
 
-from utils.ne_utils import u_from_obs
-from main import LabyrinthEnvSimulator as lenvs
 
 def construct_product_policy_from_trajectories(lb, rm, trajs, L, epsilon=0.05):
     """
@@ -118,7 +119,10 @@ def construct_product_policy_from_trajectories(lb, rm, trajs, L, epsilon=0.05):
 
 
 if __name__ == "__main__":
- 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--umax", type=int, default=3, help="The number of states in the reward machine")
+    args = parser.parse_args()
+
     GEN_DIR_NAME = './data/mouse_data/'
 
     TRAJS_DIR_NAME = GEN_DIR_NAME + 'water_restricted_mice_trajs.pickle'
@@ -163,7 +167,12 @@ if __name__ == "__main__":
 
     mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = config.GAMMA,horizon=config.HORIZON)
 
-    rm = RewardMachine(config.RM_PATH)
+    if args.umax == 3:
+        rm = RewardMachine(config.RM_PATH_MOD)
+    elif args.umax == 2:
+        rm = RewardMachine(config.RM_PATH)
+    else:
+        raise ValueError(f"Invalid umax: {args.umax}")
 
 
     print(f"rm.delta_u = {rm.delta_u}")
