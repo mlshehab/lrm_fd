@@ -126,7 +126,7 @@ if __name__ == '__main__':
         
 
         max_len = config.DEPTH_FOR_CONSTRUCTING_PRODUCT_POLICY
-
+        
         if args.use_irl:
             learned_product_policy = np.load(config.IRL_POLICY_PATH + ".npy")
 
@@ -139,9 +139,9 @@ if __name__ == '__main__':
         for _ in tqdm(range(it)):
     
             if args.use_irl:
-                total_reward += perfrom_policy_rollout_IRL(gws,  config.ROLLOUT_LENGTH, rm, learned_product_policy)
+                total_reward += perfrom_policy_rollout_IRL(gws,config.ROLLOUT_LENGTH, rm, learned_product_policy, seed = config.SEED)
             else:
-                total_reward += perfrom_policy_rollout(gws, config.ROLLOUT_LENGTH, rm_maxsat, rm, learned_product_policy)
+                total_reward += perfrom_policy_rollout(gws,config.ROLLOUT_LENGTH, rm_maxsat, rm, learned_product_policy, seed = config.SEED)
         
         print(f"The average reward is: {total_reward / it}")
         

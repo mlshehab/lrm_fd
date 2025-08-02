@@ -591,8 +591,10 @@ def constrtuct_product_policy(gws,states, c4_clauses, chosen_mask, rm, true_prod
 
 
 
-def perfrom_policy_rollout(bws, len_traj, rm_learned, rm_true, policy):
+def perfrom_policy_rollout(bws, len_traj, rm_learned, rm_true, policy, seed = None):
 
+    if seed is not None:
+        np.random.seed(seed)
         
     reward = 0.0
     state = np.random.randint(0, bws.n_states)
@@ -638,11 +640,13 @@ def perfrom_policy_rollout(bws, len_traj, rm_learned, rm_true, policy):
 
 
 
-def perfrom_policy_rollout_IRL(bws, len_traj, rm_true, policy):
+def perfrom_policy_rollout_IRL(bws, len_traj, rm_true, policy, seed = None):
 
+    if seed is not None:
+        np.random.seed(seed)
         
     reward = 0.0
-    state = np.random.randint(0, bws.n_states)
+    state = np.random.randint(0, bws.n_states) # TODO: change this to the starting state
     label = bws.L[state] + ','
     compressed_label = bws.remove_consecutive_duplicates(label)
 
