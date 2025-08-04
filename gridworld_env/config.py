@@ -8,6 +8,7 @@ REWARD_PARAMETER = 10.0
 RM_PATH = "../rm_examples/patrol.txt"
 RM_PATH_MAXSAT_3 = "../rm_examples/patrol_max_sat_umax_3.txt"
 RM_PATH_MAXSAT_2 = "../rm_examples/patrol_max_sat_umax_2.txt"
+RM_PATH_MAXSAT_1 = "../rm_examples/patrol_max_sat_umax_1.txt"
 POLICY_PATH = "./policies/soft_patrol_policy"
 IRL_POLICY_PATH = "./policies/IRL_soft_policy"
 

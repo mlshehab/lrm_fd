@@ -121,6 +121,8 @@ if __name__ == '__main__':
             rm_maxsat = RewardMachine(config.RM_PATH_MAXSAT_3)
         elif args.umax == 2:
             rm_maxsat = RewardMachine(config.RM_PATH_MAXSAT_2)
+        elif args.umax == 1:
+            rm_maxsat = RewardMachine(config.RM_PATH_MAXSAT_1)
         else:
             raise ValueError(f"Invalid umax: {args.umax}")
         
@@ -143,7 +145,7 @@ if __name__ == '__main__':
             else:
                 total_reward += perfrom_policy_rollout(gws,config.ROLLOUT_LENGTH, rm_maxsat, rm, learned_product_policy, seed = config.SEED)
         
-        print(f"The average reward is: {total_reward / it}")
+        print(f"The average reward is: {total_reward /it}")
         
     
 

@@ -635,7 +635,7 @@ def perfrom_policy_rollout(bws, len_traj, rm_learned, rm_true, policy, seed = No
 
         state = next_state
 
-    # print(f"The label is: {label}")
+    # print(f"The label is: {compressed_label}")
     return reward
 
 

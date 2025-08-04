@@ -18,6 +18,9 @@ from tqdm import tqdm
 import pickle
 import config
 
+from simulator import ReacherDiscreteSimulator, ReacherDiscretizerUniform
+from train_PPO_policy_randomized_ic_discrete import *
+
 def similarity(p1, p2, metric):
         """Computes similarity based on chosen metric."""
         if metric == "KL":
