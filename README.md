@@ -1,6 +1,6 @@
 # Learning Reward Machines From Partially Observed Policies
 
-This repository contains code for our paper: [Learning Reward Machines From Partially Observed Policies](https://openreview.net/pdf?id=7bbYYNvhTE), In Review,2025.
+This repository contains code for our paper: [Learning Reward Machines From Partially Observed Policies](https://openreview.net/pdf?id=7bbYYNvhTE), In Review, 2025.
 
 Create a virtual environment and activate it using:
 ```bash
