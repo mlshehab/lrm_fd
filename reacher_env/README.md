@@ -4,8 +4,7 @@ In order to run this experiment, we provide the simulated dataset [here](https:/
 ```bash
 cd ./reacher_env
 mkdir objects
-cd objects
-# PLACE THE FILE data_1M.pkl inside this folder
+# PLACE THE FILE data_1M.pkl inside the folder `objects`
 ```
 The options for main are below.
 ```bash
