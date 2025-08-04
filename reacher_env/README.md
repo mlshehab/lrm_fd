@@ -1,15 +1,14 @@
 ### Reacher Environment
-In order to run this experiment, we provide the simulated dataset [here](https://drive.google.com/file/d/1MaKUK2PcPL567rIf1LyWpeyE8Y-PF5US/view?usp=drive_link). Please download it (~1Gb) and run the following.
+In order to run this experiment, we provide the simulated dataset [here](https://drive.google.com/file/d/1MaKUK2PcPL567rIf1LyWpeyE8Y-PF5US/view?usp=sharing). Please download it (~1Gb) and run the following.
 
 ```bash
 cd ./reacher_env
 mkdir objects
-cd objects
-# PLACE THE FILE data_1M.pkl inside this folder
+# PLACE THE FILE data_1M.pkl inside the folder `objects`
 ```
 The options for main are below.
 ```bash
-reacher_env$python main.py --help
+reacher_env$ python main.py --help
 usage: main.py [-h] [--alpha ALPHA] [--print]
 
 options:
