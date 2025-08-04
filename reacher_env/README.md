@@ -9,7 +9,7 @@ cd objects
 ```
 The options for main are below.
 ```bash
-reacher_env$python main.py --help
+reacher_env$ python main.py --help
 usage: main.py [-h] [--alpha ALPHA] [--print]
 
 options:
