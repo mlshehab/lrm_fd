@@ -1,5 +1,5 @@
 ### Reacher Environment
-In order to run this experiment, we provide the simulated dataset [here](https://drive.google.com/file/d/1MaKUK2PcPL567rIf1LyWpeyE8Y-PF5US/view?usp=drive_link). Please download it (~1Gb) and run the following.
+In order to run this experiment, we provide the simulated dataset [here](https://drive.google.com/file/d/1MaKUK2PcPL567rIf1LyWpeyE8Y-PF5US/view?usp=sharing). Please download it (~1Gb) and run the following.
 
 ```bash
 cd ./reacher_env
