@@ -82,7 +82,7 @@ if __name__ == '__main__':
     bw = BlocksWorldMDP(num_piles=3)
     
 
-    transition_matrices,s2i, i2s = bw.extract_transition_matrices_v2()
+    transition_matrices,s2i, i2s = bw.extract_transition_matrices()
     n_states = bw.num_states
     n_actions = bw.num_actions
 
@@ -97,24 +97,14 @@ if __name__ == '__main__':
     mdp = MDP(n_states=n_states, n_actions=n_actions,P = P,gamma = 0.9,horizon=10)
 
     rm = RewardMachine("../rm_examples/dynamic_stacking.txt")
-    print(f"rm.delta_u = {rm.delta_u}")
+    
 
 
     policy = {}
     for rms in range(rm.n_states):
         policy[rms] = f"p{rms}"
-    
-    # policy[2] = policy[3]
-
-    print("The policy is: ", policy)
   
     L = {}
-
-    print(f"The number of states is: {len(s2i.keys())}")
-
-    # for state_index in range(bw.num_states):
-    #     state_tuple = i2s[state_index]
-    #     L[state_index] = get_label(state_tuple)
 
     target_state_1 = ((0,1,2),(),())
     target_state_2 = ((),(2,1,0),())
@@ -128,72 +118,17 @@ if __name__ == '__main__':
             L[state_index] = 'B'
         elif state_index == s2i[target_state_3]:
             L[state_index] = 'C'
-        # elif state_index == s2i[bad_state]:
-        #     L[state_index] = 'D'
+       
         else:
             L[state_index] = 'I'
 
     
-    # for it in L.items():
-    #     print(f"Key = {it[0]}, state = {i2s[it[0]]}, label  = {it[1]}") 
-
-
+  
     mdpRM = MDPRM(mdp,rm,L)
     mdp_ =  mdpRM.construct_product()
     # now we need a state action state reward for the product MDP
     reward = np.zeros((mdp_.n_states, mdp_.n_actions, mdp_.n_states))
-    print(f"Reward: {reward.shape}, S: {mdp.n_states}, A: {mdp.n_actions}, RM: {rm.n_states}")
-
-    for bar_s in range(mdp_.n_states):
-        for a in range(mdp_.n_actions):
-            for bar_s_prime in range(mdp_.n_states):
-                (s,u) = mdpRM.su_pair_from_s(bar_s)
-                (s_prime,u_prime) = mdpRM.su_pair_from_s(bar_s_prime)
-
-                is_possible = mdp_.P[a][bar_s][bar_s_prime] > 0.0
-
-                if u == 2 and u_prime == 2:
-
-                    reward[bar_s, a, bar_s_prime] = 1.0
-                
-                if u == 0 and u_prime == 3:
-                    reward[bar_s, a, bar_s_prime] = 0.2
-
-                if u == 1 and u_prime == 3:
-                    reward[bar_s, a, bar_s_prime] = 0.2
-                
-
-
-    # q_soft,v_soft , soft_policy_d_adv = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = True)
-
-    # np.save("soft_policy_j22.npy", soft_policy_d_adv)
-
-
-    # reward = np.zeros((mdp_.n_states, mdp_.n_actions, mdp_.n_states))
-    # print(f"Reward: {reward.shape}, S: {mdp.n_states}, A: {mdp.n_actions}, RM: {rm.n_states}")
-
-    # for bar_s in range(mdp_.n_states):
-    #     for a in range(mdp_.n_actions):
-    #         for bar_s_prime in range(mdp_.n_states):
-    #             (s,u) = mdpRM.su_pair_from_s(bar_s)
-    #             (s_prime,u_prime) = mdpRM.su_pair_from_s(bar_s_prime)
-
-    #             is_possible = mdp_.P[a][bar_s][bar_s_prime] > 0.0
-
-    #             if u == 2 and u_prime == 2 and is_possible:
-
-    #                 reward[bar_s, a, bar_s_prime] = 1.0
-
-
-    # q_soft,v_soft , soft_policy_d_adv_2 = infinite_horizon_soft_bellman_iteration(mdp_,reward,logging = True)
-
-    # np.save("soft_policy_d_adv_2.npy", soft_policy_d_adv_2)
-
-
-    # soft_policy = np.load("soft_policy_d.npy")
-
-   
-
+  
 
     # #############
     # #############
@@ -215,9 +150,9 @@ if __name__ == '__main__':
     I_state = ((0,1),(2,),())
     starting_states = [s2i[target_state_1], s2i[target_state_2], s2i[target_state_3],s2i[I_state]]
  
- 
+    
     for s in starting_states:
-    # for s in range(mdp.n_states):
+        
         # get label of the state
         label = L[s]
         # create a node for that state
@@ -260,7 +195,6 @@ if __name__ == '__main__':
 
     state_traces_dict = {}
 
- 
     for state in state_traces.keys():
         # Get unique traces for the current state
         unique_traces = get_unique_traces(state_traces[state])
@@ -284,8 +218,7 @@ if __name__ == '__main__':
     B_ = element_wise_or_boolean_matrices([b_k for b_k in B])
     x = [False]*kappa
     x[0] = True
-    print(f"x = {x}")
-
+  
     B_T = transpose_boolean_matrix(B_)
 
     powers_B_T = [boolean_matrix_power(B_T,k) for k in  range(1,kappa)]
@@ -315,11 +248,11 @@ if __name__ == '__main__':
         s.add(one_entry_per_row(B[k]))
 
 
-    # proposition2index = {'G':0,'Y':1,'R':2,'G&Y':3,'G&R':4,'Y&R':5,'G&Y&R':6,'I':7}
+ 
     proposition2index = {'A':0,'B':1,'C':2,'I':3}
 
     def prefix2indices(s):
-        # print(f"The input string is: {s.split(',')}")
+        
         out = []
         for l in s.split(','):
             if l:
@@ -329,24 +262,18 @@ if __name__ == '__main__':
 
     counter_examples = generate_combinations(state_traces_dict)
 
-    # print(f"The type is :{type(counter_examples)}")
-
-    # C4 from from Notion Write-up 
-    print("Started with C4 ... \n")
+   
+   
     total_start_time = time.time()
 
-
-
     all_ce = []
-    for state in counter_examples.keys():
-        print(f"Currently in state {state}...")
+    for state in tqdm(counter_examples.keys(),desc="Processing Negative Examples"):
         ce_set = counter_examples[state]
-        # print(f"The ce_set is: {ce_set}")
-        print(f"The number of counter examples is: {len(ce_set)}\n")
+       
         total_constraints += len(ce_set)
         
         # for each counter example in this set, add the correspodning constraint
-        for ce in tqdm(ce_set,desc="Processing Counterexamples"):
+        for ce in ce_set:
             all_ce.append(ce)
             p1 = prefix2indices(ce[0])
             p2 = prefix2indices(ce[1])
@@ -360,32 +287,18 @@ if __name__ == '__main__':
             for elt in res_:
                 s.add(Not(elt))
                 
-        
-    print(f"we have a tortal of {total_constraints} constraints!")
+    
+    print(f"we have a total of {total_constraints} constraints!")
 
-    # Open the file in write mode
-    with open('output_2S.txt', 'w') as file:
-        for item1, item2 in all_ce:
-            # Remove commas from both items
-            item1 = item1.replace(',', '')
-            item2 = item2.replace(',', '')
-            
-            # Write the processed pair to the file, joined by a space
-            file.write(f"{item1} {item2}\n")
-
-    # Use timedelta to format the elapsed time
+   
     elapsed  = time.time() - total_start_time
     formatted_time = str(timedelta(seconds= elapsed))
-
-    # Add milliseconds separately
     milliseconds = int((elapsed % 1) * 1000)
-
-    # Format the time string
     formatted_time = formatted_time.split('.')[0] + f":{milliseconds:03}"
     print(f"Adding C4 took {formatted_time} seconds.")
-
     
-    # Start the timer
+    
+    
     start = time.time()
     s_it = 0
     while True:
@@ -396,20 +309,13 @@ if __name__ == '__main__':
             # Get the current solution
             m = s.model()
             
-            # # Store the current solution
-            # solution = []
             print(f"Solution {s_it} ...")
             for ap in range(AP):
                 r = [[m.evaluate(B[ap][i][j]) for j in range(kappa)] for i in range(kappa)]
-                # solution.append(r)
-                
                 print_matrix(r)  # Assuming print_matrix prints your matrix nicely
             s_it += 1
-            # # Add the solution to the list of found solutions
-            # solutions.append(solution)
 
             # Build a clause that ensures the next solution is different
-            # The clause is essentially that at least one variable must differ
             block_clause = []
             for ap in range(AP):
                 for i in range(kappa):

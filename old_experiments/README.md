@@ -9,9 +9,11 @@ To reproduce Table 1, please run:
 ```bash
 python patrol.py --depth 6 --print_solutions --non_stuttering # ROW 1 of TABLE 1  
 python patrol.py --depth 6 --print_solutions                  # ROW 2 of TABLE 1
+python patrol_hallway.py --depth 9                            # ROW 3 of TABLE 1
 ```
 
 To reproduce Table 2, please run:
 ```bash
-
+python stack.py --depth 10                                    # ROW 1 of TABLE 2
+python stack_avoid.py --depth 8                               # ROW 2 of TABLE 2
 ```
