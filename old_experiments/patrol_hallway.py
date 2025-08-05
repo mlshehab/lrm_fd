@@ -276,14 +276,14 @@ if __name__ == '__main__':
     
     all_ce = []
     for state in counter_examples.keys():
-        print(f"Currently in state {state}...")
+        
         ce_set = counter_examples[state]
         # print(f"The ce_set is: {ce_set}")
-        print(f"The number of counter examples is: {len(ce_set)}\n")
+        
         total_constraints += len(ce_set)
         
         # for each counter example in this set, add the correspodning constraint
-        for ce in tqdm(ce_set,desc="Processing Counterexamples"):
+        for ce in  ce_set:
             all_ce.append(ce)
             p1 = prefix2indices(ce[0])
             p2 = prefix2indices(ce[1])

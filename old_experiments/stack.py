@@ -267,7 +267,7 @@ if __name__ == '__main__':
     total_start_time = time.time()
 
     all_ce = []
-    for state in tqdm(counter_examples.keys(),desc="Processing Negative Examples"):
+    for state in counter_examples.keys():
         ce_set = counter_examples[state]
        
         total_constraints += len(ce_set)

@@ -260,7 +260,7 @@ if __name__ == '__main__':
         total_constraints += len(ce_set)
         
         # for each counter example in this set, add the correspodning constraint
-        for ce in tqdm(ce_set,desc="Processing Counterexamples"):
+        for ce in ce_set:
             all_ce.append(ce)
             p1 = prefix2indices(ce[0])
             p2 = prefix2indices(ce[1])
