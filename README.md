@@ -11,7 +11,7 @@ conda activate lrm
 
 Each experiment from Section 5 of the paper is implemented in its own folder.
 
-- Section 5.1 --> `./gridwolrd_env`
+- Section 5.1 --> `./gridworld_env`
 - Section 5.2 --> `./blockworld_env`
 - Section 5.3 --> `./reacher_env`
 - Section 5.4 --> `./labyrinth_env`
