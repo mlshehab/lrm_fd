@@ -235,7 +235,7 @@ if __name__ == '__main__':
     current_node, current_depth = queue.pop(0)  # Dequeue the next node
     
  
-    starting_states = [0,1,2]
+    starting_states = [0]
 
     for s in starting_states:
     # for s in range(mdp.n_states):

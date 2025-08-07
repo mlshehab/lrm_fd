@@ -43,7 +43,7 @@ echo "" >> ../results/TABLE_1.txt
 echo "" >> ../results/TABLE_1.txt
 
 echo "PATROL WITH HALLWAY ... \n"  >> ../results/TABLE_1.txt
-# python -u patrol_hallway.py --depth 9 >> ../../results/TABLE_1.txt
+# python -u patrol_hallway.py --depth 9 >> ../results/TABLE_1.txt
 
 ########################################
 # Table 2: Stacking Tasks
@@ -56,12 +56,12 @@ echo "StACK ... \n" >> ../results/TABLE_2.txt
 python -u stack.py --depth 10 >> ../results/TABLE_2.txt
 echo "" >> ../results/TABLE_2.txt
 echo "" >> ../results/TABLE_2.txt
-echo "StACK AVOID ... \n" >> ../results/TABLE_2.txt
+echo "STACK AVOID ... \n" >> ../results/TABLE_2.txt
 python -u stack_avoid.py --depth 8 >> ../results/TABLE_2.txt
 
-########################################
-# Table 3 and Figure 5.c: Reacher Env
-########################################
+#######################################
+Table 3 and Figure 5.c: Reacher Env
+#######################################
 cd ../reacher_env
 
 echo ""
@@ -71,8 +71,10 @@ echo "========================================"
 
 python -u main.py --alpha 0.001 0.0001 0.00001 >> ../results/TABLE_3.txt
 
+cd ../labyrinth_env
 echo ""
 echo "Computing reward for Figure 5.c ..."
+
 python compute_rewards.py --umax 2 >> ../results/fig5c_rewards.txt 
 
 ########################################
