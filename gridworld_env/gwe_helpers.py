@@ -273,7 +273,7 @@ def prepare_sat_problem(gws, counter_examples, alpha):
             filtered[state] = kept
     
     c4_clauses = []
-    
+    print(f"The number of filtered counter examples is: {filtered.keys()}")
     for state, ces in filtered.items():
         for ce in ces:
             c4_clauses.append(ce)
@@ -597,7 +597,7 @@ def perfrom_policy_rollout(bws, len_traj, rm_learned, rm_true, policy, seed = No
         np.random.seed(seed)
         
     reward = 0.0
-    state = np.random.randint(0, bws.n_states)
+    state = bws.rng.choice(np.arange(bws.n_states))
     label = bws.L[state] + ','
     compressed_label = bws.remove_consecutive_duplicates(label)
 
@@ -613,7 +613,7 @@ def perfrom_policy_rollout(bws, len_traj, rm_learned, rm_true, policy, seed = No
         action_dist = policy[idx,:]
 
         # Sample an action from the action distribution
-        a = np.random.choice(np.arange(bws.n_actions), p=action_dist)
+        a = bws.rng.choice(np.arange(bws.n_actions), p=action_dist)
         
         # Sample a next state 
         next_state = bws.sample_next_state(state, a)
@@ -629,13 +629,11 @@ def perfrom_policy_rollout(bws, len_traj, rm_learned, rm_true, policy, seed = No
         label = label + l + ','
         u_learned = u_from_obs(label, rm_learned)
         u_true = u_from_obs(label, rm_true)
-        
-
-       
 
         state = next_state
 
     # print(f"The label is: {compressed_label}")
+    # print(f"The reward is: {reward}")
     return reward
 
 
@@ -646,7 +644,7 @@ def perfrom_policy_rollout_IRL(bws, len_traj, rm_true, policy, seed = None):
         np.random.seed(seed)
         
     reward = 0.0
-    state = np.random.randint(0, bws.n_states) # TODO: change this to the starting state
+    state = bws.rng.choice(np.arange(bws.n_states))  
     label = bws.L[state] + ','
     compressed_label = bws.remove_consecutive_duplicates(label)
 
@@ -654,14 +652,13 @@ def perfrom_policy_rollout_IRL(bws, len_traj, rm_true, policy, seed = None):
     
     u_true = u_from_obs(label,rm_true)
     
-   
     # start of the rollout
     for _ in range(len_traj):
      
         action_dist = policy[state,:]
 
         # Sample an action from the action distribution
-        a = np.random.choice(np.arange(bws.n_actions), p=action_dist)
+        a = bws.rng.choice(np.arange(bws.n_actions), p=action_dist)
         
         # Sample a next state 
         next_state = bws.sample_next_state(state, a)
@@ -680,6 +677,5 @@ def perfrom_policy_rollout_IRL(bws, len_traj, rm_true, policy, seed = None):
     
 
         state = next_state
-
-    # print(f"The label is: {label}")
+ 
     return reward

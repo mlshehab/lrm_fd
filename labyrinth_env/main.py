@@ -65,16 +65,16 @@ class LabyrinthEnvSimulator():
                         counter[action] += 1
                         label_exists = True
                         break
-    
+            
                 if not label_exists:
                     self.state_action_counts[state].append((compressed_label, Counter({action: 1})))
-
+                
             # print("Done with traj: ", t_idx)
             # print(f"The states are: {traj['states']}")
             # print(f"The actions are: {traj['actions']}")
             # print(f"The label is: {label}")
             # print(f"The compressed label is: {compressed_label}")
-            # print(f"-------------------------------- \n\n")
+            
            
     def compute_action_distributions(self):
         """
@@ -110,10 +110,7 @@ if __name__ == "__main__":
     P_a = lb.get_transition_mat()
     N_STATES = P_a.shape[0] # num states in this env
 
-
-    # Load restricted training indices
-    # restricted_train_indices = np.load(GEN_DIR_NAME + 'restricted_train_indices.npy')
-
+    
 
     # Load trajectories
     trajs = pd.read_pickle(TRAJS_DIR_NAME)
@@ -150,4 +147,4 @@ if __name__ == "__main__":
             for row in ap_matrix:
                 print("    " + " ".join(str(bool(val)) for val in row))
 
- 
+    

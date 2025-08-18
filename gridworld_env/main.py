@@ -33,6 +33,7 @@ if __name__ == '__main__':
     parser.add_argument('--use_maxsat', action='store_true', default=False)
     parser.add_argument('--use_irl', action='store_true', default=False)
     parser.add_argument('--save', action='store_true', default=False)
+    parser.add_argument('--features', type=str, default="dense", choices=["dense", "featurized"])
     args = parser.parse_args()
     
     grid_size = config.GRID_SIZE
@@ -129,9 +130,10 @@ if __name__ == '__main__':
 
         max_len = config.DEPTH_FOR_CONSTRUCTING_PRODUCT_POLICY
         
-        if args.use_irl:
-            learned_product_policy = np.load(config.IRL_POLICY_PATH + ".npy")
-
+        if args.use_irl and args.features == "dense":
+            learned_product_policy = np.load(config.IRL_POLICY_PATH_DENSE + ".npy")
+        elif args.use_irl and args.features == "featurized":
+            learned_product_policy = np.load(config.IRL_POLICY_PATH_FEATURIZED + ".npy")
         else:
             learned_product_policy = construct_learned_product_policy(mdp, rm_maxsat, max_len, soft_policy, rm, invL, L)
       
@@ -145,7 +147,7 @@ if __name__ == '__main__':
             else:
                 total_reward += perfrom_policy_rollout(gws,config.ROLLOUT_LENGTH, rm_maxsat, rm, learned_product_policy, seed = config.SEED)
         
-        print(f"The average reward is: {total_reward /it}")
+        print(f"The average reward is: {1.0*total_reward/it}")
         
     
 

@@ -47,7 +47,7 @@ def boolean_matrix_vector_multiplication(A,b):
     return result
 
 
-# Function for matrix-matrix boolean multiplication
+ 
 def boolean_matrix_matrix_multiplication(A, B):
     # Number of rows in matrix A and columns in matrix B
     num_rows_A = len(A)

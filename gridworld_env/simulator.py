@@ -62,7 +62,11 @@ class Simulator():
 class GridworldSimulator(Simulator):
     def __init__(self, rm, mdp, L, policy):
         super().__init__(rm, mdp, L, policy)
-   
+
+    def sample_next_state(self, state, action):
+        """ Generic next state computation. """
+        transition_probs = self.mdp.P[action][state, :]
+        return self.rng.choice(np.arange(self.n_states), p=transition_probs)
 
     def remove_consecutive_duplicates(self, s):
         elements = s.split(',')
@@ -87,7 +91,7 @@ class GridworldSimulator(Simulator):
             action_dist = self.policy[idx,:]
 
             # Sample an action from the action distribution
-            a = np.random.choice(np.arange(self.n_actions), p=action_dist)
+            a = self.rng.choice(np.arange(self.n_actions), p=action_dist)
             
             # Sample a next state 
             next_state = self.sample_next_state(state, a)
@@ -118,15 +122,64 @@ class GridworldSimulator(Simulator):
             u = u_from_obs(label, self.rm)
             
             state = next_state
+
         # print(f"The trajectory is: {compressed_label}")
+    
+
+    def sample_trajectory_for_transferability(self, starting_state, len_traj):
+
+        traj = {'states': [], 'actions': []}
+
+        state = starting_state
+        label = self.L[state] + ','
+        compressed_label = self.remove_consecutive_duplicates(label)
+        u = u_from_obs(label,self.rm)
+   
+        for _ in range(len_traj):
+            idx = u * self.n_states + state
+            action_dist = self.policy[idx,:]
+
+            # Sample an action from the action distribution
+            a = self.rng.choice(np.arange(self.n_actions), p=action_dist)
+            
+            traj['states'].append(int(state))
+            traj['actions'].append(int(a))
+            
+            # Sample a next state 
+            next_state = self.sample_next_state(state, a)
+        
+           
+            l = self.L[next_state]
+            label = label + l + ','
+            u = u_from_obs(label, self.rm)
+            
+            state = next_state
+ 
+        return traj
 
     def sample_dataset(self, starting_states, number_of_trajectories, max_trajectory_length, seed = None):
+        """Generate many trajectories reproducibly without being identical."""
         if seed is not None:
-            np.random.seed(seed)
+            # re-seed the ONE RNG once here (not per-trajectory)
+            self.rng = np.random.default_rng(seed)
         
         for _ in range(number_of_trajectories):
-            ss = np.random.randint(0, len(starting_states))
+            ss = self.rng.choice(starting_states)
             self.sample_trajectory(starting_state=ss, len_traj= max_trajectory_length)
+
+
+    def sample_dataset_for_transferability(self, starting_states, n_trajectories, max_trajectory_length, seed=None, variable_length=False):
+        """Generate many trajectories reproducibly without being identical."""
+        if seed is not None:
+            # re-seed the ONE RNG once here (not per-trajectory)
+            self.rng = np.random.default_rng(seed)
+            
+        dataset = []
+        for _ in range(n_trajectories):
+            s0 = self.rng.choice(starting_states)  # vary starts
+            T = self.rng.integers(1, max_trajectory_length + 1) if variable_length else max_trajectory_length
+            dataset.append(self.sample_trajectory_for_transferability(starting_state=s0, len_traj=T))
+        return dataset
 
 
     

@@ -79,12 +79,12 @@ def parse_args():
 
 if __name__ == '__main__':
 
-    # Parse command-line arguments
-    args = parse_args()
-    
+    # Parse command-line arguments 
+    args = parse_args() 
+        
     # Set the depth variable from the command line argument
     depth = args.depth
-
+    
     grid_size, wind, discount, horizon = 4, 0.1, 0.9, 13
 
     gw = BasicGridWorld(grid_size, wind, discount, horizon)

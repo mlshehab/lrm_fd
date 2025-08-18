@@ -11,11 +11,13 @@ RM_PATH_MAXSAT_2 = "../rm_examples/patrol_max_sat_umax_2.txt"
 RM_PATH_MAXSAT_1 = "../rm_examples/patrol_max_sat_umax_1.txt"
 POLICY_PATH = "./policies/soft_patrol_policy"
 IRL_POLICY_PATH = "./policies/IRL_soft_policy"
+IRL_POLICY_PATH_DENSE = "./policies/irl_policy_dense"
+IRL_POLICY_PATH_FEATURIZED = "./policies/irl_policy_featurized"
 
 SEED = 44
 
 
-DEPTH_FOR_CONSTRUCTING_PRODUCT_POLICY = 6
+DEPTH_FOR_CONSTRUCTING_PRODUCT_POLICY = 7
 
 ROLLOUT_LENGTH = 100
 ROLLOUTS = 10000
