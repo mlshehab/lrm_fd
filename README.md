@@ -32,7 +32,6 @@ chmod +x run_experiments.sh
 This will run all the experiments and save the output to `results`.
 
 > [!WARNING]
-> [!WARNING] 
 > running all the experiments can take a lot of time depending on the compute resources available (~ 5 hrs). Some scripts (e.g. `./old_experiments/patrol_hallway.py`) take longer so please be patient. :)
 
 
